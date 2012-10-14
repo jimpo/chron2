@@ -1,15 +1,15 @@
-'use strict';
-
+require('coffee-script');
 var express = require('express');
 var mongoose = require('mongoose');
 
+var app = require('./app');
 var config = require('./config');
 var helpers = require('./lib/helpers');
 var route = require('./lib/route');
 var User = require('./lib/models/user');
 
 
-var app = express();
+var server = express();
 var running = false;
 
 
@@ -19,33 +19,31 @@ function sessionUser(req, res, next) {
     next();
 }
 
-app.configure(function () {
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-    app.locals(helpers);
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(express.cookieParser('secret'));
-    app.use(express.session());
-    app.use(express.csrf());
-    app.use(express.static(__dirname + '/public'));
-    app.use(sessionUser);
-    app.use(app.router);
-    app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
+server.configure(function () {
+    server.set('views', __dirname + '/views');
+    server.set('view engine', 'jade');
+    server.locals(helpers);
+    server.use(express.bodyParser());
+    server.use(express.methodOverride());
+    server.use(express.cookieParser('secret'));
+    server.use(express.session());
+    server.use(express.csrf());
+    server.use(express.static(__dirname + '/public'));
+    server.use(sessionUser);
+    server.use(server.router);
+    server.use(express.errorHandler({showStack: true, dumpExceptions: true}));
 });
 
-route.init(app);
+route.init(server);
 
 exports.run = function (callback) {
     if (running) {
         return callback()
     }
-    mongoose.connect(config.db);
-    mongoose.connection.on(
-        'error', console.error.bind(console, 'connection error:'));
-    mongoose.connection.once('open', function () {
+    app.init(function (err) {
+        if (err) console.error(err);
         console.log('Server is listening on port ' + config.port);
-        app.listen(config.port);
+        server.listen(config.port);
         running = true;
         callback();
     });
