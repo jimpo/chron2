@@ -1,4 +1,4 @@
-site = require '../site'
+site = require './index'
 
 
 exports.init = (server) ->
