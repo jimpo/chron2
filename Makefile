@@ -19,6 +19,6 @@ test-acceptance:
 		$(ACCEPTANCE_TEST_FILES)
 
 run:
-	node server.js
+	./node_modules/coffee-script/bin/coffee server.coffee
 
 .PHONY: install test test-unit test-acceptance run
