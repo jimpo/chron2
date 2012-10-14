@@ -3,23 +3,15 @@ async = require 'async'
 errs = require 'errs'
 mongoose = require 'mongoose'
 
-config = require '../config'
 initialization = require './initialization'
 
+# Must go before require './models'
+exports.db = mongoose.createConnection()
 
-# Reuire all files in the same dir as this one
-# put them on the exports object
-
-requireAll = (dir) ->
-  path = require("path")
-  require("fs").readdirSync __dirname, (err, files) ->
-    files.forEach (file) ->
-      exports[file] = require(path.join(__dirname, file.replace(/\.coffee$/, ""))) if file.match(/\.coffee$/)
-
-requireAll "./models"
+exports.models = require './models'
+exports.controllers = require './controllers'
 
 
-@db = mongoose.createConnection()
 
 exports.configure = (callback) ->
   initialization.config (err, config) ->
