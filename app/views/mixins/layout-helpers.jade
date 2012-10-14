@@ -1,0 +1,17 @@
+mixin require-script(src)
+  - if (useCompiledStaticFiles)
+    script(src=paths.js[src], type="text/javascript")
+  - else
+    script(src="/scripts/require-jquery.js", type="text/javascript", data-main="/scripts/#{src}/main")
+
+mixin stylesheet(src)
+  - if (useCompiledStaticFiles)
+    link(rel="stylesheet", href=paths.css[src])
+  - else
+    link(rel="stylesheet", href="/styles/#{src}/main.css")
+
+mixin title
+  - if (typeof pageTitle != 'undefined')
+    title #{pageTitle} | The Chronicle
+  - else
+    title The Chronicle | Duke University's Daily Independent Newspaper

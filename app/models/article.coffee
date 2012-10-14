@@ -1,6 +1,6 @@
 mongoose = require 'mongoose'
 
-app = require '../..'
+app = require '../../app'
 
 
 articleSchema = new mongoose.Schema

@@ -19,6 +19,7 @@ sessionUser = (req, res, next) ->
 
 server.configure 'development', 'test', ->
   server.use(express.static(__dirname + '/public'))
+  server.use(express.static(__dirname + '/app/assets'))
 
 server.configure 'production', ->
   oneYear = 365.25 * 24 * 60 * 60;
@@ -40,7 +41,8 @@ exports.run = (callback) ->
     app.init (err) ->
       if err then return callback(err)
       configureVirtualHosts(
-        'www': app.controllers.site.route
+        www: app.controllers.site.route
+        admin: app.controllers.admin.route
       )
       server.listen(app.config.PORT)
       app.log.notice "Site configured and listening on port #{app.config.PORT}
@@ -50,9 +52,13 @@ exports.run = (callback) ->
 
 createVirtualServer = (route) ->
   virtualServer = express()
-  virtualServer.set 'views', __dirname + '/views'
+  virtualServer.set 'views', __dirname + '/app/views'
   virtualServer.set 'view engine', 'jade'
   virtualServer.locals helpers
+  virtualServer.locals
+    staticCdn: ''
+    useCompiledStaticFiles: false
+    isProduction: process.env.NODE_ENV is 'production'
   route.init(virtualServer)
   virtualServer.use (err, req, res, next) ->
     app.log.error(err)

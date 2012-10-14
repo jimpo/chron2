@@ -1,0 +1,15 @@
+include ../mixins/layout-helpers
+include ../mixins/code
+
+doctype 5
+html(lang="en")
+  head
+    title The Chronicle
+    link(href="/css/bootstrap.min.css", rel="stylesheet", type="text/css")
+    link(href="/css/bootstrap-responsive.min.css", rel="stylesheet", type="text/css")
+    mixin googleAnalytics
+  body
+    .container
+      block content
+    #scripts
+      mixin require-script("admin")
