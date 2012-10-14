@@ -2,7 +2,6 @@ express = require 'express'
 mongoose = require 'mongoose'
 
 app = require './app'
-config = require './config'
 helpers = require './app/helpers'
 route = require './app/routes'
 User = require './app/models/user'
@@ -35,12 +34,14 @@ route.init(server)
 
 exports.run = (callback) ->
   if running then return callback()
-  app.init (err) ->
+  app.configure (err) ->
     if err then return callback(err)
-    console.log "Server is listening on port #{config.port}"
-    server.listen(config.port)
-    running = true
-    callback()
+    app.init (err) ->
+      if err then return callback(err)
+      console.log "Server is listening on port #{app.config.port}"
+      server.listen(app.config.port)
+      running = true
+      callback()
 
 if require.main is module
   exports.run (err) ->

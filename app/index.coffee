@@ -1,7 +1,11 @@
+_ = require 'underscore'
 async = require 'async'
+errs = require 'errs'
 mongoose = require 'mongoose'
 
 config = require '../config'
+initialization = require './initialization'
+
 
 # Reuire all files in the same dir as this one
 # put them on the exports object
@@ -14,12 +18,19 @@ requireAll = (dir) ->
 
 requireAll "./models"
 
-@db = mongoose.createConnection(config.db)
 
-exports.init = (callback) =>
+@db = mongoose.createConnection()
+
+exports.configure = (callback) ->
+  initialization.config (err, config) ->
+    if err then return errs.handle(err, callback)
+    exports.config = config
+    callback()
+
+exports.init = (callback) ->
   initializers =
-    db: require('./initialization/mongodb').init,
-  async.parallel initializers, (err, connections) =>
-    if err then return errs.handle(err, callback)-
-    _.extend(this, connections)
+    db: initialization.mongodb,
+  async.parallel initializers, (err, connections) ->
+    if err then return errs.handle(err, callback)
+    _.extend(exports, connections)
     callback()
