@@ -1,7 +1,7 @@
 require('coffee-script');
 
-global.config = require('../../config');
-global.server = require('../../server');
+global.app = require('app');
+global.server = require('server');
 
 global.Browser = require('zombie');
 global.sinon = require('sinon');
@@ -13,5 +13,5 @@ var sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 
 global.fullUrl = function (path) {
-    return 'http://localhost:' + config.port + path;
+    return 'http://localhost:' + app.config.PORT + path;
 };
