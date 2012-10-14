@@ -1,3 +1,4 @@
+async = require 'async'
 mongoose = require 'mongoose'
 
 config = require '../config'
@@ -16,5 +17,9 @@ requireAll "./models"
 @db = mongoose.createConnection(config.db)
 
 exports.init = (callback) =>
-  @db.on('error', callback)
-  @db.once('open', callback)
+  initializers =
+    db: require('./initialization/mongodb').init,
+  async.parallel initializers, (err, connections) =>
+    if err then return errs.handle(err, callback)-
+    _.extend(this, connections)
+    callback()
