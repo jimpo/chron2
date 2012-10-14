@@ -1,3 +1,3 @@
-exports.main = require './main'
-exports.route = require './route'
-exports.user = require './user'
+util = require 'util'
+
+util.requireAll(__dirname, exports)

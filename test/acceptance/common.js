@@ -1,4 +1,5 @@
 require('coffee-script');
+require('lib/util');
 
 global.app = require('app');
 global.server = require('server');

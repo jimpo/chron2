@@ -1,6 +1,8 @@
 express = require 'express'
 mongoose = require 'mongoose'
 
+require './lib/util'  # extends util globally by requiring it
+
 app = require './app'
 helpers = require './app/helpers'
 User = require './app/models/user'
