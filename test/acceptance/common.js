@@ -12,6 +12,6 @@ global.expect = require('chai').expect;
 var sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 
-global.fullUrl = function (path) {
-    return 'http://localhost:' + app.config.PORT + path;
+global.fullUrl = function (subdomain, path) {
+    return 'http://' + subdomain + '.localhost:' + app.config.PORT + path;
 };

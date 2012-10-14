@@ -16,7 +16,7 @@ describe 'main not logged in', ->
     browser = null
 
     beforeEach (done) ->
-      Browser.visit fullUrl('/'), (err, _browser) ->
+      Browser.visit fullUrl('www', '/'), (err, _browser) ->
         browser = _browser
         done(err)
 
@@ -35,7 +35,8 @@ describe 'main not logged in', ->
     browser = null
 
     beforeEach (done) ->
-      Browser.visit fullUrl('/login?redirect=/after/path'), (err, _browser) ->
+      url = fullUrl('www', '/login?redirect=/after/path')
+      Browser.visit url, (err, _browser) ->
         browser = _browser
         done(err)
 
@@ -116,7 +117,7 @@ describe 'main not logged in', ->
       sinon.stub(User, 'findOne')
         .withArgs({username: 'pokefan'})
         .yields(null, new User({passwdHash: PASS_HASH}))
-      Browser.visit fullUrl('/login'), (err, browser) ->
+      Browser.visit fullUrl('www', '/login'), (err, browser) ->
         expect(err).not.to.exist
         browser
           .fill('Username', 'pokefan')
@@ -139,7 +140,7 @@ describe 'main logged in', ->
     sinon.stub(User, 'findOne')
       .withArgs({username: 'pokefan'})
       .yields(null, new User(user))
-    Browser.visit fullUrl("/login?redirect=#{path}"), (err, browser) ->
+    Browser.visit fullUrl('www', "/login?redirect=#{path}"), (err, browser) ->
       if err then return callback(err)
       browser
         .fill('Username', 'pokefan')

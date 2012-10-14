@@ -19,7 +19,7 @@ describe 'user', ->
       passwdHash: 'pikahash'
 
     beforeEach (done) ->
-      Browser.visit fullUrl('/users/new'), (err, _browser) ->
+      Browser.visit fullUrl('www', '/users/new'), (err, _browser) ->
         browser = _browser
         done(err)
 
