@@ -1,7 +1,7 @@
 errs = require 'errs'
 url = require 'url'
 
-User = require 'models/user'
+User = require 'app/models/user'
 
 SUCCESS_CODE = 200
 # Valid bcrypt hash for password 'pikapass'
