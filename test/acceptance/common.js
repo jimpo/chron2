@@ -1,6 +1,7 @@
 global.config = require('../../config');
 global.server = require('../../server');
 
+global.Browser = require('zombie');
 global.sinon = require('sinon');
 global.chai = require('chai');
 global.should = require('chai').should();

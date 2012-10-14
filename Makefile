@@ -1,6 +1,6 @@
-MOCHA_OPTS=--reporter nyan
-UNIT_TEST_FILES=$(shell find test/unit/ -name '*.js')
-ACCEPTANCE_TEST_FILES=$(shell find test/acceptance/ -name '*.js')
+MOCHA_OPTS=--reporter nyan --compiler coffee:coffee-script
+UNIT_TEST_FILES=$(shell find test/unit/ -name '*.coffee')
+ACCEPTANCE_TEST_FILES=$(shell find test/acceptance/ -name '*.coffee')
 TIMEOUT=20000
 
 
