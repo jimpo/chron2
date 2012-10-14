@@ -1,3 +1,5 @@
+require('coffee-script');
+
 global.config = require('../../config');
 global.server = require('../../server');
 
