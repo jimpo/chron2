@@ -3,9 +3,9 @@ mongoose = require 'mongoose'
 
 app = require './app'
 config = require './config'
-helpers = require './lib/helpers'
-route = require './lib/route'
-User = require './lib/models/user'
+helpers = require './app/helpers'
+route = require './app/routes'
+User = require './app/models/user'
 
 
 server = express()
