@@ -38,8 +38,9 @@ exports.run = (callback) ->
     if err then return callback(err)
     app.init (err) ->
       if err then return callback(err)
-      console.log "Server is listening on port #{app.config.port}"
-      server.listen(app.config.port)
+      server.listen(app.config.PORT)
+      app.log.notice "Site configured and listening on port #{app.config.PORT}
+ in #{server.settings.env} mode"
       running = true
       callback()
 

@@ -29,7 +29,8 @@ exports.configure = (callback) ->
 
 exports.init = (callback) ->
   initializers =
-    db: initialization.mongodb,
+    db: initialization.mongodb
+    log: initialization.logger
   async.parallel initializers, (err, connections) ->
     if err then return errs.handle(err, callback)
     _.extend(exports, connections)
