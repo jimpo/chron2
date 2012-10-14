@@ -1,5 +1,6 @@
 require('coffee-script');
 
+global.app = require('app');
 global.sinon = require('sinon');
 global.chai = require('chai');
 global.should = require('chai').should();
