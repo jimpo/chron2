@@ -16,7 +16,7 @@ describe 'user', ->
       name: 'Ash Ketchum'
       email: 'ash.ketchum@pallettown.com'
       username: 'pokefan'
-      passwd_hash: 'pikahash'
+      passwdHash: 'pikahash'
 
     beforeEach (done) ->
       Browser.visit fullUrl('/users/new'), (err, _browser) ->
@@ -46,7 +46,7 @@ describe 'user', ->
           user.name.should.deep.equal('Ash Ketchum')
           user.username.should.deep.equal('pokefan')
           user.email.should.deep.equal('ash.ketchum@pallettown.com')
-          user.should.have.property('passwd_hash')
+          user.should.have.property('passwdHash')
           User.prototype.save.restore()
           done()
 

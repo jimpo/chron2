@@ -9,7 +9,7 @@ describe 'User', ->
       username: 'pikachu'
       name: 'Pikachu'
       email: 'pikachu@pika.com'
-      passwd_hash: 'pikahash'
+      passwdHash: 'pikahash'
     )
 
   describe 'constructor', ->
@@ -41,10 +41,10 @@ describe 'User', ->
         done()
 
     describe '#setPassword()', ->
-      it "should set 'passwd_hash' attribute", (done) ->
-        user.passwd_hash = undefined
+      it "should set 'passwdHash' attribute", (done) ->
+        user.passwdHash = undefined
         user.setPassword 'pikapass', (err) ->
-          expect(user.passwd_hash).to.exist
+          expect(user.passwdHash).to.exist
           done(err)
 
     describe '#matchesPassword()', ->

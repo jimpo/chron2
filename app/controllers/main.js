@@ -61,7 +61,7 @@ function checkUserPassword(username, password, callback) {
         });
     }
 
-    User.findOne({username: username}, 'passwd_hash', function (err, user) {
+    User.findOne({username: username}, 'passwdHash', function (err, user) {
         if (err) {
             errs.handle(err, callback);
         }

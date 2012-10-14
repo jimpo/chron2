@@ -90,7 +90,7 @@ describe 'main not logged in', ->
     it 'should fail if password is incorrect', (done) ->
       sinon.stub(User, 'findOne')
         .withArgs({username: 'pokefan'})
-        .yields(null, new User({passwd_hash: PASS_HASH}))
+        .yields(null, new User({passwdHash: PASS_HASH}))
       browser
         .fill('Username', 'pokefan')
         .fill('Password', 'wrong_pass')
@@ -102,7 +102,7 @@ describe 'main not logged in', ->
     it 'should redirect to specified url after login', (done) ->
       sinon.stub(User, 'findOne')
         .withArgs({username: 'pokefan'})
-        .yields(null, new User({passwd_hash: PASS_HASH}))
+        .yields(null, new User({passwdHash: PASS_HASH}))
       browser
         .fill('Username', 'pokefan')
         .fill('Password', 'pikapass')
@@ -115,7 +115,7 @@ describe 'main not logged in', ->
     it 'should redirect to home page if no redirect', (done) ->
       sinon.stub(User, 'findOne')
         .withArgs({username: 'pokefan'})
-        .yields(null, new User({passwd_hash: PASS_HASH}))
+        .yields(null, new User({passwdHash: PASS_HASH}))
       Browser.visit fullUrl('/login'), (err, browser) ->
         expect(err).not.to.exist
         browser
@@ -133,7 +133,7 @@ describe 'main logged in', ->
     name: 'Ash Ketchum'
     email: 'ash.ketchum@pallettown.com'
     type: 'User'
-    passwd_hash: PASS_HASH
+    passwdHash: PASS_HASH
 
   logIn = (path, callback) ->
     sinon.stub(User, 'findOne')
