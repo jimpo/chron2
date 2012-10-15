@@ -24,8 +24,9 @@ block content
     .control-group
       label.control-label(for='authors') Authors
       .controls
-        input.input-xlarge#authors(type='text', name='doc[authors]')
-        span.help-block Author names should be comma separated
+        ul
+          li: input(type='text', name='doc[authors][0]')
+          li: button.btn.add-field(data-name='doc[authors]') Add another author
 
     mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)
     mixin textarea-control-group('body', 'Body', doc, errors, 5)

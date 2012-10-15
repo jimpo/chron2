@@ -1,6 +1,8 @@
+async = require 'async'
 errs = require 'errs'
 
 Article = require '../../models/article'
+Author = require '../../models/author'
 
 TAXONOMY = [
   [{name: 'News'}, {name: 'Sports'}]
@@ -32,15 +34,20 @@ exports.create = (req, res, next) ->
       res.redirect '/'
 
 createArticle = (doc, callback) ->
-  doc.authors = []
   doc.taxonomy = section for section in doc.taxonomy when section
-  article = new Article(doc)
-  article.addUrlForTitle (err) ->
+  iterator = (name, callback) ->
+    Author.findOne({name: name}, '_id', callback)
+  async.map doc.authors, iterator, (err, authors) ->
     if err then return errs.handle(err, callback)
-    article.validate (err) ->
-      if err and err.name is 'ValidationError'
-        callback(null, err.errors)
-      else if err
-        errs.handle(err, callback)
-      else
-        article.save(callback)
+    doc.authors = author._id for author in authors
+    article = new Article(doc)
+    article.addUrlForTitle (err) ->
+      if err then return errs.handle(err, callback)
+      article.validate (err) ->
+        if err and err.name is 'ValidationError'
+          callback(null, err.errors)
+        else if err
+          errs.handle(err, callback)
+        else
+          article.save (err) ->
+            callback(err)

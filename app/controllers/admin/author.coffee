@@ -13,6 +13,7 @@ exports.create = (req, res, next) ->
   createAuthor req.body.doc, (err, retryErrors) ->
     if err then return next(err)
     else if retryErrors
+      console.log retryErrors
       res.render 'admin/author/new'
         doc: req.body.doc
         errors: retryErrors
@@ -28,4 +29,5 @@ createAuthor = (doc, callback) ->
     else if err
       errs.handle(err, callback)
     else
-      author.save(callback)
+      author.save (err) ->
+        callback(err)

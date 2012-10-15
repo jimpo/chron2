@@ -7,7 +7,7 @@ Author = require './author'
 
 
 articleSchema = new mongoose.Schema
-  authors: {type: [Author], default: []}
+  authors: {type: [{type: mongoose.Schema.Types.ObjectId, ref: Author}], default: []}
   body: {type: String, required: true}
   created: {type: Date, default: Date.now, required: true}
   subtitle: String
