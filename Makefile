@@ -21,4 +21,7 @@ test-acceptance:
 run:
 	./node_modules/coffee-script/bin/coffee server.coffee
 
+keepalive:
+	./node_modules/nodemon/nodemon.js server.coffee
+
 .PHONY: install test test-unit test-acceptance run
