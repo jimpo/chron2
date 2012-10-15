@@ -49,3 +49,18 @@ describe 'article', ->
           Article.prototype.save.restore()
           done()
         )
+
+    it 'should redirect to admin index page after article is created', ->
+      sinon.stub(Article.prototype, 'save').yields()
+      browser
+        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
+        .fill('Subtitle', 'Oak arrives just in time')
+        .fill('Teaser', 'Ash becomes new Pokemon Champion')
+        .fill('Body', '**Pikachu** wrecks everyone. The End.')
+        .select('Section', 'News')
+        .fill('Authors', 'Brock')
+        .pressButton 'Submit', () ->
+          Article.prototype.save.restore()
+          browser.redirected.should.be.true;
+          browser.location.pathname.should.equal('/')
+          done()
