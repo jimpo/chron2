@@ -7,17 +7,25 @@ TAXONOMY = [
   [{name: 'University', parent: 'News'}]
 ]
 
-
 exports.new = (req, res, next) ->
-  taxonomy = [
-    [{name: 'News'}, {name: 'Sports'}]
-    [{name: 'University', parent: 'News'}]
-  ]
   res.render 'admin/article/new'
     doc: {}
     errors: null
     taxonomy: TAXONOMY
     token: req.session._csrf
+
+exports.edit = (req, res, next) ->
+  Article.findOne {url: req.params.url}, (err, article) ->
+    if err then return next(err)
+    else if not article?
+      console.log "article not found"
+      next()
+    else
+      res.render 'admin/article/edit'
+        doc: article
+        errors: null
+        taxonomy: TAXONOMY
+        token: req.session._csrf
 
 createArticle = (doc, callback) ->
   article = new Article(doc)
