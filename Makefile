@@ -22,6 +22,6 @@ run:
 	./node_modules/coffee-script/bin/coffee server.coffee
 
 monitor:
-	./node_modules/nodemon/nodemon.js server.coffee
+	./node_modules/nodemon/nodemon.js --exec './node_modules/coffee-script/bin/coffee' 'server.coffee'
 
 .PHONY: install test test-unit test-acceptance run
