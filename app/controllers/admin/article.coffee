@@ -31,6 +31,7 @@ exports.create = (req, res, next) ->
         taxonomy: TAXONOMY
         token: req.session._csrf
     else
+      req.flash('info', "Article \"#{req.body.doc.title}\" was created")
       res.redirect '/'
 
 createArticle = (doc, callback) ->
