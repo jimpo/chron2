@@ -34,7 +34,8 @@ exports.create = (req, res, next) ->
       res.redirect '/'
 
 createArticle = (doc, callback) ->
-  doc.taxonomy = section for section in doc.taxonomy when section
+  doc.taxonomy = (section for section in doc.taxonomy when section)
+  doc.authors = (author for author in doc.authors when author)
   iterator = (name, callback) ->
     Author.findOne({name: name}, '_id', callback)
   async.map doc.authors, iterator, (err, authors) ->

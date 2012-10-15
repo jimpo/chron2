@@ -13,7 +13,6 @@ exports.create = (req, res, next) ->
   createAuthor req.body.doc, (err, retryErrors) ->
     if err then return next(err)
     else if retryErrors
-      console.log retryErrors
       res.render 'admin/author/new'
         doc: req.body.doc
         errors: retryErrors

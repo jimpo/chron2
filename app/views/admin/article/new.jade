@@ -25,7 +25,7 @@ block content
       label.control-label(for='authors') Authors
       .controls
         ul
-          li: input(type='text', name='doc[authors][0]')
+          li: input#authors(type='text', name='doc[authors][0]')
           li: button.btn.add-field(data-name='doc[authors]') Add another author
 
     mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)

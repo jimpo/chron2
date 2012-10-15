@@ -1,6 +1,7 @@
 util = require 'util'
 
 Article = require 'app/models/article'
+Author = require 'app/models/author'
 
 SUCCESS_CODE = 200
 
@@ -35,7 +36,6 @@ describe 'article', ->
         .fill('Teaser', 'Ash becomes new Pokemon Champion')
         .fill('Body', '**Pikachu** wrecks everyone. The End.')
         .select('Section', 'News')
-        .fill('Authors', 'Brock')
         .pressButton('Submit', () ->
           Article.prototype.save.should.have.been.called;
           article = Article.prototype.save.thisValues[0];
@@ -44,7 +44,8 @@ describe 'article', ->
           article.teaser.should.equal('Ash becomes new Pokemon Champion')
           article.body.should.equal('**Pikachu** wrecks everyone. The End.')
           article.taxonomy[0].should.equal 'News'
-          article.taxonomy.should.have.length(1)
+          article.taxonomy.should.have.length 1
+          article.authors.should.have.length 0
 
           Article.prototype.save.restore()
           done()
@@ -58,10 +59,9 @@ describe 'article', ->
         .fill('Teaser', 'Ash becomes new Pokemon Champion')
         .fill('Body', '**Pikachu** wrecks everyone. The End.')
         .select('Section', 'News')
-        .fill('Authors', 'Brock')
         .pressButton 'Submit', () ->
           Article.prototype.save.restore()
-          browser.redirected.should.be.true;
+          browser.redirected.should.be.true
           browser.location.pathname.should.equal('/')
           done()
 
@@ -89,9 +89,40 @@ describe 'article', ->
     it 'should fill fields with values when model is invalid', (done) ->
       browser
         .fill('Subtitle', 'Oak arrives just in time')
+        .fill('Teaser', 'Ash becomes new Pokemon Champion')
         .pressButton 'Submit', ->
           form = browser.query('form')
           expect(form).to.exist
           form.querySelector('input#subtitle').value
-            .should.equal('Oak arrives just in time')
+            .should.equal 'Oak arrives just in time'
+          form.querySelector('textarea#teaser').value
+            .should.equal 'Ash becomes new Pokemon Champion'
+          done()
+
+    it 'should look up authors by name', (done) ->
+      author = new Author(name: 'Brock')
+      sinon.stub(Author, 'findOne').yields(author)
+      browser
+        .fill('Authors', 'Brock')
+        .pressButton 'Submit', ->
+          Author.findOne.should.have.been.calledWith {name: 'Brock'}
+          Author.findOne.restore()
+          done()
+
+    it 'should use id of queried authors', (done) ->
+      author = new Author(name: 'Brock')
+      sinon.stub(Author, 'findOne').yields(null, author)
+      sinon.stub(Article.prototype, 'save').yields()
+      browser
+        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
+        .fill('Body', '**Pikachu** wrecks everyone. The End.')
+        .fill('Authors', 'Brock')
+        .select('Section', 'News')
+        .pressButton 'Submit', ->
+          Article.prototype.save.should.have.been.called;
+          article = Article.prototype.save.thisValues[0];
+          Article.prototype.save.restore()
+          Author.findOne.restore()
+          article.authors.should.have.length 1
+          article.authors[0].should.equal author._id
           done()
