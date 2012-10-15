@@ -1,0 +1,34 @@
+extends ../layout
+
+block content
+  include ../mixins/form-helpers
+  form.form-horizontal(method='POST', action='/article')
+    legend Add Article
+
+    - if (errors)
+      .alert.alert-error
+        ul
+          - each error in errors
+            li= error.message
+
+    input(type='hidden', name='_csrf', value=token)
+
+    mixin text-control-group('title', 'Title', doc, errors)
+    mixin text-control-group('subtitle', 'Subtitle', doc, errors)
+
+    .control-group
+       label.control-label(for='section0') Section
+       .controls
+         mixin taxonomySelect(taxonomy)
+
+    .control-group
+      label.control-label(for='authors') Authors
+      .controls
+        input.input-xlarge#authors(type='text', name='doc[authors]')
+        span.help-block Author names should be comma separated
+
+    mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)
+    mixin textarea-control-group('body', 'Body', doc, errors, 5)
+
+    .form-actions
+      button.btn.btn-large.btn-primary(type='submit') Submit

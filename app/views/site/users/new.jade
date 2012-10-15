@@ -1,6 +1,7 @@
 extends ../layout
 
 block content
+  include ../../admin/mixins/form-helpers
   form.form-horizontal(method='POST', action='/users')
     legend Create an account
 
@@ -11,21 +12,9 @@ block content
             li= error.message
 
     input(type='hidden', name='_csrf', value=token)
-
-    .control-group(class=(errors && 'name' in errors ? "error" : null))
-      label.control-label(for='name') Name
-      .controls
-        input#name(type='text', name='doc[name]', value=doc.name)
-
-    .control-group(class=(errors && 'email' in errors ? "error" : null))
-      label.control-label(for='email') Email
-      .controls
-        input#email(type='text', name='doc[email]', value=doc.email)
-
-    .control-group(class=(errors && 'username' in errors ? "error" : null))
-      label.control-label(for='username') Username
-      .controls
-        input#username(type='text', name='doc[username]', value=doc.username)
+    mixin text-control-group('name', 'Name', doc, errors)
+    mixin text-control-group('email', 'Email', doc, errors)
+    mixin text-control-group('username', 'Username', doc, errors)
 
     .control-group(class=(errors && 'passwd' in errors ? "error" : null))
       label.control-label(for='passwd') Password

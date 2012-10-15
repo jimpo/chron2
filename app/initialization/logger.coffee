@@ -9,7 +9,7 @@ module.exports = (callback) ->
   logger.setLevels(winston.config.syslog.levels);
   logger.add(winston.transports.Console,
     level: 'debug'
-    handleExceptions: true
+    handleExceptions: process.env.NODE_ENV isnt 'test'
   )
 
   if app.config.LOGGLY_SUBDOMAIN? and app.config.LOGGLY_TOKEN?

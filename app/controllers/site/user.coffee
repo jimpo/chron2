@@ -5,7 +5,7 @@ User = require '../../models/user'
 
 
 exports.new = (req, res, next) ->
-  res.render 'users/new'
+  res.render 'site/users/new'
     doc: {}
     errors: null
     token: req.session._csrf
@@ -15,7 +15,7 @@ exports.create = (req, res, next) ->
     (err, retryErrors) ->
       if err then next(err)
       else if retryErrors
-        res.render 'users/new'
+        res.render 'site/users/new'
           doc: req.body.doc
           errors: retryErrors
           token: req.session._csrf
@@ -39,9 +39,9 @@ createUser = (doc, passwd, passwdConfirm, callback) ->
     if err then return errs.handle(err, callback)
     user.validate (err) ->
       if err and err.name is 'ValidationError'
-        return callback(null, err.errors)
+        callback(null, err.errors)
       else if err
-        return errs.handle(err, callback)
+        errs.handle(err, callback)
       else
         user.save (err) ->
           if err and err.code is 11000

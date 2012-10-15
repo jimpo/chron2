@@ -60,11 +60,15 @@ createVirtualServer = (route) ->
     useCompiledStaticFiles: false
     isProduction: process.env.NODE_ENV is 'production'
   route.init(virtualServer)
-  virtualServer.use (err, req, res, next) ->
-    app.log.error(err)
-    errOptions = {showStack: true} if process.env.NODE_ENV is not 'production'
-    express.errorHandler(errOptions)(err, req, res, next)
-  virtualServer
+
+  virtualServer.configure 'production', ->
+    virtualServer.use (err, req, res, next) ->
+      app.log.error(err)
+      express.errorHandler()(err, req, res, next)
+  virtualServer.configure 'development', ->
+    virtualServer.use (err, req, res, next) ->
+      app.log.error(err)
+      express.errorHandler(showStack: true)(err, req, res, next)
 
 configureVirtualHosts = (hosts) ->
   for subdomain, route of hosts

@@ -7,13 +7,13 @@ exports.home = (req, res, next) ->
   if req.session.user
     User.findOne {username: req.session.user}, (err, user) ->
       if err then return next(err)
-      res.render 'home',
+      res.render 'site/home',
         user: user
   else
-    res.render 'home'
+    res.render 'site/home'
 
 exports.login = (req, res, next) ->
-  res.render 'login',
+  res.render 'site/login',
     username: undefined
     errors: undefined
     token: req.session._csrf
@@ -22,7 +22,7 @@ exports.loginData = (req, res, next) ->
   checkUserPassword(req.body.user, req.body.passwd, (err, retryErrors) ->
     if err then next(err)
     else if retryErrors
-      res.render 'login',
+      res.render 'site/login',
         username: req.body.user,
         errors: retryErrors,
         token: req.session._csrf,

@@ -3,7 +3,7 @@ url = require 'url'
 
 User = require 'app/models/user'
 
-SUCCESS_CODE = 200;
+SUCCESS_CODE = 200
 
 
 describe 'user', ->

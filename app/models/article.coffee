@@ -1,10 +1,11 @@
+_ = require 'underscore'
+errs = require 'errs'
 mongoose = require 'mongoose'
 
 app = require '../../app'
 
 
 articleSchema = new mongoose.Schema
-  authors: [String]
   body: {type: String, required: true}
   created: {type: Date, default: Date.now, required: true}
   updated: {type: Date, default: Date.now, required: true}
@@ -12,14 +13,15 @@ articleSchema = new mongoose.Schema
   subtitle: String
   teaser: String
   title: {type: String, required: true}
-  urls: {type: [String], required: true}
+  urls: {type: [{type: String, match: /[a-z_\d\-]/}], required: true}
 
 articleSchema.pre('save', (next) ->
   this.updated = new Date
+  next()
 )
 
 articleSchema.methods.addUrlForTitle = (callback) ->
-  getAvailableUrl(URLify(@title), 0, (err, url) =>
+  getAvailableUrl(URLify(@title), (err, url) =>
     if err then return errs.handle(err, callback)
     @urls.unshift(url)
     callback()
@@ -27,11 +29,19 @@ articleSchema.methods.addUrlForTitle = (callback) ->
 
 Article = module.exports = app.db.model 'Article', articleSchema
 
-getAvailableUrl = (url, n, callback) ->
-  newUrl = if n > 0 then url + '-' + n else url
-  Article.find {urls: newUrl}, (err, stuff) ->
-    console.log(stuff)
-    callback()
+getAvailableUrl = (url, callback) ->
+  urlPattern = new RegExp("^#{url}(_(\\d+))?$")
+  Article.where('url', url).exec (err, articles) ->
+    if err then return errs.handle(err, callback)
+    urls = (
+      (articleUrl for articleUrl in article.urls \
+       when articleUrl.match urlPattern) for article in articles)
+    last = _.last(_.flatten(urls).sort())
+    if last
+      number = last.match(urlPattern)[2]
+      number = if number then JSON.parse(number) else 0
+      url = url + '_' + (number + 1)
+    callback(null, url)
 
 # Stolen from http://snipt.net/jpartogi/slugify-javascript/
 URLify = (s, maxChars) ->
