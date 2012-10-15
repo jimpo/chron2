@@ -10,4 +10,4 @@ exports.init = (server) ->
   server.post('/author', admin.author.create)
 
   server.get('/image/upload', admin.image.upload)
-  server.post('/image', admin.image.create)
+  server.post('/image/upload', admin.image.handleUpload)

@@ -9,7 +9,8 @@ block content
     p Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
   br
 
-  form#fileupload(action="server/php/", method="POST", enctype="multipart/form-data")
+  form#fileupload(action="/image/upload", method="POST", enctype="multipart/form-data")
+    input(type='hidden', name='_csrf', value=token)
     .row.fileupload-buttonbar
       .span7
         span.btn.btn-success.fileinput-button

@@ -38,7 +38,7 @@ server.configure 'production', ->
   app.use express.static(__dirname + '/public', {maxAge: oneYear})
 
 server.configure ->
-  server.use express.bodyParser()
+  server.use express.bodyParser(uploadDir: __dirname + '/uploads')
   server.use express.methodOverride()
   server.use express.cookieParser('secret')
   server.use express.session()
