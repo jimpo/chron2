@@ -1,0 +1,5 @@
+{
+  "MONGODB" : "mongodb://user:password@host",
+  "PORT": 4000,
+  "DOMAIN_NAME": "localhost"
+}
