@@ -1,6 +1,7 @@
 express = require 'express'
 flash = require 'connect-flash'
 mongoose = require 'mongoose'
+stylus = require 'stylus'
 
 require './lib/util'  # extends util globally by requiring it
 
@@ -19,6 +20,16 @@ sessionUser = (req, res, next) ->
   next()
 
 server.configure 'development', 'test', ->
+  server.use(stylus.middleware
+    src: 'app/assets'
+    dest: 'public'
+    force: true
+    compile: (str, path) ->
+      stylus(str)
+        .set('filename', path)
+        .set('compress', true)
+        .set('include css', true)
+  )
   server.use(express.static(__dirname + '/public'))
   server.use(express.static(__dirname + '/app/assets'))
 

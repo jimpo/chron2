@@ -1,0 +1,104 @@
+@import '../../mixins'
+@import '../variables'
+
+.rounded
+    border-radius corner-radius
+    black-box-shadow 0.4 0px 1px 3px
+    background-color white
+    background-linear-gradient bottom, whiteSmoke 0%, white 33%
+    margin-bottom rounded-vertical-spacing
+
+    img
+        border-radius corner-radius
+
+    .sep
+        margin 0px 3px
+
+    .highlight-left
+        margin-left -1px
+    .highlight-right
+        margin-right -1px
+
+.content-container
+    padding content-padding
+    box-sizing border-box
+
+    h1, h2, h3, h4, h5
+        color black
+        margin-bottom 3px
+
+    p, span, li
+        color text-color
+        font-size 1.1em
+        margin-bottom 0px
+        line-height 1.4em
+
+    .highlight-left
+        margin-left -(content-padding + 1px)
+        padding-left (content-padding + 1px)
+    .highlight-right
+        margin-right -(content-padding + 1px)
+        padding-right (content-padding + 1px)
+
+    .subtitle
+        font-family "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif
+        font-size 0.7em
+        padding-top 0px
+        text-transform uppercase
+        margin-bottom 2px
+
+        span
+            padding-left 5px
+            margin-left 5px
+            border-left 1px solid #888
+
+        span:first-child
+            padding-left 0px
+            margin-left 0px
+            border-left 0px
+
+.image-container
+    padding image-padding
+    box-sizing border-box
+
+    img
+        display block
+        width 100%
+
+    .caption
+        float right
+        padding-top 3px
+        color text-color
+        margin 0px
+
+.lighten
+    img
+        opacity 0.8
+        transition opacity 0.25s linear
+
+    img:hover
+        opacity 1
+
+.vertical-container
+    transform rotate(-90deg)
+    transform-origin 0px 1em
+    white-space nowrap
+    display block
+    position relative
+    visibility hidden
+
+    .vertical
+        position absolute
+        color text-color
+        font-size 1em
+        line-height 100%
+        letter-spacing 1px
+        text-shadow 0px 1px 1px white
+        text-transform uppercase
+
+.title-small .title
+    font-size 1.1em
+    line-height 100%
+
+.title-medium .title
+    font-size 1.3em
