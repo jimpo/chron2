@@ -50,7 +50,7 @@ describe 'article', ->
           done()
         )
 
-    it 'should redirect to admin index page after article is created', ->
+    it 'should redirect to admin index page after article is created', (done) ->
       sinon.stub(Article.prototype, 'save').yields()
       browser
         .fill('Title', 'Ash defeats Gary in Indigo Plateau')
@@ -63,4 +63,35 @@ describe 'article', ->
           Article.prototype.save.restore()
           browser.redirected.should.be.true;
           browser.location.pathname.should.equal('/')
+          done()
+
+    it 'should not create article when model is invalid', (done) ->
+      sinon.stub(Article.prototype, 'save').yields()
+      browser
+        .fill('Subtitle', 'Oak arrives just in time')
+        .pressButton 'Submit', () ->
+          Article.prototype.save.should.not.have.been.called
+          Article.prototype.save.restore()
+          done()
+
+    it 'should display errors when model is invalid', (done) ->
+      browser
+        .fill('Subtitle', 'Oak arrives just in time')
+        .pressButton 'Submit', ->
+          errors = browser.text('.alert-error')
+          expect(errors).to.exist
+          errors.should.contain 'Validator "required" failed for path title'
+          titleInput = browser.query('form input#title')
+          titleControlGroup = titleInput.parentNode.parentNode
+          titleControlGroup.getAttribute('class').should.contain 'error'
+          done()
+
+    it 'should fill fields with values when model is invalid', (done) ->
+      browser
+        .fill('Subtitle', 'Oak arrives just in time')
+        .pressButton 'Submit', ->
+          form = browser.query('form')
+          expect(form).to.exist
+          form.querySelector('input#subtitle').value
+            .should.equal('Oak arrives just in time')
           done()

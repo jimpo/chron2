@@ -2,6 +2,11 @@ errs = require 'errs'
 
 Article = require '../../models/article'
 
+TAXONOMY = [
+  [{name: 'News'}, {name: 'Sports'}]
+  [{name: 'University', parent: 'News'}]
+]
+
 
 exports.new = (req, res, next) ->
   taxonomy = [
@@ -11,7 +16,7 @@ exports.new = (req, res, next) ->
   res.render 'admin/article/new'
     doc: {}
     errors: null
-    taxonomy: taxonomy
+    taxonomy: TAXONOMY
     token: req.session._csrf
 
 createArticle = (doc, callback) ->
@@ -32,4 +37,12 @@ createArticle = (doc, callback) ->
 exports.create = (req, res, next) ->
   createArticle req.body.doc, (err, retryErrors) ->
     if err then return next(err)
-    res.redirect('/')
+    else if retryErrors
+      res.render 'admin/article/new'
+        doc: req.body.doc
+        errors: retryErrors
+        taxonomy: TAXONOMY
+        token: req.session._csrf
+    else
+      req.session.user = req.body.doc.username
+      res.redirect '/'
