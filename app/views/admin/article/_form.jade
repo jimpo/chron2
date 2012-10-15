@@ -1,0 +1,35 @@
+include ../mixins/form-helpers
+- _form.method === 'PUT' ? (_form.method = 'POST') && (_form.put = true) : ''
+form.form-horizontal(method= _form.method, action= _form.action)
+  legend= _form.title
+
+  - if (errors)
+    .alert.alert-error
+      ul
+        - each error in errors
+          li= error.message
+
+  input(type='hidden', name='_csrf', value=token)
+
+  - if (_form.put)
+    input(type='hidden', name='_method', value='put')
+
+  mixin text-control-group('title', 'Title', doc, errors)
+  mixin text-control-group('subtitle', 'Subtitle', doc, errors)
+
+  .control-group
+     label.control-label(for='section0') Section
+     .controls
+       mixin taxonomySelect(taxonomy)
+
+  .control-group
+    label.control-label(for='authors') Authors
+    .controls
+      input.input-xlarge#authors(type='text', name='doc[authors]')
+      span.help-block Author names should be comma separated
+
+  mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)
+  mixin textarea-control-group('body', 'Body', doc, errors, 5)
+
+  .form-actions
+    button.btn.btn-large.btn-primary(type='submit') Submit
