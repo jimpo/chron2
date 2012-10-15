@@ -54,6 +54,7 @@ createArticle = (doc, flash, callback) ->
             callback(err)
   )
 
+# TODO: this should perform bulk insertion of authors
 fetchOrCreateAuthor = (flash) ->
   (name, callback) ->
     Author.findOne {name: name}, '_id', (err, author) ->
