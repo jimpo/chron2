@@ -19,6 +19,18 @@ exports.new = (req, res, next) ->
     taxonomy: TAXONOMY
     token: req.session._csrf
 
+exports.create = (req, res, next) ->
+  createArticle req.body.doc, (err, retryErrors) ->
+    if err then return next(err)
+    else if retryErrors
+      res.render 'admin/article/new'
+        doc: req.body.doc
+        errors: retryErrors
+        taxonomy: TAXONOMY
+        token: req.session._csrf
+    else
+      res.redirect '/'
+
 createArticle = (doc, callback) ->
   doc.authors = []
   doc.taxonomy = section for section in doc.taxonomy when section
@@ -31,18 +43,4 @@ createArticle = (doc, callback) ->
       else if err
         errs.handle(err, callback)
       else
-        article.save (err) ->
-          callback(err)
-
-exports.create = (req, res, next) ->
-  createArticle req.body.doc, (err, retryErrors) ->
-    if err then return next(err)
-    else if retryErrors
-      res.render 'admin/article/new'
-        doc: req.body.doc
-        errors: retryErrors
-        taxonomy: TAXONOMY
-        token: req.session._csrf
-    else
-      req.session.user = req.body.doc.username
-      res.redirect '/'
+        article.save(callback)
