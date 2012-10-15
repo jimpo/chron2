@@ -51,7 +51,8 @@ describe 'article', ->
           done()
         )
 
-    it 'should redirect to admin index page after article is created', (done) ->
+    it 'should redirect to admin index page with flash message after article is
+ created', (done) ->
       sinon.stub(Article.prototype, 'save').yields()
       browser
         .fill('Title', 'Ash defeats Gary in Indigo Plateau')
@@ -62,6 +63,11 @@ describe 'article', ->
         .pressButton 'Submit', () ->
           Article.prototype.save.restore()
           browser.redirected.should.be.true
+          browser.location.pathname.should.equal('/')
+          flash = browser.text('.alert-info')
+          expect(flash).to.exist
+          flash.should.contain 'Article "Ash defeats Gary in Indigo Plateau" was
+ created'
           browser.location.pathname.should.equal('/')
           done()
 
@@ -139,4 +145,19 @@ describe 'article', ->
           Author.prototype.save.restore()
           Author.findOne.restore()
           author.name.should.equal 'Brock'
+          done()
+
+    it 'should flash that new author was created', (done) ->
+      sinon.stub(Author, 'findOne').yields()
+      sinon.stub(Author.prototype, 'save').yields()
+      browser
+        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
+        .fill('Body', '**Pikachu** wrecks everyone. The End.')
+        .fill('Authors', 'Brock')
+        .select('Section', 'News')
+        .pressButton 'Submit', ->
+          Author.prototype.save.restore()
+          Author.findOne.restore()
+          flash = browser.text('.alert-info')
+          flash.should.contain 'Author "Brock" was created'
           done()

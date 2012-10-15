@@ -22,7 +22,8 @@ exports.new = (req, res, next) ->
     token: req.session._csrf
 
 exports.create = (req, res, next) ->
-  createArticle req.body.doc, (err, retryErrors) ->
+  flash = (message) -> req.flash('info', message)
+  createArticle req.body.doc, flash, (err, retryErrors) ->
     if err then return next(err)
     else if retryErrors
       res.render 'admin/article/new'
@@ -34,10 +35,10 @@ exports.create = (req, res, next) ->
       req.flash('info', "Article \"#{req.body.doc.title}\" was created")
       res.redirect '/'
 
-createArticle = (doc, callback) ->
+createArticle = (doc, flash, callback) ->
   doc.taxonomy = (section for section in doc.taxonomy when section)
   doc.authors = (author for author in doc.authors when author)
-  async.map(doc.authors, fetchOrCreateAuthor, (err, authors) ->
+  async.map(doc.authors, fetchOrCreateAuthor(flash), (err, authors) ->
     if err then return errs.handle(err, callback)
     doc.authors = author._id for author in authors
     article = new Article(doc)
@@ -53,12 +54,14 @@ createArticle = (doc, callback) ->
             callback(err)
   )
 
-fetchOrCreateAuthor = (name, callback) ->
-  Author.findOne {name: name}, '_id', (err, author) ->
-    if err then return errs.handle(err, callback)
-    else if author?
-      callback(null, author)
-    else
-      author = new Author(name: name)
-      author.save (err) ->
-        callback(err, author)
+fetchOrCreateAuthor = (flash) ->
+  (name, callback) ->
+    Author.findOne {name: name}, '_id', (err, author) ->
+      if err then return errs.handle(err, callback)
+      else if author?
+        callback(null, author)
+      else
+        author = new Author(name: name)
+        author.save (err) ->
+          flash "Author \"#{name}\" was created"
+          callback(err, author)
