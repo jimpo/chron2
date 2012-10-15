@@ -36,9 +36,7 @@ exports.create = (req, res, next) ->
 createArticle = (doc, callback) ->
   doc.taxonomy = (section for section in doc.taxonomy when section)
   doc.authors = (author for author in doc.authors when author)
-  iterator = (name, callback) ->
-    Author.findOne({name: name}, '_id', callback)
-  async.map doc.authors, iterator, (err, authors) ->
+  async.map(doc.authors, fetchOrCreateAuthor, (err, authors) ->
     if err then return errs.handle(err, callback)
     doc.authors = author._id for author in authors
     article = new Article(doc)
@@ -52,3 +50,14 @@ createArticle = (doc, callback) ->
         else
           article.save (err) ->
             callback(err)
+  )
+
+fetchOrCreateAuthor = (name, callback) ->
+  Author.findOne {name: name}, '_id', (err, author) ->
+    if err then return errs.handle(err, callback)
+    else if author?
+      callback(null, author)
+    else
+      author = new Author(name: name)
+      author.save (err) ->
+        callback(err, author)

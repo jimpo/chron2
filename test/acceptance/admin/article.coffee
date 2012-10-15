@@ -37,8 +37,8 @@ describe 'article', ->
         .fill('Body', '**Pikachu** wrecks everyone. The End.')
         .select('Section', 'News')
         .pressButton('Submit', () ->
-          Article.prototype.save.should.have.been.called;
-          article = Article.prototype.save.thisValues[0];
+          Article.prototype.save.should.have.been.called
+          article = Article.prototype.save.thisValues[0]
           article.title.should.equal('Ash defeats Gary in Indigo Plateau')
           article.subtitle.should.equal('Oak arrives just in time')
           article.teaser.should.equal('Ash becomes new Pokemon Champion')
@@ -119,10 +119,24 @@ describe 'article', ->
         .fill('Authors', 'Brock')
         .select('Section', 'News')
         .pressButton 'Submit', ->
-          Article.prototype.save.should.have.been.called;
-          article = Article.prototype.save.thisValues[0];
+          Article.prototype.save.should.have.been.called
+          article = Article.prototype.save.thisValues[0]
           Article.prototype.save.restore()
           Author.findOne.restore()
+
           article.authors.should.have.length 1
           article.authors[0].should.equal author._id
+          done()
+
+    it 'should create new author if none found', (done) ->
+      sinon.stub(Author, 'findOne').yields()
+      sinon.stub(Author.prototype, 'save').yields()
+      browser
+        .fill('Authors', 'Brock')
+        .pressButton 'Submit', ->
+          Author.prototype.save.should.have.been.called
+          author = Author.prototype.save.thisValues[0]
+          Author.prototype.save.restore()
+          Author.findOne.restore()
+          author.name.should.equal 'Brock'
           done()
