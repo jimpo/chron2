@@ -6,8 +6,8 @@ SUCCESS_CODE = 200
 
 
 describe 'article', ->
-   before (done) ->
-     server.run(done)
+  before (done) ->
+    server.run(done)
 
   describe '/article/new', ->
     browser = null

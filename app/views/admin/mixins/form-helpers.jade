@@ -1,3 +1,10 @@
+mixin errorBlock(errors)
+  - if (errors)
+    .alert.alert-error
+      ul
+        - each error in errors
+          li= error.message
+
 mixin taxonomySelect(levels, taxonomy, prefix)
   - prefix = prefix ? prefix + '-' : '';
   - each level, i in levels

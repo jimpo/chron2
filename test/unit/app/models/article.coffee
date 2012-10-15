@@ -8,6 +8,7 @@ describe 'Article', ->
 
   beforeEach ->
     article = new Article(
+      authors: []
       title: 'Ash defeats Gary in Indigo Plateau'
       subtitle: 'Oak arrives just in time'
       teaser: 'Ash becomes new Pokemon champion'

@@ -20,9 +20,9 @@ exports.new = (req, res, next) ->
     token: req.session._csrf
 
 createArticle = (doc, callback) ->
+  doc.authors = []
+  doc.taxonomy = section for section in doc.taxonomy when section
   article = new Article(doc)
-  article.taxonomy = section for section in article.taxonomy when section
-  delete article.authors
   article.addUrlForTitle (err) ->
     if err then return errs.handle(err, callback)
     article.validate (err) ->
