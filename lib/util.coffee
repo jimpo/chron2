@@ -22,5 +22,4 @@ util.random = (min, max) ->
 util.randomString = (n) ->
   chars = 'abcdefghijklmnopqrstuvwxyz'
   chars = chars + chars.toUpperCase() + [0..9].join('')
-  console.log chars
-  (chars[util.random(0, chars.length)] for i in [0...n]).join()
+  (chars[util.random(0, chars.length)] for i in [0...n]).join('')

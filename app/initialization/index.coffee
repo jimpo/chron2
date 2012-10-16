@@ -1,3 +1,3 @@
-exports.config = require './config'
-exports.logger = require './logger'
-exports.mongodb = require './mongodb'
+util = require 'util'
+
+util.requireAll(__dirname, exports)

@@ -18,4 +18,4 @@ describe 'Image', ->
       image.url.should.equal url
 
     it 'should consist of a random character sequence followed by filename', ->
-      image.generateUrl('raichu.png').should.match /[a-zA-Z0-9]+\-raichu.png/
+      image.generateUrl('raichu.png').should.match /^[a-zA-Z0-9]+\-raichu.png/

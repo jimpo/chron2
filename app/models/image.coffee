@@ -15,4 +15,7 @@ imageSchema = new mongoose.Schema
 imageSchema.methods.generateUrl = (filename) ->
   @url = util.randomString(8) + '-' + filename
 
+imageSchema.virtual('fullUrl').get ->
+  "#{app.config.CONTENT_CDN}/images/#{@url}"
+
 Image = module.exports = app.db.model 'Image', imageSchema
