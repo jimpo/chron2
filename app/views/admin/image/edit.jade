@@ -2,9 +2,20 @@ extends ../layout
 
 block content
   h1 Edit Image
-  img(src=doc.fullUrl)
+  img#crop-target(src=doc.fullUrl)
+  form.form-inline#crop-form(action="/image/#{doc.name}/version", method="POST")
+    input#x1(type='hidden', name='x1')
+    input#x2(type='hidden', name='x2')
+    input#y1(type='hidden', name='y1')
+    input#y2(type='hidden', name='y2')
+    select#sizes
+      - each info, type in imageTypes
+        option(value=type)= type
+    | 
+    button.btn(type='submit') New Version
+
   include ../mixins/form-helpers
-  form.form-horizontal(method="POST", action="/image/#{doc.name}")
+  form.form-horizontal(action="/image/#{doc.name}", method="POST")
     legend Photo Information
 
     input(type='hidden', name='_csrf', value=token)

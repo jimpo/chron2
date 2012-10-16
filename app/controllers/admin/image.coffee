@@ -5,6 +5,9 @@ app = require '../..'
 Image = require '../../models/image'
 
 IMAGES_PER_PAGE = 20
+IMAGE_TYPES =
+  LargeRect: 1
+  ThumbNail: 1
 
 
 exports.upload = (req, res, next) ->
@@ -33,6 +36,7 @@ exports.edit = (req, res, next) ->
         doc: image
         errors: null
         messages: req.flash('info')
+        imageTypes: IMAGE_TYPES
         token: req.session._csrf
 
 exports.update = (req, res, next) ->
@@ -52,6 +56,7 @@ exports.update = (req, res, next) ->
             doc: image
             errors: retryErrors
             messages: req.flash('info')
+            imageTypes: IMAGE_TYPES
             token: req.session._csrf
         else
           res.redirect "/image/#{image.name}/edit"
