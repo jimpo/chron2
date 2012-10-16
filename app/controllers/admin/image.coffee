@@ -23,7 +23,8 @@ exports.index = (req, res, next) ->
       images: images
 
 exports.edit = (req, res, next) ->
-  Image.findOne {url: req.params.url}, (err, image) ->
+  urlPattern = new RegExp("^#{req.params.name}\.")
+  Image.findOne {url: urlPattern}, (err, image) ->
     if err then return next(err)
     else if not image?
       next()
@@ -31,7 +32,43 @@ exports.edit = (req, res, next) ->
       res.render 'admin/image/edit'
         doc: image
         errors: null
+        messages: req.flash('info')
         token: req.session._csrf
+
+exports.update = (req, res, next) ->
+  urlPattern = new RegExp("^#{req.params.name}\.")
+  Image.findOne {url: urlPattern}, (err, image) ->
+    if err then return next err
+    else if not image?
+      next()
+    else
+      flash = (message) ->
+        app.log.info(message)
+        req.flash('info', message)
+      updateImage(image, req.body.doc, flash, (err, retryErrors) ->
+        if err then return next(err)
+        else if retryErrors
+          res.render 'admin/image/edit'
+            doc: image
+            errors: retryErrors
+            messages: req.flash('info')
+            token: req.session._csrf
+        else
+          res.redirect "/image/#{image.name}/edit"
+      )
+
+updateImage = (image, doc, flash, callback) ->
+  image.set(doc)
+  image.validate (err) ->
+    if err and err.name is 'ValidationError'
+      callback(null, err.errors)
+    else if err
+      errs.handle(err, callback)
+    else
+      image.save (err) ->
+        if err then return errs.handle(err, callback)
+        flash("Image \"#{image.url}\" was updated")
+        callback(err)
 
 uploadImage = (fileInfo, callback) ->
   image = new Image

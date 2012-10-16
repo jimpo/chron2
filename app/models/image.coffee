@@ -18,4 +18,7 @@ imageSchema.methods.generateUrl = (filename) ->
 imageSchema.virtual('fullUrl').get ->
   "#{app.config.CONTENT_CDN}/images/#{@url}"
 
+imageSchema.virtual('name').get ->
+  @url.replace(/\.(gif|jpe?g|png)$/, '')
+
 Image = module.exports = app.db.model 'Image', imageSchema

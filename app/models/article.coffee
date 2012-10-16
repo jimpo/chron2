@@ -37,9 +37,10 @@ articleSchema.virtual('url').get -> @urls[0]
 Article = module.exports = app.db.model 'Article', articleSchema
 
 getAvailableUrl = (url, callback) ->
-  urlPattern = new RegExp("^#{url}(_(\\d+))?$")
-  Article.where('url', url).exec (err, articles) ->
+  urlPattern = new RegExp("^#{url}")
+  Article.find(urls: urlPattern).exec (err, articles) ->
     if err then return errs.handle(err, callback)
+    urlPattern = new RegExp("^#{url}(_(\\d+))?$")
     urls = (
       (articleUrl for articleUrl in article.urls \
        when articleUrl.match urlPattern) for article in articles)

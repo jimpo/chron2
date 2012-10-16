@@ -2,14 +2,20 @@ extends ../layout
 
 block content
   h1 Edit Image
+  img(src=doc.fullUrl)
   include ../mixins/form-helpers
-  form.form-horizontal(method="POST", action="/image/#{doc.url}")
+  form.form-horizontal(method="POST", action="/image/#{doc.name}")
     legend Photo Information
 
     input(type='hidden', name='_csrf', value=token)
     input(type='hidden', name='_method', value='put')
 
     mixin errorBlock(errors)
+    - if (messages.length > 0)
+      .alert.alert-info
+        ul
+          - each message in messages
+            li= message
 
     mixin text-control-group('caption', 'Caption', doc, errors)
     mixin text-control-group('location', 'Location', doc, errors)
