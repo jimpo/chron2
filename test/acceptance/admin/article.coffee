@@ -53,7 +53,7 @@ describe 'article', ->
     it 'should redirect to admin index page after article is created', (done) ->
       sinon.stub(Article.prototype, 'save').yields()
       browser
-        .fill('Title', 'Ash defeats Gary in Indigo Plateau')jad
+        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
         .fill('Subtitle', 'Oak arrives just in time')
         .fill('Teaser', 'Ash becomes new Pokemon Champion')
         .fill('Body', '**Pikachu** wrecks everyone. The End.')

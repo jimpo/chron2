@@ -18,7 +18,6 @@ exports.edit = (req, res, next) ->
   Article.findOne {url: req.params.url}, (err, article) ->
     if err then return next(err)
     else if not article?
-      console.log "article not found"
       next()
     else
       res.render 'admin/article/edit'

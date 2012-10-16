@@ -1,6 +1,5 @@
 extends ../layout
 
 block content
-  - console.log(JSON.stringify(req))
-  - var _form = { title: "Edit Article", method: "PUT", action: "/article/" }
+  - var _form = {title: "Edit Article", method: "PUT", action: "/article/"}
   include _form
