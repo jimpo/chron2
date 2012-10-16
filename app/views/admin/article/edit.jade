@@ -1,5 +1,5 @@
 extends ../layout
 
 block content
-  - var _form = {title: "Edit Article", method: "PUT", action: "/article/"}
+  - var _form = {title: "Edit Article", method: "PUT", action: "/article/" + doc.url}
   include _form

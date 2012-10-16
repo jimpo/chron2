@@ -16,13 +16,16 @@ form.form-horizontal(method= _form.method, action= _form.action)
   .control-group
      label.control-label(for='section0') Section
      .controls
-       mixin taxonomySelect(taxonomy)
+       mixin taxonomySelect(taxonomy, doc.taxonomy)
 
   .control-group
     label.control-label(for='authors') Authors
     .controls
       ul
-        li: input#authors(type='text', name='doc[authors][0]')
+        - var i = 0
+        - each author in (doc.authors || [])
+          li: input(type='text', name="doc[authors][#{i++}]", value=author.name)
+        li: input#authors(type='text', name="doc[authors][#{i}]")
         li: button.btn.add-field(data-name='doc[authors]') Add another author
 
   mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)

@@ -7,7 +7,7 @@ Author = require './author'
 
 
 articleSchema = new mongoose.Schema
-  authors: {type: [{type: mongoose.Schema.Types.ObjectId, ref: Author}], default: []}
+  authors: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Author'}], default: []}
   body: {type: String, required: true}
   created: {type: Date, default: Date.now, required: true}
   subtitle: String
@@ -23,11 +23,16 @@ articleSchema.pre('save', (next) ->
 )
 
 articleSchema.methods.addUrlForTitle = (callback) ->
-  getAvailableUrl(URLify(@title), (err, url) =>
+  simpleUrl = URLify(@title)
+  if @url?.match(new RegExp("^" + simpleUrl))
+    return callback(null, @url)
+  getAvailableUrl(simpleUrl, (err, url) =>
     if err then return errs.handle(err, callback)
     @urls.unshift(url)
-    callback()
+    callback(null, @url)
   )
+
+articleSchema.virtual('url').get -> @urls[0]
 
 Article = module.exports = app.db.model 'Article', articleSchema
 

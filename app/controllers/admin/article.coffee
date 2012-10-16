@@ -1,6 +1,7 @@
 async = require 'async'
 errs = require 'errs'
 
+app = require '../..'
 Article = require '../../models/article'
 Author = require '../../models/author'
 
@@ -18,20 +19,45 @@ exports.new = (req, res, next) ->
     token: req.session._csrf
 
 exports.edit = (req, res, next) ->
-  Article.findOne {url: req.params.url}, (err, article) ->
-    if err then return next(err)
+  Article.findOne({urls: req.params.url}).populate('authors').exec(
+    (err, article) ->
+      if err then return next(err)
+      else if not article?
+        next()
+      else
+        res.render 'admin/article/edit'
+          doc: article
+          errors: null
+          taxonomy: TAXONOMY
+          token: req.session._csrf
+  )
+
+exports.update = (req, res, next) ->
+  Article.findOne {urls: req.params.url}, (err, article) ->
+    if err then return next err
     else if not article?
       next()
     else
-      res.render 'admin/article/edit'
-        doc: article
-        errors: null
-        taxonomy: TAXONOMY
-        token: req.session._csrf
+      flash = (message) ->
+        app.log.info(message)
+        req.flash('info', message)
+      updateArticle(article, req.body.doc, flash, (err, retryErrors) ->
+        if err then return next(err)
+        else if retryErrors
+          res.render 'admin/article/edit'
+            doc: req.body.doc
+            errors: retryErrors
+            taxonomy: TAXONOMY
+            token: req.session._csrf
+        else
+          res.redirect '/'
+      )
 
 exports.create = (req, res, next) ->
-  flash = (message) -> req.flash('info', message)
-  createArticle req.body.doc, flash, (err, retryErrors) ->
+  flash = (message) ->
+    app.log.info(message)
+    req.flash('info', message)
+  updateArticle(new Article, req.body.doc, flash, (err, retryErrors) ->
     if err then return next(err)
     else if retryErrors
       res.render 'admin/article/new'
@@ -40,16 +66,16 @@ exports.create = (req, res, next) ->
         taxonomy: TAXONOMY
         token: req.session._csrf
     else
-      req.flash('info', "Article \"#{req.body.doc.title}\" was created")
       res.redirect '/'
+  )
 
-createArticle = (doc, flash, callback) ->
+updateArticle = (article, doc, flash, callback) ->
   doc.taxonomy = (section for section in doc.taxonomy when section)
   doc.authors = (author for author in doc.authors when author)
   async.map(doc.authors, fetchOrCreateAuthor(flash), (err, authors) ->
     if err then return errs.handle(err, callback)
-    doc.authors = author._id for author in authors
-    article = new Article(doc)
+    doc.authors = (author._id for author in authors)
+    article.set(doc)
     article.addUrlForTitle (err) ->
       if err then return errs.handle(err, callback)
       article.validate (err) ->
@@ -59,6 +85,8 @@ createArticle = (doc, flash, callback) ->
           errs.handle(err, callback)
         else
           article.save (err) ->
+            if err then return errs.handle(err, callback)
+            flash("Article \"#{article.title}\" was saved")
             callback(err)
   )
 
@@ -72,5 +100,5 @@ fetchOrCreateAuthor = (flash) ->
       else
         author = new Author(name: name)
         author.save (err) ->
-          flash "Author \"#{name}\" was created"
+          flash?("Author \"#{name}\" was created")
           callback(err, author)
