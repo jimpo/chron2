@@ -1,5 +1,7 @@
+_ = require 'underscore'
 async = require 'async'
 errs = require 'errs'
+mongodb = require 'mongodb'
 
 app = require '../..'
 Article = require '../../models/article'
@@ -13,7 +15,12 @@ TAXONOMY = [
 
 
 exports.index = (req, res, next) ->
-  Article.find().limit(20).sort(created: 'desc').exec (err, articles) ->
+  limit = req.query.limit ? ARTICLES_PER_PAGE
+  taxonomy = req.query.taxonomy?.split(',') ? []
+  query = Article.find().limit(limit).sort(created: 'desc')
+  for section, i in taxonomy
+    query.where("taxonomy.#{i}", section)
+  query.exec (err, articles) ->
     res.render 'admin/article'
       articles: articles
 
@@ -76,7 +83,7 @@ exports.create = (req, res, next) ->
   )
 
 updateArticle = (article, doc, flash, callback) ->
-  doc.taxonomy = (section for section in doc.taxonomy when section)
+  doc.taxonomy = (section.toLowerCase() for section in doc.taxonomy when section)
   doc.authors = (author for author in doc.authors when author)
   async.map(doc.authors, fetchOrCreateAuthor(flash), (err, authors) ->
     if err then return errs.handle(err, callback)

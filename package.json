@@ -19,6 +19,7 @@
         "mongoose": "3.3.x",
         "nano": "3.3.x",
         "nock": "0.13.x",
+        "nodemon": "0.6.x",
         "sinon": "1.4.x",
         "sinon-chai": "2.1.x",
         "stylus": "0.29.x",
