@@ -65,23 +65,24 @@ imageSchema.methods.download = (dir, callback) ->
   )
 
 imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
+  src = path.join(__dirname, '../../tmp', @url)
+  dest = path.join(__dirname, '../../tmp', version.url)
   async.waterfall([
-    (callback) => this.download(path.join(__dirname, '../../tmp'), callback)
+    (callback) => this.download(path.dirname(src), callback)
     (filepath, callback) -> cropImage(version, dim, filepath, callback)
     (filepath, callback) ->
       headers =
         'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
       url = "/images/versions/#{version.url}"
       app.s3.putFile(filepath, url, headers, callback)
+    (_res, callback) -> fs.unlink(src, callback)
+    (callback) -> fs.unlink(dest, callback)
     ],
     callback
   )
 
 imageSchema.virtual('fullUrl').get ->
   "#{app.config.CONTENT_CDN}/images/#{@url}"
-
-imageVersion.virtual('fullUrl').get ->
-  "#{app.config.CONTENT_CDN}/images/versions/#{@url}"
 
 imageSchema.virtual('name').get ->
   @url.replace(/\.(gif|jpe?g|png)$/, '')
