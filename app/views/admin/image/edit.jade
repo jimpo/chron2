@@ -2,7 +2,7 @@ extends ../layout
 
 block content
   h1 Edit Image
-  img#crop-target(src=doc.fullUrl)
+  img#crop-target(src=doc.fullUrl())
   form.form-inline#crop-form(action="/image/#{doc.name}/version", method="POST")
     input(type='hidden', name='_csrf', value=token)
     input#w(type='hidden', name='w')
@@ -44,3 +44,14 @@ block content
 
     .form-actions
       button.btn.btn-large.btn-primary(type='submit') Submit
+
+  table.table.table-striped
+    tr
+      th Type
+      th Image Version
+      th Delete
+    - each version in doc.versions
+      tr
+        td= version.type
+        td: img(src=doc.fullUrl(version))
+        td: a(href="#") Delete

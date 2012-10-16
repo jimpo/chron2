@@ -81,8 +81,9 @@ imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
     callback
   )
 
-imageSchema.virtual('fullUrl').get ->
-  "#{app.config.CONTENT_CDN}/images/#{@url}"
+imageSchema.methods.fullUrl = (version) ->
+  baseUrl = app.config.CONTENT_CDN + '/images/'
+  baseUrl + (if version then "versions/#{version.url}" else @url)
 
 imageSchema.virtual('name').get ->
   @url.replace(/\.(gif|jpe?g|png)$/, '')
