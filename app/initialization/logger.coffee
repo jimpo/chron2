@@ -4,6 +4,11 @@ Loggly = require('winston-loggly').Loggly
 app = require '..'
 
 
+winston.transports.Console.prototype.logException = do (logException = winston.transports.Console.prototype.logException) ->
+  (msg, meta, callback) ->
+    meta = "\n" + meta.stack.join("\n")
+    logException.call(this, msg, meta, callback)
+
 module.exports = (callback) ->
   logger = new winston.Logger
   logger.setLevels(winston.config.syslog.levels);
