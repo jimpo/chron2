@@ -6,8 +6,8 @@ Image = require '../../models/image'
 
 IMAGES_PER_PAGE = 20
 IMAGE_TYPES =
-  LargeRect: 1
-  ThumbNail: 1
+  LargeRect: {width: 200, height: 200}
+  ThumbNail: {width: 100, height: 100}
 
 
 exports.upload = (req, res, next) ->

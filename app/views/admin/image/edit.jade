@@ -8,11 +8,13 @@ block content
     input#x2(type='hidden', name='x2')
     input#y1(type='hidden', name='y1')
     input#y2(type='hidden', name='y2')
-    select#sizes
+    select#sizes(name='type')
       - each info, type in imageTypes
-        option(value=type)= type
+        option(value=type, data-dimensions=JSON.stringify(info))= type
     | 
     button.btn(type='submit') New Version
+    | 
+    i.icon-question-sign#crop-help
 
   include ../mixins/form-helpers
   form.form-horizontal(action="/image/#{doc.name}", method="POST")
