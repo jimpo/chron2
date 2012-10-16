@@ -5,11 +5,17 @@ app = require '../..'
 Article = require '../../models/article'
 Author = require '../../models/author'
 
+ARTICLES_PER_PAGE = 20
 TAXONOMY = [
   [{name: 'News'}, {name: 'Sports'}]
   [{name: 'University', parent: 'News'}]
 ]
 
+
+exports.index = (req, res, next) ->
+  Article.find().limit(20).sort(created: 'desc').exec (err, articles) ->
+    res.render 'admin/article'
+      articles: articles
 
 exports.new = (req, res, next) ->
   res.render 'admin/article/new'

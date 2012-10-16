@@ -1,0 +1,10 @@
+extends ../layout
+
+block content
+  table.table.table-striped
+    - each article in articles
+      tr
+        td: a(href="/article/#{article.url}")= article.title
+        td: a(href="/article/#{article.url}/edit") Edit
+        td: a(href="#") Delete
+        td= article._id
