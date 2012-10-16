@@ -1,5 +1,14 @@
 {
-  "MONGODB" : "mongodb://user:password@host",
-  "PORT": 4000,
-  "DOMAIN_NAME": "localhost"
+    "MONGODB": "mongodb://user:pass@host:port",
+    "PORT": 4000,
+    "DOMAIN_NAME": "localhost",
+    "S3": {
+        "key": "XXXXXX",
+        "secret": "XXXXXX",
+        "buckets": {
+            "file": "chron_dev",
+            "static": "chron_static"
+        }
+    },
+    "CONTENT_CDN": "XXXXXX"
 }
