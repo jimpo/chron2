@@ -17,3 +17,4 @@ exports.init = (server) ->
   server.post('/image/upload', admin.image.handleUpload)
   server.get('/image/:name/edit', admin.image.edit)
   server.put('/image/:name', admin.image.update)
+  server.post('/image/:name/version', admin.image.createVersion)

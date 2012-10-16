@@ -1,3 +1,4 @@
+_ = require 'underscore'
 async = require 'async'
 errs = require 'errs'
 
@@ -39,7 +40,7 @@ exports.edit = (req, res, next) ->
 exports.update = (req, res, next) ->
   urlPattern = new RegExp("^#{req.params.name}\.")
   Image.findOne {url: urlPattern}, (err, image) ->
-    if err then return next err
+    if err then return next(err)
     else if not image?
       next()
     else
@@ -58,6 +59,34 @@ exports.update = (req, res, next) ->
         else
           res.redirect "/image/#{image.name}/edit"
       )
+
+exports.createVersion = (req, res, next) ->
+  urlPattern = new RegExp("^#{req.params.name}\.")
+  Image.findOne {url: urlPattern}, (err, image) ->
+    if err then return next(err)
+    else if not image?
+      next()
+    else
+      image.versions.push(type: req.body.type)
+      version = _.last(image.versions)
+      url = image.generateUrlForVersion(
+        version, req.body.x1, req.body.x2, image.url)
+      image.validate (err) ->
+        if err and err.name is 'ValidationError'
+          res.send(406, err)
+        else if err
+          errs.handle(err, callback)
+        else
+          uploadImageVersion(req.body, url, (err) ->
+            if err then return next(err)
+            image.save (err) ->
+              if err then return errs.handle(err, callback)
+              app.log.info "Image version \"#{version.url}\" was created"
+              res.send version
+          )
+
+uploadImageVersion = (dim, url, callback) ->
+  callback()
 
 updateImage = (image, doc, flash, callback) ->
   image.set(doc)

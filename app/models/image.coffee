@@ -43,12 +43,15 @@ imageSchema = new mongoose.Schema
 imageSchema.methods.generateUrl = (filename) ->
   @url = util.randomString(8) + '-' + filename
 
-imageVersion.methods.generateUrl = (x1, y1, original) ->
-  type = IMAGE_TYPES[@type]
-  @url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{original}"
+imageSchema.methods.generateUrlForVersion = (version, x1, y1, original) ->
+  type = IMAGE_TYPES[version.type]
+  version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{original}"
 
 imageSchema.virtual('fullUrl').get ->
   "#{app.config.CONTENT_CDN}/images/#{@url}"
+
+imageVersion.virtual('fullUrl').get ->
+  "#{app.config.CONTENT_CDN}/images/versions/#{@url}"
 
 imageSchema.virtual('name').get ->
   @url.replace(/\.(gif|jpe?g|png)$/, '')
