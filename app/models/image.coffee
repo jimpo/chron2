@@ -5,6 +5,8 @@ util = require 'util'
 app = require '../../app'
 
 
+#imageVersion = new mongoose.Schema
+
 imageSchema = new mongoose.Schema
   caption: String
   date: {type: Date, default: Date.now}

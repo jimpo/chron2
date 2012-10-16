@@ -16,6 +16,12 @@ define ['jquery', 'lib/jquery.Jcrop', 'lib/bootstrap'], ($) ->
       setSelect: [0, 0, dim.width, dim.height]
     $('#crop-target').Jcrop(options)
 
+  helpContent = ->
+    descriptions = $('#sizes option').map ->
+      info = $(this).data('dimensions')
+      "<p><b>#{$(this).val()}</b>: #{info.description}</p>"
+    descriptions.get().join("<br>")
+
   '#crop-target': ->
     $(this).Jcrop(
       onChange: setCoordinates
@@ -27,5 +33,5 @@ define ['jquery', 'lib/jquery.Jcrop', 'lib/bootstrap'], ($) ->
     $('#crop-help').popover(
       title: 'Image Versions'
       trigger: 'hover'
-      content: 'Hi there!'
+      content: helpContent()
     )
