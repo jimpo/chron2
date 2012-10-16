@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  h1 Edit Image
+  include ../mixins/form-helpers
+  form.form-horizontal(method="POST", action="/image/#{doc.url}")
+    legend Photo Information
+
+    input(type='hidden', name='_csrf', value=token)
+    input(type='hidden', name='_method', value='put')
+
+    mixin errorBlock(errors)
+
+    mixin text-control-group('caption', 'Caption', doc, errors)
+    mixin text-control-group('location', 'Location', doc, errors)
+    mixin text-control-group('photographer', 'Photographer', doc, errors)
+
+    .control-group(class=(errors && ("date" in errors) ? "error": null))
+      label.control-label(for="date")= "Date"
+      .controls
+        input.input-xlarge.datepicker#date(type='text', name='doc[date]', value=doc.date)
+
+    .form-actions
+      button.btn.btn-large.btn-primary(type='submit') Submit

@@ -4,6 +4,8 @@ errs = require 'errs'
 app = require '../..'
 Image = require '../../models/image'
 
+IMAGES_PER_PAGE = 20
+
 
 exports.upload = (req, res, next) ->
   res.render 'admin/image/upload'
@@ -13,6 +15,23 @@ exports.handleUpload = (req, res, next) ->
   async.map req.files.files, uploadImage, (err, response) ->
     if err then return next(err)
     res.json response
+
+exports.index = (req, res, next) ->
+  limit = req.query.limit ? IMAGES_PER_PAGE
+  Image.find().limit(limit).sort(date: 'desc').exec (err, images) ->
+    res.render 'admin/image'
+      images: images
+
+exports.edit = (req, res, next) ->
+  Image.findOne {url: req.params.url}, (err, image) ->
+    if err then return next(err)
+    else if not image?
+      next()
+    else
+      res.render 'admin/image/edit'
+        doc: image
+        errors: null
+        token: req.session._csrf
 
 uploadImage = (fileInfo, callback) ->
   image = new Image

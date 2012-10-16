@@ -1,0 +1,11 @@
+extends ../layout
+
+block content
+  table.table.table-striped
+    - each image in images
+      tr
+        td= image.url
+        td
+          a(href="/image/#{image.url}/edit")
+            img(src=image.fullUrl)
+        td: a(href="#") Delete
