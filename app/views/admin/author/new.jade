@@ -1,0 +1,25 @@
+extends ../layout
+
+block content
+  include ../mixins/form-helpers
+  form.form-horizontal(method='POST', action='/author')
+    legend Add Author
+
+    mixin errorBlock(errors)
+
+    input(type='hidden', name='_csrf', value=token)
+
+    mixin text-control-group('name', 'Name', doc, errors)
+    mixin text-control-group('affiliation', 'Affiliation', doc, errors)
+    mixin text-control-group('tagline', 'Tagline', doc, errors)
+    mixin text-control-group('twitter', 'Twitter', doc, errors)
+
+    .control-group
+      label.control-label(for='currentColumnist') Current Columnist?
+      .controls
+        input#currentColumnist(type='checkbox', checked=doc.currentColumnist, name='doc[currentColumnist]')
+
+    mixin textarea-control-group('biography', 'Biography', doc, errors, 5)
+
+    .form-actions
+      button.btn.btn-large.btn-primary(type='submit') Submit

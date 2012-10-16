@@ -1,4 +1,5 @@
 express = require 'express'
+flash = require 'connect-flash'
 mongoose = require 'mongoose'
 
 require './lib/util'  # extends util globally by requiring it
@@ -32,6 +33,7 @@ server.configure ->
   server.use express.session()
   server.use express.csrf()
   server.use express.compress()
+  server.use flash()
   server.use sessionUser
 
 exports.run = (callback) ->

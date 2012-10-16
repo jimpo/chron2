@@ -3,11 +3,7 @@ include ../mixins/form-helpers
 form.form-horizontal(method= _form.method, action= _form.action)
   legend= _form.title
 
-  - if (errors)
-    .alert.alert-error
-      ul
-        - each error in errors
-          li= error.message
+  mixin errorBlock(errors)
 
   input(type='hidden', name='_csrf', value=token)
 
@@ -25,8 +21,9 @@ form.form-horizontal(method= _form.method, action= _form.action)
   .control-group
     label.control-label(for='authors') Authors
     .controls
-      input.input-xlarge#authors(type='text', name='doc[authors]')
-      span.help-block Author names should be comma separated
+      ul
+        li: input#authors(type='text', name='doc[authors][0]')
+        li: button.btn.add-field(data-name='doc[authors]') Add another author
 
   mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)
   mixin textarea-control-group('body', 'Body', doc, errors, 5)

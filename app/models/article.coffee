@@ -3,16 +3,18 @@ errs = require 'errs'
 mongoose = require 'mongoose'
 
 app = require '../../app'
+Author = require './author'
 
 
 articleSchema = new mongoose.Schema
+  authors: {type: [{type: mongoose.Schema.Types.ObjectId, ref: Author}], default: []}
   body: {type: String, required: true}
   created: {type: Date, default: Date.now, required: true}
-  updated: {type: Date, default: Date.now, required: true}
-  taxonomy: {type: [String], required: true}
   subtitle: String
+  taxonomy: {type: [String], required: true}
   teaser: String
   title: {type: String, required: true}
+  updated: {type: Date, default: Date.now, required: true}
   urls: {type: [{type: String, match: /[a-z_\d\-]/}], required: true}
 
 articleSchema.pre('save', (next) ->
