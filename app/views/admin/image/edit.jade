@@ -18,7 +18,7 @@ block content
     .control-group(class=(errors && ("date" in errors) ? "error": null))
       label.control-label(for="date")= "Date"
       .controls
-        input.input-xlarge.datepicker#date(type='text', name='doc[date]', value=doc.date)
+        input.input-xlarge.datepicker#date(type='text', name='doc[date]')
 
     .form-actions
       button.btn.btn-large.btn-primary(type='submit') Submit
