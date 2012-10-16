@@ -23,6 +23,7 @@ exports.init = (callback) ->
   initializers =
     db: initialization.mongodb
     log: initialization.logger
+    s3: initialization.s3
   async.parallel initializers, (err, connections) ->
     if err then return errs.handle(err, callback)
     _.extend(exports, connections)

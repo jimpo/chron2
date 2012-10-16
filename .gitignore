@@ -3,6 +3,7 @@
 
 node_modules
 config.json
+public/styles/*
 
 ## Don't Ignore Ignore Files
 !.gitignore

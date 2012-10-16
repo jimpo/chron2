@@ -1,0 +1,113 @@
+/* A
+-----------------------------------------------------------------------------------------------------------*/
+.ui-bar-a,
+.ui-bar-a input,
+.ui-bar-a select,
+.ui-bar-a textarea,
+.ui-bar-a button {
+      font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-body-a,
+.ui-body-a input,
+.ui-body-a select,
+.ui-body-a textarea,
+.ui-body-a button {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-btn-up-a,
+.ui-btn-hover-a,
+.ui-btn-down-a {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+    text-decoration: none;
+}
+
+/* B
+-----------------------------------------------------------------------------------------------------------*/
+.ui-bar-b,
+.ui-bar-b input,
+.ui-bar-b select,
+.ui-bar-b textarea,
+.ui-bar-b button {
+      font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-body-b,
+.ui-body-b input,
+.ui-body-b select,
+.ui-body-b textarea,
+.ui-body-b button {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-bar-b {
+    border: 1px solid #B3B3B3 /*{a-bar-border}*/;
+    background: #069 /*{a-bar-background-color}*/;
+    color: #EEE /*{a-bar-color}*/;
+    font-weight: bold;
+    text-shadow: 0 /*{a-bar-shadow-x}*/ 1px /*{a-bar-shadow-y}*/ 3px /*{a-bar-shadow-radius}*/ rgba(0, 0, 0, .40) /*{a-bar-shadow-color}*/;
+    background-image: -webkit-gradient(linear, left top, left bottom, from( #1f7faf /*{c-bup-background-start}*/), to( #005080 /*{c-bup-background-end}*/)); /* Saf4+, Chrome */
+    background-image: -webkit-linear-gradient( #1f7faf /*{c-bup-background-start}*/, #005080 /*{c-bup-background-end}*/); /* Chrome 10+, Saf5.1+ */
+    background-image:    -moz-linear-gradient( #1f7faf /*{c-bup-background-start}*/, #005080 /*{c-bup-background-end}*/); /* FF3.6 */
+    background-image:     -ms-linear-gradient( #1f7faf /*{c-bup-background-start}*/, #005080 /*{c-bup-background-end}*/); /* IE10 */
+    background-image:      -o-linear-gradient( #1f7faf /*{c-bup-background-start}*/, #005080 /*{c-bup-background-end}*/); /* Opera 11.10+ */
+    background-image:         linear-gradient( #1f7faf /*{c-bup-background-start}*/, #005080 /*{c-bup-background-end}*/);
+}
+
+.ui-btn-up-b,
+.ui-btn-hover-b,
+.ui-btn-down-b {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+    text-decoration: none;
+}
+
+/* C
+-----------------------------------------------------------------------------------------------------------*/
+.ui-bar-c,
+.ui-bar-c input,
+.ui-bar-c select,
+.ui-bar-c textarea,
+.ui-bar-c button {
+      font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-body-c,
+.ui-body-c input,
+.ui-body-c select,
+.ui-body-c textarea,
+.ui-body-c button {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-btn-up-c,
+.ui-btn-hover-c,
+.ui-btn-down-c {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+    text-decoration: none;
+}
+
+/* D
+-----------------------------------------------------------------------------------------------------------*/
+.ui-bar-d,
+.ui-bar-d input,
+.ui-bar-d select,
+.ui-bar-d textarea,
+.ui-bar-d button {
+      font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-body-d,
+.ui-body-d input,
+.ui-body-d select,
+.ui-body-d textarea,
+.ui-body-d button {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+}
+
+.ui-btn-up-d,
+.ui-btn-hover-d,
+.ui-btn-down-d {
+     font-family: skolar,Georgia,"Century Schoolbook","Times New Roman",Times,serif /*{global-font-family}*/;
+    text-decoration: none;
+}
