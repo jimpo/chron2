@@ -1,6 +1,10 @@
 _ = require 'underscore'
+async = require 'async'
 errs = require 'errs'
+fs = require 'fs'
+im = require 'imagemagick'
 mongoose = require 'mongoose'
+path = require 'path'
 util = require 'util'
 
 app = require '../../app'
@@ -47,6 +51,32 @@ imageSchema.methods.generateUrlForVersion = (version, x1, y1, original) ->
   type = IMAGE_TYPES[version.type]
   version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{original}"
 
+imageSchema.methods.download = (dir, callback) ->
+  dest = path.join(dir, @url)
+  app.s3.getFile("/images/#{@url}", (err, res) ->
+    if err then return callback(err)
+    data = ''
+    res.setEncoding('binary')
+    res.on('data', (chunk) -> data += chunk)
+    res.on('end', ->
+      fs.writeFile dest, data, 'binary', (err) ->
+        callback(err, dest)
+    )
+  )
+
+imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
+  async.waterfall([
+    (callback) => this.download(path.join(__dirname, '../../tmp'), callback)
+    (filepath, callback) -> cropImage(version, dim, filepath, callback)
+    (filepath, callback) ->
+      headers =
+        'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
+      url = "/images/versions/#{version.url}"
+      app.s3.putFile(filepath, url, headers, callback)
+    ],
+    callback
+  )
+
 imageSchema.virtual('fullUrl').get ->
   "#{app.config.CONTENT_CDN}/images/#{@url}"
 
@@ -58,3 +88,11 @@ imageSchema.virtual('name').get ->
 
 Image = module.exports = app.db.model 'Image', imageSchema
 Image.IMAGE_TYPES = IMAGE_TYPES
+
+cropImage = (version, dim, src, callback) ->
+  type = IMAGE_TYPES[version.type]
+  dest = path.join(path.dirname(src), version.url)
+  geometry = "#{dim.w}x#{dim.h}+#{dim.x1}+#{dim.y1}"
+  dimensions = "#{type.width}x#{type.height}"
+  im.convert ['-crop', geometry, '-resize', dimensions, src, dest], (err, stdout, stderr) ->
+    callback(err, dest)

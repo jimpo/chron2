@@ -10,7 +10,7 @@ winston.transports.Console.prototype.logException = do (logException = winston.t
     logException.call(this, msg, meta, callback)
 
 module.exports = (callback) ->
-  logger = new winston.Logger
+  logger = new winston.Logger(exitOnError: false)
   logger.setLevels(winston.config.syslog.levels);
   logger.add(winston.transports.Console,
     level: 'debug'
