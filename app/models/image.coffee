@@ -47,9 +47,9 @@ imageSchema = new mongoose.Schema
 imageSchema.methods.generateUrl = (filename) ->
   @url = util.randomString(8) + '-' + filename
 
-imageSchema.methods.generateUrlForVersion = (version, x1, y1, original) ->
+imageSchema.methods.generateUrlForVersion = (version, x1, y1) ->
   type = IMAGE_TYPES[version.type]
-  version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{original}"
+  version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{this.url}"
 
 imageSchema.methods.download = (dir, callback) ->
   dest = path.join(dir, @url)

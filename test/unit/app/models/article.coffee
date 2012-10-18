@@ -21,6 +21,23 @@ describe 'Article', ->
     it 'should be valid', (done) ->
       article.validate(done)
 
+    it 'should be invalid without a body', (done) ->
+      article.body = ''
+      article.validate (err) ->
+        expect(err).to.exist
+        done()
+
+    it 'should be invalid without a taxonomy', (done) ->
+      article.taxonomy = []
+      article.validate (err) ->
+        expect(err).to.exist
+        done()
+
+  describe 'url', ->
+    it 'should be the first element of urls', ->
+      article.urls = ['charmander', 'bulbasaur', 'squirtle']
+      article.url.should.equal 'charmander'
+
   describe '#addUrlForTitle()', ->
     it 'should add new url to front of article urls', (done) ->
       sinon.stub(mongoose.Query.prototype, 'exec').yields(null, [])
