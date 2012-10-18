@@ -13,13 +13,7 @@ util.requireAll = (dir, exports) ->
     if moduleName and moduleName isnt 'index'
       exports[moduleName] = require(path.join(dir, moduleName))
 
-util.random = (min, max) ->
-  if not max?
-    max = min
-    min = 0
-  min + Math.floor(Math.random() * (max - min + 1))
-
 util.randomString = (n) ->
   chars = 'abcdefghijklmnopqrstuvwxyz'
   chars = chars + chars.toUpperCase() + [0..9].join('')
-  (chars[util.random(0, chars.length)] for i in [0...n]).join('')
+  (chars[_.random(chars.length-1)] for i in [0...n]).join('')
