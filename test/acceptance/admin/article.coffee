@@ -14,8 +14,7 @@ describe 'article', ->
     browser = null
 
     beforeEach (done) ->
-      url = fullUrl('admin', '/article/new')
-      Browser.visit url, {runScripts: false}, (err, _browser) ->
+      Browser.visit fullUrl('admin', '/article/new'), (err, _browser) ->
         browser = _browser
         done(err)
 
