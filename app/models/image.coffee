@@ -87,9 +87,21 @@ imageSchema.methods.cropImage = (version, dim, buffer, callback) ->
     if err then return errs.handle(err, callback)
     geometry = "#{dim.w}x#{dim.h}+#{dim.x1}+#{dim.y1}"
     dimensions = "#{type.width}x#{type.height}"
-    im.convert ['-crop', geometry, '-resize', dimensions, src, dest], (err) ->
+    im.convert(['-crop', geometry, '-resize', dimensions, src, dest], (err) ->
       if err then return errs.handle(err, callback)
       fs.readFile(dest, 'binary', callback)
+
+      # cropImage does not need to wait for temporary files to be removed
+      fs.unlink src, (err) ->
+        app.log.warning(errs.merge(err, {
+          message: "Temporary file #{src} could not be removed"
+        })) if err?
+
+      fs.unlink dest, (err) ->
+        app.log.warning(errs.merge(err, {
+          message: "Temporary file #{dest} could not be removed"
+        })) if err?
+    )
 
 imageSchema.methods.fullUrl = (version) ->
   baseUrl = app.config.CONTENT_CDN + '/images/'

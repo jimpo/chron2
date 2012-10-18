@@ -68,6 +68,7 @@ describe 'Image', ->
     buffer = null
 
     beforeEach (done) ->
+      app.log = {warning: console.log}
       image.url = 'original.jpg'
       image.versions.push(type: 'LargeRect', url: 'version.jpg')
       version = image.versions[0]
@@ -104,15 +105,26 @@ describe 'Image', ->
       )
 
     it 'should yield the cropped image buffer', (done) ->
+      fsSpy = sinon.stub(fs, 'readFile').yields(null, 'cropped')
       imSpy = sinon.spy(im, 'convert')
       image.cropImage(version, dimensions, buffer, (err, cropped) ->
-        if err then return done(err)
         im.convert.restore()
+        fs.readFile.restore()
         dest = _.last(imSpy.firstCall.args[0])
-        fs.readFile dest, 'binary', (err, buffer) ->
-          if err then return done(err)
-          cropped.should.equal buffer
-          done()
+        fsSpy.should.have.been.calledWith(dest, 'binary')
+        cropped.should.equal 'cropped'
+        done(err)
       )
 
-    it.skip 'should remove images written to disk'
+    it 'should remove images written to disk', (done) ->
+      fsSpy = sinon.spy(fs, 'unlink')
+      imSpy = sinon.spy(im, 'convert')
+      image.cropImage(version, dimensions, buffer, (err, cropped) ->
+        im.convert.restore()
+        fs.unlink.restore()
+        src = imSpy.firstCall.args[0][4]
+        dest = imSpy.firstCall.args[0][5]
+        fsSpy.should.have.been.calledWith(src)
+        fsSpy.should.have.been.calledWith(dest)
+        done(err)
+      )
