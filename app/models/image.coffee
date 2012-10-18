@@ -58,14 +58,11 @@ imageSchema.methods.download = (dir, callback) ->
     data = ''
     res.setEncoding('binary')
     res.on('data', (chunk) -> data += chunk)
-    res.on('end', ->
-      fs.writeFile dest, data, 'binary', (err) ->
-        callback(err, dest)
-    )
+    res.on('end', -> callback(null, data))
   )
 
 imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
-  src = path.join(__dirname, '../../tmp', @url)
+  src = 
   dest = path.join(__dirname, '../../tmp', version.url)
   async.waterfall([
     (callback) => this.download(path.dirname(src), callback)
@@ -81,6 +78,19 @@ imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
     callback
   )
 
+imageSchema.methods.cropImage = (version, dim, buffer, callback) ->
+  type = IMAGE_TYPES[version.type]
+  tmpdir = path.join(__dirname, '../../tmp')
+  src = path.join(tmpdir, @url)
+  dest = path.join(tmpdir, version.url)
+  fs.writeFile src, buffer, 'binary', (err) ->
+    if err then return errs.handle(err, callback)
+    geometry = "#{dim.w}x#{dim.h}+#{dim.x1}+#{dim.y1}"
+    dimensions = "#{type.width}x#{type.height}"
+    im.convert ['-crop', geometry, '-resize', dimensions, src, dest], (err) ->
+      if err then return errs.handle(err, callback)
+      fs.readFile(dest, 'binary', callback)
+
 imageSchema.methods.fullUrl = (version) ->
   baseUrl = app.config.CONTENT_CDN + '/images/'
   baseUrl + (if version then "versions/#{version.url}" else @url)
@@ -90,11 +100,3 @@ imageSchema.virtual('name').get ->
 
 Image = module.exports = app.db.model 'Image', imageSchema
 Image.IMAGE_TYPES = IMAGE_TYPES
-
-cropImage = (version, dim, src, callback) ->
-  type = IMAGE_TYPES[version.type]
-  dest = path.join(path.dirname(src), version.url)
-  geometry = "#{dim.w}x#{dim.h}+#{dim.x1}+#{dim.y1}"
-  dimensions = "#{type.width}x#{type.height}"
-  im.convert ['-crop', geometry, '-resize', dimensions, src, dest], (err, stdout, stderr) ->
-    callback(err, dest)
