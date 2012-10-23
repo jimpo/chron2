@@ -101,11 +101,7 @@ updateImage = (image, doc, flash, callback) ->
 uploadImage = (fileInfo, callback) ->
   image = new Image
   image.generateUrl(fileInfo.filename)
-  headers =
-    'Content-Type': fileInfo.mime
-    'Content-Length': fileInfo.length
-    'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
-  app.s3.putFile(fileInfo.path, "/images/#{image.url}", headers, (err, res) ->
+  image.upload fileInfo, (err) ->
     if err then return errs.handle(err, callback)
     image.save (err) ->
       response =
@@ -115,4 +111,3 @@ uploadImage = (fileInfo, callback) ->
         delete_url: "\/image/#{image.url}"
         delete_type: 'DELETE'
       callback(err, response)
-  )

@@ -59,7 +59,15 @@ imageSchema.methods.download = (dir, callback) ->
     res.setEncoding('binary')
     res.on('data', (chunk) -> data += chunk)
     res.on('end', -> callback(null, data))
+    res.on('close', callback)
   )
+
+imageSchema.methods.upload = (fileInfo, callback) ->
+  headers =
+    'Content-Type': fileInfo.mime
+    'Content-Length': fileInfo.length
+    'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
+  app.s3.putFile(fileInfo.path, "/images/#{@url}", headers, callback)
 
 imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
   src = 

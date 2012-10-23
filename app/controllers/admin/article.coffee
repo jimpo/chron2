@@ -1,7 +1,6 @@
 _ = require 'underscore'
 async = require 'async'
 errs = require 'errs'
-mongodb = require 'mongodb'
 
 app = require '../..'
 Article = require '../../models/article'

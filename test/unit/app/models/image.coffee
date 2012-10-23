@@ -128,3 +128,25 @@ describe 'Image', ->
         fsSpy.should.have.been.calledWith(dest)
         done(err)
       )
+
+  describe '#upload()', ->
+    fileInfo =
+      mime: 'image/jpeg'
+      length: 8012
+      path: '/tmp/image_path'
+
+    beforeEach ->
+      image.url = 'raichu.png'
+      app.s3 =
+        putFile: sinon.stub()
+
+    it 'should putFile to s3 with appropriate request headers', (done) ->
+      headers =
+        'Content-Type': 'image/jpeg'
+        'Content-Length': 8012
+        'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
+      app.s3.putFile.yields()
+      image.upload fileInfo, (err) ->
+        app.s3.putFile.should.have.been.calledWith(
+          '/tmp/image_path', '/images/raichu.png')
+        done(err)
