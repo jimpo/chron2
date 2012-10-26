@@ -90,16 +90,14 @@ updateArticle = (article, doc, flash, callback) ->
     article.set(doc)
     article.addUrlForTitle (err) ->
       if err then return errs.handle(err, callback)
-      article.validate (err) ->
+      article.save (err) ->
         if err and err.name is 'ValidationError'
           callback(null, err.errors)
         else if err
           errs.handle(err, callback)
         else
-          article.save (err) ->
-            if err then return errs.handle(err, callback)
-            flash("Article \"#{article.title}\" was saved")
-            callback(err)
+          flash("Article \"#{article.title}\" was saved")
+          callback(err)
   )
 
 # TODO: this should perform bulk insertion of authors

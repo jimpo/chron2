@@ -38,6 +38,7 @@ describe 'article', ->
         .pressButton('Submit', () ->
           Article.prototype.save.should.have.been.called
           article = Article.prototype.save.thisValues[0]
+          Article.prototype.save.restore()
           article.title.should.equal('Ash defeats Gary in Indigo Plateau')
           article.subtitle.should.equal('Oak arrives just in time')
           article.teaser.should.equal('Ash becomes new Pokemon Champion')
@@ -46,7 +47,6 @@ describe 'article', ->
           article.taxonomy.should.have.length 1
           article.authors.should.have.length 0
 
-          Article.prototype.save.restore()
           done()
         )
 

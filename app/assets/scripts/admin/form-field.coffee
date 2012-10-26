@@ -6,6 +6,6 @@ define ['jquery'], ($) ->
       $items = $(this).parent().parent().children('li')
       index = $items.index($(this).parent())
       name = $(this).data('name') + "[#{index}]"
-      $field = $('<li><input class="span4" type="text"/></li>')
+      $field = $('<li><input type="text"/></li>')
       $field.children('input').attr('name', name)
       $(this).parent().before($field)
