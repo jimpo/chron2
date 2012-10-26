@@ -64,9 +64,8 @@ describe 'article', ->
           browser.redirected.should.be.true
           browser.location.pathname.should.equal('/')
           flash = browser.text('.alert-info')
-          expect(flash).to.exist
           flash.should.contain 'Article "Ash defeats Gary in Indigo Plateau" was
- created'
+ saved'
           browser.location.pathname.should.equal('/')
           done()
 

@@ -1,6 +1,12 @@
 extends layout
 
 block content
+  - if (messages.length > 0)
+    .alert.alert-info
+      ul
+        - each message in messages
+          li= message
+
   h1 Welcome
     - if (user)
       | , #{user.name}!
