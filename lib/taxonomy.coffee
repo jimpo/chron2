@@ -1,11 +1,17 @@
 _ = require 'underscore'
+errs = require 'errs'
 mongoose = require 'mongoose'
+
+app = require '../app'
 
 
 class Taxonomy extends mongoose.Types.Array
 
   constructor: (taxonomy, path, doc) ->
-    arr = new mongoose.Types.Array(taxonomy, path, doc)
+    node = findTaxonomyNode(taxonomy ? [])
+    if not node?
+      throw errs.create('InvalidTaxonomyError')
+    arr = new mongoose.Types.Array(node.taxonomy, path, doc)
     arr.__proto__ = Taxonomy.prototype
     return arr
 
@@ -21,6 +27,20 @@ class SchemaTaxonomy extends mongoose.Schema.Types.Array
         val
       else
         new Taxonomy(val)
+
+findTaxonomyNode = (taxonomy) ->
+  root = {children: app.config.TAXONOMY}
+  fullTaxonomy = [];
+
+  for section in taxonomy
+    root = _.find(root.children || [], (child) ->
+      child.name.toLowerCase() is section.toLowerCase()
+    )
+    return undefined if not root?
+    fullTaxonomy.push(root.name)
+
+  taxonomy: fullTaxonomy
+  children: root.children
 
 validTaxonomy = -> true
 
