@@ -57,8 +57,21 @@ describe 'Taxonomy', ->
     it 'should return taxonomy as an array', ->
       taxonomy.taxonomy().should.eql ['News', 'University']
 
-  describe.skip '#children()', ->
-  describe.skip '#parents()', ->
+  describe '#children()', ->
+    it 'should return an array of child nodes', ->
+      taxonomy = new Taxonomy(['news'])
+      taxonomy.children().should.eql [
+        new Taxonomy(['News', 'University'])
+      ]
+
+  describe '#parents()', ->
+    it 'should return an array of ancestor nodes', ->
+      taxonomy = new Taxonomy(['news', 'university', 'academics'])
+      taxonomy.parents().should.eql [
+        new Taxonomy(['News'])
+        new Taxonomy(['News', 'University'])
+        new Taxonomy(['News', 'University', 'Academics'])
+      ]
 
   describe 'model integration', ->
     Pokemon = null

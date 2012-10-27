@@ -9,14 +9,21 @@ class Taxonomy extends mongoose.Types.Array
 
   constructor: (taxonomy, path, doc) ->
     node = findTaxonomyNode(taxonomy ? [])
-    if not node?
-      throw errs.create('InvalidTaxonomyError')
+    throw errs.create('InvalidTaxonomyError') if not node?
     arr = new mongoose.Types.Array(node.taxonomy, path, doc)
     arr.__proto__ = Taxonomy.prototype
     return arr
 
   taxonomy: ->
     _.toArray(this)
+
+  children: ->
+    node = findTaxonomyNode(this)
+    throw errs.create('InvalidTaxonomy') if not node?
+    (new Taxonomy(this.concat([childNode.name])) for childNode in node.children)
+
+  parents: ->
+    (new Taxonomy(this.slice(0, i)) for i in [1..this.length])
 
 class SchemaTaxonomy extends mongoose.Schema.Types.Array
   constructor: (key, options) ->

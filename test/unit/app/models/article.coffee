@@ -26,7 +26,6 @@ describe 'Article', ->
 
   describe 'constructor', ->
     it 'should be valid', (done) ->
-      console.log(article.taxonomy)
       article.validate(done)
 
     it 'should be invalid without a body', (done) ->
