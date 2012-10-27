@@ -51,14 +51,25 @@ imageSchema.methods.generateUrlForVersion = (version, x1, y1) ->
   type = IMAGE_TYPES[version.type]
   version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{this.url}"
 
-imageSchema.methods.download = (dir, callback) ->
-  dest = path.join(dir, @url)
+imageSchema.methods.download = (callback) ->
   app.s3.getFile("/images/#{@url}", (err, res) ->
     if err then return callback(err)
     data = ''
     res.setEncoding('binary')
     res.on('data', (chunk) -> data += chunk)
-    res.on('end', -> callback(null, data))
+    res.on('end', ->
+      err = undefined
+      switch res.statusCode
+        when 200 then err = undefined
+        when 403 then err = 'Forbidden'
+        else err = 'Unknown error'
+
+      if err?
+        res.message = err
+        callback(errs.create('S3Error', res))
+      else
+        callback(undefined, data)
+    )
     res.on('close', callback)
   )
 

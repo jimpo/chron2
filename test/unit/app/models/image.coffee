@@ -1,6 +1,8 @@
 _ = require 'underscore'
 fs = require 'fs'
 im = require 'imagemagick'
+knox = require 'knox'
+nock = require 'nock'
 path = require 'path'
 
 Image = require 'app/models/image'
@@ -54,8 +56,38 @@ describe 'Image', ->
         '636x393-20-30-abcdefgh-raichu.png')
 
   describe '#download()', ->
-    it.skip 'should fetch file from s3'
-    it.skip 'should callback with binary buffer of file contents'
+    before ->
+      app.s3 = knox.createClient
+        key: 's3_key'
+        secret: 's3_secret'
+        bucket: 's3_bucket'
+
+    it 'should fetch file from s3', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com')
+        .get('/images/abcdefgh-raichu.png')
+        .reply(403)
+      image.url = 'abcdefgh-raichu.png'
+      image.download (err, data) ->
+        scope.done()
+        done()
+
+    it 'should call back with an error if there\'s an error', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com')
+        .get('/images/abcdefgh-raichu.png')
+        .reply(403)
+      image.url = 'abcdefgh-raichu.png'
+      image.download (err, data) ->
+        err.should.be.an('Error')
+        done()
+
+    it 'should callback with binary buffer of file contents', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com')
+        .get('/images/abcdefgh-raichu.png')
+        .reply(200, 'pikachu image')
+      image.url = 'abcdefgh-raichu.png'
+      image.download (err, data) ->
+        data.should.equal 'pikachu image'
+        done(err)
 
   describe '#cropImage()', ->
     version = null
