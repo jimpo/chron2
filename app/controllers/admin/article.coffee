@@ -5,12 +5,9 @@ errs = require 'errs'
 app = require '../..'
 Article = require '../../models/article'
 Author = require '../../models/author'
+Taxonomy = require '../../../lib/taxonomy'
 
 ARTICLES_PER_PAGE = 20
-TAXONOMY = [
-  [{name: 'News'}, {name: 'Sports'}]
-  [{name: 'University', parent: 'News'}]
-]
 
 
 exports.index = (req, res, next) ->
@@ -27,7 +24,7 @@ exports.new = (req, res, next) ->
   res.render 'admin/article/new'
     doc: {}
     errors: null
-    taxonomy: TAXONOMY
+    taxonomy: Taxonomy.levels()
     token: req.session._csrf
 
 exports.edit = (req, res, next) ->
@@ -40,7 +37,7 @@ exports.edit = (req, res, next) ->
         res.render 'admin/article/edit'
           doc: article
           errors: null
-          taxonomy: TAXONOMY
+          taxonomy: Taxonomy.levels()
           token: req.session._csrf
   )
 
@@ -59,7 +56,7 @@ exports.update = (req, res, next) ->
           res.render 'admin/article/edit'
             doc: req.body.doc
             errors: retryErrors
-            taxonomy: TAXONOMY
+            taxonomy: Taxonomy.levels()
             token: req.session._csrf
         else
           res.redirect '/'
@@ -75,7 +72,7 @@ exports.create = (req, res, next) ->
       res.render 'admin/article/new'
         doc: req.body.doc
         errors: retryErrors
-        taxonomy: TAXONOMY
+        taxonomy: Taxonomy.levels()
         token: req.session._csrf
     else
       res.redirect '/'

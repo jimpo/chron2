@@ -43,7 +43,7 @@ describe 'article', ->
           article.subtitle.should.equal('Oak arrives just in time')
           article.teaser.should.equal('Ash becomes new Pokemon Champion')
           article.body.should.equal('**Pikachu** wrecks everyone. The End.')
-          article.taxonomy[0].should.equal 'news'
+          article.taxonomy[0].should.equal 'News'
           article.taxonomy.should.have.length 1
           article.authors.should.have.length 0
 
