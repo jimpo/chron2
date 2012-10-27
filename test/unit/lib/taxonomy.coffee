@@ -70,3 +70,15 @@ describe 'Taxonomy', ->
       pikachu = new Pokemon(taxonomy: ['News', 'University'])
       pikachu.taxonomy.should.be.an.instanceOf Taxonomy
       pikachu.taxonomy.taxonomy().should.eql ['News', 'University']
+
+    it 'should create model with invalid taxonomy', ->
+      constructor = -> new Pokemon(taxonomy: ['fake', 'section'])
+      constructor.should.not.throw(Error)
+
+    it 'should be invalid without a taxonomy', (done) ->
+      pikachu = new Pokemon()
+      pikachu.validate (err) ->
+        expect(err).to.exist
+        err.name.should.equal 'ValidationError'
+        err.errors.should.have.property 'taxonomy'
+        done()

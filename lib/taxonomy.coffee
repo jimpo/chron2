@@ -22,6 +22,7 @@ class SchemaTaxonomy extends mongoose.Schema.Types.Array
   constructor: (key, options) ->
     super(key, String, options)
     this.validate(validTaxonomy, 'Taxonomy is not valid')
+    this.required()
     this.set (val) ->
       if val instanceof Taxonomy
         val
