@@ -28,6 +28,6 @@
         "validator": "0.4.x",
         "winston": "0.6.x",
         "winston-loggly": "0.6.x",
-        "zombie": "1.4.x"
+        "zombie": "2.0.x"
     }
 }

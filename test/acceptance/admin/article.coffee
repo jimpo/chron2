@@ -14,7 +14,7 @@ describe 'article', ->
     browser = null
 
     beforeEach (done) ->
-      Browser.visit fullUrl('admin', '/article/new'), (err, _browser) ->
+      Browser.visit fullUrl('admin', '/article/new'), {runScripts: false}, (err, _browser) ->
         browser = _browser
         done(err)
 
@@ -35,7 +35,7 @@ describe 'article', ->
         .fill('Teaser', 'Ash becomes new Pokemon Champion')
         .fill('Body', '**Pikachu** wrecks everyone. The End.')
         .select('Section', 'News')
-        .pressButton('Submit', () ->
+        .pressButton('Submit', ->
           Article.prototype.save.should.have.been.called
           article = Article.prototype.save.thisValues[0]
           Article.prototype.save.restore()
