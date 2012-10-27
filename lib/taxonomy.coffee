@@ -17,6 +17,12 @@ class Taxonomy extends mongoose.Types.Array
   taxonomy: ->
     _.toArray(this)
 
+  name: ->
+    _.last(this)
+
+  path: ->
+    '/' + (section.toLowerCase() for section in this).join('/')
+
   children: ->
     node = findTaxonomyNode(this)
     throw errs.create('InvalidTaxonomy') if not node?
@@ -25,16 +31,8 @@ class Taxonomy extends mongoose.Types.Array
   parents: ->
     (new Taxonomy(this.slice(0, i)) for i in [1..this.length])
 
-class SchemaTaxonomy extends mongoose.Schema.Types.Array
-  constructor: (key, options) ->
-    super(key, String, options)
-    this.validate(validTaxonomy, 'Taxonomy is not valid')
-    this.required()
-    this.set (val) ->
-      if val instanceof Taxonomy
-        val
-      else
-        new Taxonomy(val)
+Taxonomy.mainSections = ->
+  (node.name() for node in (new Taxonomy).children())
 
 findTaxonomyNode = (taxonomy) ->
   root = {children: app.config.TAXONOMY}
@@ -50,7 +48,15 @@ findTaxonomyNode = (taxonomy) ->
   taxonomy: fullTaxonomy
   children: root.children
 
-validTaxonomy = -> true
+class SchemaTaxonomy extends mongoose.Schema.Types.Array
+  constructor: (key, options) ->
+    super(key, String, options)
+    this.required()
+    this.set (val) ->
+      if val instanceof Taxonomy
+        val
+      else
+        new Taxonomy(val)
 
 module.exports = Taxonomy
 mongoose.Schema.Types.Taxonomy = SchemaTaxonomy

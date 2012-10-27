@@ -57,6 +57,16 @@ describe 'Taxonomy', ->
     it 'should return taxonomy as an array', ->
       taxonomy.taxonomy().should.eql ['News', 'University']
 
+  describe '#name()', ->
+    it 'should be the last section in the taxonomy', ->
+      taxonomy = new Taxonomy(['News', 'University'])
+      taxonomy.name().should.equal 'University'
+
+  describe '#path()', ->
+    it 'should be the taxonomy lowercased and separated by slashes', ->
+      taxonomy = new Taxonomy(['News', 'University', 'Academics'])
+      taxonomy.path().should.equal '/news/university/academics'
+
   describe '#children()', ->
     it 'should return an array of child nodes', ->
       taxonomy = new Taxonomy(['news'])
@@ -72,6 +82,10 @@ describe 'Taxonomy', ->
         new Taxonomy(['News', 'University'])
         new Taxonomy(['News', 'University', 'Academics'])
       ]
+
+  describe 'mainSections()', ->
+    it 'should return names of top level sections', ->
+      Taxonomy.mainSections().should.eql ['News', 'Sports']
 
   describe 'model integration', ->
     Pokemon = null
