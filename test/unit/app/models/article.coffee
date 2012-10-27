@@ -6,6 +6,13 @@ Article = require 'app/models/article'
 describe 'Article', ->
   article = null
 
+  before ->
+    app.config ?= {}
+    app.config.TAXONOMY = [
+      name: 'News'
+      children: []
+    ]
+
   beforeEach ->
     article = new Article(
       authors: []
@@ -19,6 +26,7 @@ describe 'Article', ->
 
   describe 'constructor', ->
     it 'should be valid', (done) ->
+      console.log(article.taxonomy)
       article.validate(done)
 
     it 'should be invalid without a body', (done) ->

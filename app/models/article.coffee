@@ -4,6 +4,7 @@ mongoose = require 'mongoose'
 
 app = require '../../app'
 Author = require './author'
+Taxonomy = require '../../lib/taxonomy'
 
 
 articleSchema = new mongoose.Schema
@@ -11,7 +12,7 @@ articleSchema = new mongoose.Schema
   body: {type: String, required: true}
   created: {type: Date, default: Date.now, required: true}
   subtitle: String
-  taxonomy: {type: [String], required: true}
+  taxonomy: Taxonomy
   teaser: String
   title: {type: String, required: true}
   updated: {type: Date, default: Date.now, required: true}
