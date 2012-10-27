@@ -22,6 +22,18 @@ describe 'Taxonomy', ->
       taxonomy = new Taxonomy()
       taxonomy.should.be.an.instanceOf(mongoose.Types.Array)
 
+  describe '#taxonomy()', ->
+    taxonomy = new Taxonomy(['News', 'University'])
+
+    it 'should return taxonomy as an array', ->
+      taxonomy.taxonomy().should.be.an('Array')
+
+    it 'should return taxonomy as an array', ->
+      taxonomy.taxonomy().should.eql ['News', 'University']
+
+  describe.skip '#children()', ->
+  describe.skip '#parents()', ->
+
   describe 'model integration', ->
     Pokemon = null
 

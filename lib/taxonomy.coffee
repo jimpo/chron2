@@ -4,8 +4,8 @@ mongoose = require 'mongoose'
 
 class Taxonomy extends mongoose.Types.Array
 
-  constructor: (values, path, doc) ->
-    arr = new mongoose.Types.Array(values, path, doc)
+  constructor: (taxonomy, path, doc) ->
+    arr = new mongoose.Types.Array(taxonomy, path, doc)
     arr.__proto__ = Taxonomy.prototype
     return arr
 
