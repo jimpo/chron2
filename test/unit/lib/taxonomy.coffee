@@ -87,6 +87,14 @@ describe 'Taxonomy', ->
     it 'should return names of top level sections', ->
       Taxonomy.mainSections().should.eql ['News', 'Sports']
 
+  describe 'levels()', ->
+    it 'should return an array of each level of sections', ->
+      Taxonomy.levels().should.eql [
+        [{name: 'News'}, {name: 'Sports'}]
+        [{name: 'University', parent: 'News'}]
+        [{name: 'Academics', parent: 'University'}]
+      ]
+
   describe 'model integration', ->
     Pokemon = null
 

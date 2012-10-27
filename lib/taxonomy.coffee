@@ -34,6 +34,21 @@ class Taxonomy extends mongoose.Types.Array
 Taxonomy.mainSections = ->
   (node.name() for node in (new Taxonomy).children())
 
+Taxonomy.levels = ->
+  current = app.config.TAXONOMY
+  levels = []
+  while current.length
+    next = []
+    level = []
+    for section in current
+      level.push _.pick(section, 'name', 'parent')
+      for child in section.children
+        child.parent = section.name;
+      Array.prototype.push.apply(next, section.children);
+    levels.push(level);
+    current = next;
+  levels
+
 findTaxonomyNode = (taxonomy) ->
   root = {children: app.config.TAXONOMY}
   fullTaxonomy = [];
