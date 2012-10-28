@@ -5,10 +5,12 @@ app = require '../../app'
 
 
 authorSchema = new mongoose.Schema
+  
   affiliation: String
   biography: String
   currentColumnist: {type: Boolean, default: false}
   name: {type: String, required: true}
+  positions: [{ title: String, year: Date }]
   tagline: String
   twitter: String
 

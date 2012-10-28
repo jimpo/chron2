@@ -1,5 +1,5 @@
 {
-    "MONGODB": "mongodb://user:pass@host:port",
+    "MONGODB":  "mongodb://underredrock:Duke1989@ds039717.mongolab.com:4000",
     "PORT": 4000,
     "DOMAIN_NAME": "localhost",
     "S3": {
