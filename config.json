@@ -1,0 +1,14 @@
+{
+    "MONGODB": "mongodb://chrondev:pikachu@alex.mongohq.com:10046/app578498",
+    "PORT": 4000,
+    "DOMAIN_NAME": "localhost",
+    "S3": {
+        "key": "AKIAIYFXUBQH3KY7GQUQ",
+        "secret": "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",
+        "buckets": {
+            "file": "chron_dev",
+            "static": "chron_static"
+        }
+    },
+    "CONTENT_CDN": "http://d164gy67scumxg.cloudfront.net"
+}

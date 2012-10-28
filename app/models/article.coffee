@@ -2,18 +2,18 @@ _ = require 'underscore'
 errs = require 'errs'
 md = require 'discount'
 mongoose = require 'mongoose'
-
 app = require '../../app'
 Author = require './author'
 Image = require './image'
-Taxonomy = require '../../lib/taxonomy'
+extend = require 'mongoose-schema-extend'
 
+Taxonomy = require '../../lib/taxonomy'
 
 imageSchema =
   image: {type: mongoose.Schema.Types.ObjectId, ref: 'Image'}
   id: mongoose.Schema.Types.ObjectId
 
-articleSchema = new mongoose.Schema
+baseSchema = new mongoose.Schema
   authors: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Author'}], default: []}
   body: {type: String, required: true}
   created: {type: Date, default: Date.now, required: true}
@@ -24,11 +24,13 @@ articleSchema = new mongoose.Schema
     ThumbSquareM: imageSchema
     ThumbWide: imageSchema
   subtitle: String
-  taxonomy: Taxonomy
   teaser: String
   title: {type: String, required: true}
   updated: {type: Date, default: Date.now, required: true}
   urls: {type: [{type: String, match: /[a-z_\d\-]/}], required: true}
+
+articleSchema = baseSchema.extend
+  taxonomy: Taxonomy
 
 articleSchema.pre('save', (next) ->
   this.updated = new Date
@@ -57,6 +59,7 @@ for version in ['LargeRect', 'ThumbRect', 'ThumbRectL', 'ThumbSquareM', 'ThumbWi
 articleSchema.virtual('url').get -> @urls[0]
 
 Article = module.exports = app.db.model 'Article', articleSchema
+Article.baseSchema = baseSchema
 
 getAvailableUrl = (url, callback) ->
   urlPattern = new RegExp("^#{url}")
