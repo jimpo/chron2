@@ -1,3 +1,4 @@
+_ = require 'underscore'
 util = require 'util'
 
 Article = require 'app/models/article'
@@ -29,135 +30,130 @@ describe 'article', ->
       form.getAttribute('method').should.equal 'POST'
       form.getAttribute('action').should.equal '/article'
 
-    it 'should create a new article when form is submitted', (done) ->
-      sinon.stub(Article.prototype, 'save').yields()
-      browser
-        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
-        .fill('Subtitle', 'Oak arrives just in time')
-        .fill('Teaser', 'Ash becomes new Pokemon Champion')
-        .fill('Body', '**Pikachu** wrecks everyone. The End.')
-        .select('Section', 'News')
-        .pressButton('Submit', ->
-          Article.prototype.save.should.have.been.called
-          article = Article.prototype.save.thisValues[0]
-          Article.prototype.save.restore()
-          article.title.should.equal('Ash defeats Gary in Indigo Plateau')
-          article.subtitle.should.equal('Oak arrives just in time')
-          article.teaser.should.equal('Ash becomes new Pokemon Champion')
-          article.body.should.equal('**Pikachu** wrecks everyone. The End.')
-          article.taxonomy[0].should.equal 'News'
-          article.taxonomy.should.have.length 1
+    describe 'when article is invalid', ->
+      it 'should not create article', (done) ->
+        Article.count (err, initial) ->
+          return done(err) if err?
+          browser
+            .fill('Subtitle', 'Oak arrives just in time')
+            .pressButton 'Submit', ->
+              Article.count (err, final) ->
+                final.should.equal initial
+                done(err)
+
+      it 'should display errors', (done) ->
+        browser
+          .fill('Subtitle', 'Oak arrives just in time')
+          .pressButton 'Submit', ->
+            errors = browser.text('.alert-error')
+            expect(errors).to.exist
+            errors.should.contain 'Validator "required" failed for path title'
+            titleInput = browser.query('form input#title')
+            titleControlGroup = titleInput.parentNode.parentNode
+            titleControlGroup.getAttribute('class').should.contain 'error'
+            done()
+
+      it 'should fill fields with entered values', (done) ->
+        browser
+          .fill('Subtitle', 'Oak arrives just in time')
+          .fill('Teaser', 'Ash becomes new Pokemon Champion')
+          .pressButton 'Submit', ->
+            form = browser.query('form')
+            expect(form).to.exist
+            form.querySelector('input#subtitle').value
+              .should.equal 'Oak arrives just in time'
+            form.querySelector('textarea#teaser').value
+              .should.equal 'Ash becomes new Pokemon Champion'
+            done()
+
+    describe 'when article is valid', ->
+      initial = null
+
+      beforeEach (done) ->
+        Article.count (err, count) ->
+          return done(err) if err?
+          initial = count
+          browser
+            .fill('Title', 'Ash defeats Gary in Indigo Plateau')
+            .fill('Subtitle', 'Oak arrives just in time')
+            .fill('Teaser', 'Ash becomes new Pokemon Champion')
+            .fill('Body', '**Pikachu** wrecks everyone. The End.')
+            .select('Section', 'News')
+            .pressButton('Submit', done)
+
+      it 'should create a new article', (done) ->
+        Article.count (err, final) ->
+          final.should.equal (initial + 1)
+          done(err)
+
+      it 'should make an article with the filled in fields', (done) ->
+        title = 'Ash defeats Gary in Indigo Plateau'
+        Article.findOne {title: title}, (err, article) ->
+          expect(article).to.exist
+          article.subtitle.should.equal 'Oak arrives just in time'
+          article.teaser.should.equal 'Ash becomes new Pokemon Champion'
+          article.body.should.equal '**Pikachu** wrecks everyone. The End.'
+          _.toArray(article.taxonomy).should.eql ['News', 'University'] # TODO: This is wrong #zombieproblems
           article.authors.should.have.length 0
+          done(err)
 
-          done()
-        )
+      it 'should redirect to admin index page', ->
+        browser.redirected.should.be.true
+        browser.location.pathname.should.equal('/')
 
-    it 'should redirect to admin index page with flash message after article is
- created', (done) ->
-      sinon.stub(Article.prototype, 'save').yields()
-      browser
-        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
-        .fill('Subtitle', 'Oak arrives just in time')
-        .fill('Teaser', 'Ash becomes new Pokemon Champion')
-        .fill('Body', '**Pikachu** wrecks everyone. The End.')
-        .select('Section', 'News')
-        .pressButton 'Submit', () ->
-          Article.prototype.save.restore()
-          browser.redirected.should.be.true
-          browser.location.pathname.should.equal('/')
-          flash = browser.text('.alert-info')
-          flash.should.contain 'Article "Ash defeats Gary in Indigo Plateau" was
- saved'
-          browser.location.pathname.should.equal('/')
-          done()
+      it 'should flash an article creation message', ->
+        flash = browser.text('.alert-info')
+        flash.should.contain(
+          'Article "Ash defeats Gary in Indigo Plateau" was saved')
 
-    it 'should not create article when model is invalid', (done) ->
-      sinon.stub(Article.prototype, 'save').yields()
-      browser
-        .fill('Subtitle', 'Oak arrives just in time')
-        .pressButton 'Submit', () ->
-          Article.prototype.save.should.not.have.been.called
-          Article.prototype.save.restore()
-          done()
+    describe 'when article is filled out with existing author', ->
+      author = null
 
-    it 'should display errors when model is invalid', (done) ->
-      browser
-        .fill('Subtitle', 'Oak arrives just in time')
-        .pressButton 'Submit', ->
-          errors = browser.text('.alert-error')
-          expect(errors).to.exist
-          errors.should.contain 'Validator "required" failed for path title'
-          titleInput = browser.query('form input#title')
-          titleControlGroup = titleInput.parentNode.parentNode
-          titleControlGroup.getAttribute('class').should.contain 'error'
-          done()
+      before (done) ->
+        Author.findOne {name: 'Brock'}, (err, _author) ->
+          author = _author
+          expect(author).to.exist
+          done(err)
 
-    it 'should fill fields with values when model is invalid', (done) ->
-      browser
-        .fill('Subtitle', 'Oak arrives just in time')
-        .fill('Teaser', 'Ash becomes new Pokemon Champion')
-        .pressButton 'Submit', ->
-          form = browser.query('form')
-          expect(form).to.exist
-          form.querySelector('input#subtitle').value
-            .should.equal 'Oak arrives just in time'
-          form.querySelector('textarea#teaser').value
-            .should.equal 'Ash becomes new Pokemon Champion'
-          done()
+      beforeEach (done) ->
+        browser
+          .fill('Title', 'Ash defeats Gary in Indigo Plateau')
+          .fill('Body', '**Pikachu** wrecks everyone. The End.')
+          .fill('Authors', 'Brock')
+          .select('Section', 'News')
+          .pressButton('Submit', done)
 
-    it 'should look up authors by name', (done) ->
-      author = new Author(name: 'Brock')
-      sinon.stub(Author, 'findOne').yields(author)
-      browser
-        .fill('Authors', 'Brock')
-        .pressButton 'Submit', ->
-          Author.findOne.should.have.been.calledWith {name: 'Brock'}
-          Author.findOne.restore()
-          done()
+      it 'should use id of queried authors', (done) ->
+        title = 'Ash defeats Gary in Indigo Plateau'
+        Article.findOne {title: title}, (err, article) ->
+          expect(article).to.exist
+          _.toArray(article.authors).should.eql [author._id]
+          done(err)
 
-    it 'should use id of queried authors', (done) ->
-      author = new Author(name: 'Brock')
-      sinon.stub(Author, 'findOne').yields(null, author)
-      sinon.stub(Article.prototype, 'save').yields()
-      browser
-        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
-        .fill('Body', '**Pikachu** wrecks everyone. The End.')
-        .fill('Authors', 'Brock')
-        .select('Section', 'News')
-        .pressButton 'Submit', ->
-          Article.prototype.save.should.have.been.called
-          article = Article.prototype.save.thisValues[0]
-          Article.prototype.save.restore()
-          Author.findOne.restore()
+    describe 'when author doesn\'t exist', ->
+      initial = null
 
-          article.authors.should.have.length 1
-          article.authors[0].should.equal author._id
-          done()
+      beforeEach (done) ->
+        Author.count (err, count) ->
+          return done(err) if err?
+          initial = count
+          browser
+            .fill('Title', 'Ash defeats Gary in Indigo Plateau')
+            .fill('Body', '**Pikachu** wrecks everyone. The End.')
+            .fill('Authors', 'Misty')
+            .select('Section', 'News')
+            .pressButton('Submit', done)
 
-    it 'should create new author if none found', (done) ->
-      sinon.stub(Author, 'findOne').yields()
-      sinon.stub(Author.prototype, 'save').yields()
-      browser
-        .fill('Authors', 'Brock')
-        .pressButton 'Submit', ->
-          Author.prototype.save.should.have.been.called
-          author = Author.prototype.save.thisValues[0]
-          Author.prototype.save.restore()
-          Author.findOne.restore()
-          author.name.should.equal 'Brock'
-          done()
+      it 'should create new author', (done) ->
+        Author.count (err, final) ->
+          final.should.equal (initial + 1)
+          done(err)
 
-    it 'should flash that new author was created', (done) ->
-      sinon.stub(Author, 'findOne').yields()
-      sinon.stub(Author.prototype, 'save').yields()
-      browser
-        .fill('Title', 'Ash defeats Gary in Indigo Plateau')
-        .fill('Body', '**Pikachu** wrecks everyone. The End.')
-        .fill('Authors', 'Brock')
-        .select('Section', 'News')
-        .pressButton 'Submit', ->
-          Author.prototype.save.restore()
-          Author.findOne.restore()
-          flash = browser.text('.alert-info')
-          flash.should.contain 'Author "Brock" was created'
-          done()
+      it 'should make author with given name', (done) ->
+        Author.findOne {name: 'Misty'}, (err, author) ->
+          expect(author).to.exist
+          done(err)
+
+      it 'should flash that new author was created', ->
+        flash = browser.text('.alert-info')
+        flash.should.contain 'Author "Misty" was created'
