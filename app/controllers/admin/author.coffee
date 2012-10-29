@@ -10,6 +10,9 @@ exports.new = (req, res, next) ->
     token: req.session._csrf
 
 exports.create = (req, res, next) ->
+  flash = (message) ->
+    app.log.info(message)
+    req.flash('info', message)
   createAuthor req.body.doc, (err, retryErrors) ->
     if err then return next(err)
     else if retryErrors
@@ -20,13 +23,13 @@ exports.create = (req, res, next) ->
     else
       res.redirect '/'
 
-createAuthor = (doc, callback) ->
+createAuthor = (doc, flash, callback) ->
   author = new Author(doc)
-  author.validate (err) ->
+  author.save (err) ->
     if err and err.name is 'ValidationError'
       callback(null, err.errors)
     else if err
       errs.handle(err, callback)
     else
-      author.save (err) ->
-        callback(err)
+      flash?("Author \"#{name}\" was saved")
+      callback()

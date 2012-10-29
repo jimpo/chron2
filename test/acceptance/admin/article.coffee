@@ -13,11 +13,11 @@ describe 'article', ->
 
   beforeEach(refreshDatabase)
 
-  describe '/article/new', ->
+  describe 'creation', ->
     browser = null
 
     beforeEach (done) ->
-      Browser.visit fullUrl('admin', '/article/new'), {runScripts: true}, (err, _browser) ->
+      Browser.visit fullUrl('admin', '/article/new'), (err, _browser) ->
         browser = _browser
         done(err)
 
