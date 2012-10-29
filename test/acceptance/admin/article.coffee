@@ -109,19 +109,16 @@ describe 'article', ->
     describe 'when article is filled out with existing author', ->
       author = null
 
-      before (done) ->
+      beforeEach (done) ->
         Author.findOne {name: 'Brock'}, (err, _author) ->
           author = _author
           expect(author).to.exist
-          done(err)
-
-      beforeEach (done) ->
-        browser
-          .fill('Title', 'Ash defeats Gary in Indigo Plateau')
-          .fill('Body', '**Pikachu** wrecks everyone. The End.')
-          .fill('Authors', 'Brock')
-          .select('Section', 'News')
-          .pressButton('Submit', done)
+          browser
+            .fill('Title', 'Ash defeats Gary in Indigo Plateau')
+            .fill('Body', '**Pikachu** wrecks everyone. The End.')
+            .fill('Authors', 'Brock')
+            .select('Section', 'News')
+            .pressButton('Submit', done)
 
       it 'should use id of queried authors', (done) ->
         title = 'Ash defeats Gary in Indigo Plateau'

@@ -1,3 +1,7 @@
+var DatabaseCleaner = require('database-cleaner');
+var fixtures = require('mongodb-fixtures');
+var path = require('path');
+
 require('coffee-script');
 require('lib/util');
 
@@ -17,11 +21,17 @@ global.fullUrl = function (subdomain, path) {
     return 'http://' + subdomain + '.localhost:' + app.config.PORT + path;
 };
 
-
-var DatabaseCleaner = require('database-cleaner');
-
 global.refreshDatabase = (function (databaseCleaner) {
     return function (callback) {
-        databaseCleaner.clean(app.db.db, callback);
+        databaseCleaner.clean(app.db.db, function (err) {
+            if (err) return callback(err);
+            fixtures.load(path.join(__dirname, 'fixtures'));
+            sinon.stub(app.db.db, 'open').yields();
+            fixtures.save(app.db.db, function (err) {
+                delete propertyPlural;
+                app.db.db.open.restore();
+                callback(err);
+            });
+        });
     };
 })(new DatabaseCleaner('mongodb'));
