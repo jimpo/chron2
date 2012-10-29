@@ -13,7 +13,7 @@ exports.create = (req, res, next) ->
   flash = (message) ->
     app.log.info(message)
     req.flash('info', message)
-  createAuthor req.body.doc, (err, retryErrors) ->
+  createAuthor req.body.doc, flash, (err, retryErrors) ->
     if err then return next(err)
     else if retryErrors
       res.render 'admin/author/new'
@@ -31,5 +31,5 @@ createAuthor = (doc, flash, callback) ->
     else if err
       errs.handle(err, callback)
     else
-      flash?("Author \"#{name}\" was saved")
+      flash?("Author \"#{author.name}\" was saved")
       callback()
