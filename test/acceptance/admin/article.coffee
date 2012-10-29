@@ -151,6 +151,14 @@ describe 'article', ->
           expect(author).to.exist
           done(err)
 
+      it 'should assign that author to article', (done) ->
+        Author.findOne {name: 'Misty'}, (err, author) ->
+          return done(err) if err?
+          title = 'Ash defeats Gary in Indigo Plateau'
+          Article.findOne {title: title}, (err, article) ->
+            _.toArray(article.authors).should.eql [author._id]
+            done(err)
+
       it 'should flash that new author was created', ->
         flash = browser.text('.alert-info')
         flash.should.contain 'Author "Misty" was created'
