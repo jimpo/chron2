@@ -5,8 +5,6 @@ initialization = require 'app/initialization'
 
 
 describe 'config', ->
-  configFile = path.join(__dirname, '../../../..', 'config.test.json')
-
   beforeEach ->
     sinon.stub(fs, 'readFile')
 
@@ -15,7 +13,18 @@ describe 'config', ->
 
   it 'should read the config JSON file for the NODE_ENV', (done) ->
     fs.readFile.yields()
+    configFile = path.join(__dirname, '../../../..', 'config.test.json')
     initialization.config (err) ->
+      fs.readFile.should.have.been.calledWith(configFile)
+      done()
+
+  it 'should use development config if NODE_ENV is not set', (done) ->
+    fs.readFile.yields()
+    configFile = path.join(__dirname, '../../../..', 'config.development.json')
+    env = process.env.NODE_ENV
+    process.env.NODE_ENV = undefined
+    initialization.config (err) ->
+      process.env.NODE_ENV = env
       fs.readFile.should.have.been.calledWith(configFile)
       done()
 
