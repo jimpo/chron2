@@ -10,11 +10,13 @@ describe 'article', ->
   before (done) ->
     server.run(done)
 
+  beforeEach(refreshDatabase)
+
   describe '/article/new', ->
     browser = null
 
     beforeEach (done) ->
-      Browser.visit fullUrl('admin', '/article/new'), {runScripts: false}, (err, _browser) ->
+      Browser.visit fullUrl('admin', '/article/new'), {runScripts: true}, (err, _browser) ->
         browser = _browser
         done(err)
 

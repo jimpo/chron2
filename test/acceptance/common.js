@@ -16,3 +16,12 @@ chai.use(sinonChai);
 global.fullUrl = function (subdomain, path) {
     return 'http://' + subdomain + '.localhost:' + app.config.PORT + path;
 };
+
+
+var DatabaseCleaner = require('database-cleaner');
+
+global.refreshDatabase = (function (databaseCleaner) {
+    return function (callback) {
+        databaseCleaner.clean(app.db.db, callback);
+    };
+})(new DatabaseCleaner('mongodb'));
