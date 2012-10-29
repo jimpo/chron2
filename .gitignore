@@ -2,7 +2,7 @@
 # ===============
 
 node_modules
-config.json
+config.development.json
 public/styles/*
 
 ## Don't Ignore Ignore Files

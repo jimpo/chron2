@@ -1,14 +1,21 @@
 {
-    "MONGODB": "mongodb://user:pass@host:port",
+    "MONGODB": "mongodb://localhost/test",
     "PORT": 4000,
     "DOMAIN_NAME": "localhost",
     "S3": {
         "key": "XXXXXX",
         "secret": "XXXXXX",
         "buckets": {
-            "file": "chron_dev",
-            "static": "chron_static"
+            "file": "development",
+            "static": "static"
         }
     },
-    "CONTENT_CDN": "XXXXXX"
+    "CONTENT_CDN": "XXXXXX",
+    "TAXONOMY": [
+        { "name": "News",
+          "children":
+          [ { "name": "University",
+              "children":
+              [ { "name": "Academics", "children": [] } ] } ] },
+        { "name": "Sports", "children": [] } ]
 }
