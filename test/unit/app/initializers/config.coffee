@@ -22,7 +22,7 @@ describe 'config', ->
     fs.readFile.yields()
     configFile = path.join(__dirname, '../../../..', 'config.development.json')
     env = process.env.NODE_ENV
-    process.env.NODE_ENV = undefined
+    delete process.env.NODE_ENV
     initialization.config (err) ->
       process.env.NODE_ENV = env
       fs.readFile.should.have.been.calledWith(configFile)
