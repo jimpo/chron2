@@ -1,6 +1,8 @@
 _ = require 'underscore'
 fs = require 'fs'
 im = require 'imagemagick'
+knox = require 'knox'
+nock = require 'nock'
 path = require 'path'
 
 Image = require 'app/models/image'
@@ -28,6 +30,35 @@ describe 'Image', ->
         expect(err).to.exist
         done()
 
+  describe 'mimeType', ->
+    it 'should be "image/gif" for .gif images', ->
+      image.url = 'raichu.gif'
+      image.mimeType.should.equal 'image/gif'
+
+    it 'should be "image/png" for .png images', ->
+      image.url = 'raichu.png'
+      image.mimeType.should.equal 'image/png'
+
+    it 'should be "image/jpeg" for .jpg images', ->
+      image.url = 'raichu.jpg'
+      image.mimeType.should.equal 'image/jpeg'
+
+    it 'should be "image/jpeg" for .jpeg images', ->
+      image.url = 'raichu.jpeg'
+      image.mimeType.should.equal 'image/jpeg'
+
+    it 'should be undefined for unknown image extensions', ->
+      image.url = 'raichu.txt'
+      expect(image.mimeType).not.to.exist
+
+    it 'should be undefined if url is not set', ->
+      image.url = 'raichu.txt'
+      expect(image.mimeType).not.to.exist
+
+    it 'should be case insensitive', ->
+      image.url = 'raichu.JPG'
+      image.mimeType.should.equal 'image/jpeg'
+
   describe '#generateUrl()', ->
     it 'should set url to new url', ->
       url = image.generateUrl('raichu.png')
@@ -54,8 +85,38 @@ describe 'Image', ->
         '636x393-20-30-abcdefgh-raichu.png')
 
   describe '#download()', ->
-    it.skip 'should fetch file from s3'
-    it.skip 'should callback with binary buffer of file contents'
+    before ->
+      app.s3 = knox.createClient
+        key: 's3_key'
+        secret: 's3_secret'
+        bucket: 's3_bucket'
+
+    it 'should fetch file from s3', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com')
+        .get('/images/abcdefgh-raichu.png')
+        .reply(403)
+      image.url = 'abcdefgh-raichu.png'
+      image.download (err, data) ->
+        scope.done()
+        done()
+
+    it 'should call back with an error if there\'s an error', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com')
+        .get('/images/abcdefgh-raichu.png')
+        .reply(403)
+      image.url = 'abcdefgh-raichu.png'
+      image.download (err, data) ->
+        err.should.be.an('Error')
+        done()
+
+    it 'should callback with binary buffer of file contents', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com')
+        .get('/images/abcdefgh-raichu.png')
+        .reply(200, 'pikachu image')
+      image.url = 'abcdefgh-raichu.png'
+      image.download (err, data) ->
+        data.should.equal 'pikachu image'
+        done(err)
 
   describe '#cropImage()', ->
     version = null
@@ -150,3 +211,50 @@ describe 'Image', ->
         app.s3.putFile.should.have.been.calledWith(
           '/tmp/image_path', '/images/raichu.png')
         done(err)
+
+  describe '#uploadImageVersion()', ->
+    version = null
+    dimensions =
+      x1: 20
+      y1: 30
+      w: 700
+      h: 432
+
+    before ->
+      app.s3 = knox.createClient
+        key: 's3_key'
+        secret: 's3_secret'
+        bucket: 's3_bucket'
+
+    beforeEach ->
+      image.url = 'original.jpg'
+      image.versions.push(type: 'LargeRect', url: 'version.jpg')
+      version = image.versions[0]
+      sinon.stub(image, 'download').yields(null, 'original image')
+      sinon.stub(image, 'cropImage').yields(null, 'cropped image')
+
+    afterEach ->
+      image.download.restore()
+      image.cropImage.restore()
+
+    it 'should download original image', (done) ->
+      image.uploadImageVersion(version, dimensions, (err) ->
+        image.download.should.have.been.called
+        done()
+      )
+
+    it 'should crop original image', (done) ->
+      image.uploadImageVersion(version, dimensions, (err) ->
+        image.cropImage.should.have.been.calledWith(
+          version, dimensions, 'original image')
+        done()
+      )
+
+    it 'should put cropped image buffer in s3', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com')
+        .put('/images/versions/version.jpg', "cropped image")
+        .reply(200)
+      image.uploadImageVersion(version, dimensions, (err) ->
+        scope.done()
+        done(err)
+      )

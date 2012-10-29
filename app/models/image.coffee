@@ -51,14 +51,25 @@ imageSchema.methods.generateUrlForVersion = (version, x1, y1) ->
   type = IMAGE_TYPES[version.type]
   version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{this.url}"
 
-imageSchema.methods.download = (dir, callback) ->
-  dest = path.join(dir, @url)
+imageSchema.methods.download = (callback) ->
   app.s3.getFile("/images/#{@url}", (err, res) ->
     if err then return callback(err)
     data = ''
     res.setEncoding('binary')
     res.on('data', (chunk) -> data += chunk)
-    res.on('end', -> callback(null, data))
+    res.on('end', ->
+      err = undefined
+      switch res.statusCode
+        when 200 then err = undefined
+        when 403 then err = 'Forbidden'
+        else err = 'Unknown error'
+
+      if err?
+        res.message = err
+        callback(errs.create('S3Error', res))
+      else
+        callback(undefined, data)
+    )
     res.on('close', callback)
   )
 
@@ -70,18 +81,30 @@ imageSchema.methods.upload = (fileInfo, callback) ->
   app.s3.putFile(fileInfo.path, "/images/#{@url}", headers, callback)
 
 imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
-  src = 
-  dest = path.join(__dirname, '../../tmp', version.url)
   async.waterfall([
-    (callback) => this.download(path.dirname(src), callback)
-    (filepath, callback) -> cropImage(version, dim, filepath, callback)
-    (filepath, callback) ->
+    (callback) => this.download(callback)
+    (buffer, callback) => this.cropImage(version, dim, buffer, callback)
+    (buffer, callback) =>
       headers =
+        'Content-Length': buffer.length
+        'Content-Type': @mimeType
         'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
       url = "/images/versions/#{version.url}"
-      app.s3.putFile(filepath, url, headers, callback)
-    (_res, callback) -> fs.unlink(src, callback)
-    (callback) -> fs.unlink(dest, callback)
+      req = app.s3.put(url, headers)
+      req.on('response', (res) ->
+        err = undefined
+        switch res.statusCode
+          when 200 then err = undefined
+          when 403 then err = 'Forbidden'
+          else err = 'Unknown error'
+
+        if err?
+          res.message = err
+          callback(errs.create('S3Error', res))
+        else
+          callback()
+      )
+      req.end(buffer)
     ],
     callback
   )
@@ -117,6 +140,13 @@ imageSchema.methods.fullUrl = (version) ->
 
 imageSchema.virtual('name').get ->
   @url.replace(/\.(gif|jpe?g|png)$/, '')
+
+imageSchema.virtual('mimeType').get ->
+  switch path.extname(@url).toLowerCase()
+    when '.gif' then 'image/gif'
+    when '.png' then 'image/png'
+    when '.jpg' then 'image/jpeg'
+    when '.jpeg' then 'image/jpeg'
 
 Image = module.exports = app.db.model 'Image', imageSchema
 Image.IMAGE_TYPES = IMAGE_TYPES
