@@ -192,6 +192,19 @@ describe 'article', ->
       browser.field('Section').value.should.equal 'News'
       # browser.field('#section1').value.should.be.empty # if zombie worked
 
+    describe 'when article is invalid', ->
+      it 'should display errors', (done) ->
+        browser
+          .fill('Title', '')
+          .pressButton 'Submit', ->
+            errors = browser.text('.alert-error')
+            expect(errors).to.exist
+            errors.should.contain 'Validator "required" failed for path title'
+            titleInput = browser.query('form input#title')
+            titleControlGroup = titleInput.parentNode.parentNode
+            titleControlGroup.getAttribute('class').should.contain 'error'
+            done()
+
     describe 'when article is valid', ->
       initial = updatedArticle = null
 
@@ -200,7 +213,7 @@ describe 'article', ->
           return done(err) if err?
           initial = count
           browser
-            .fill('Subtitle', 'Started Pokemon already taken')
+            .fill('Subtitle', 'Starter Pokemon already taken')
             .fill('Teaser', 'Ash arrived too late')
             .fill('Body', '**Pikachu** wrecks everyone.')
             .select('Section', 'Sports')
@@ -218,7 +231,7 @@ describe 'article', ->
       it 'should a update an existing article', ->
         expect(updatedArticle).to.exist
         updatedArticle._id.should.eql article._id
-        updatedArticle.subtitle.should.equal 'Started Pokemon already taken'
+        updatedArticle.subtitle.should.equal 'Starter Pokemon already taken'
         updatedArticle.teaser.should.equal 'Ash arrived too late'
         updatedArticle.body.should.equal '**Pikachu** wrecks everyone.'
         _.toArray(updatedArticle.taxonomy).should.eql ['Sports']
@@ -231,6 +244,15 @@ describe 'article', ->
 
       it 'should not modify urls array', ->
         updatedArticle.urls.should.have.length 1
+
+      it 'should redirect to admin index page', ->
+        browser.redirected.should.be.true
+        browser.location.pathname.should.equal('/')
+
+      it 'should flash an article update message', ->
+        flash = browser.text('.alert-info')
+        flash.should.contain(
+          'Article "Ash Gets Pikachu from Oak" was saved')
 
     describe 'when article title is changed', ->
       updatedArticle = null
