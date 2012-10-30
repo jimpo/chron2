@@ -7,6 +7,14 @@ TIMEOUT=20000
 install:
 	@npm install
 
+test/acceptance/%:
+	@NODE_ENV=test NODE_PATH=. ./node_modules/.bin/mocha \
+		$(MOCHA_OPTS) --require test/acceptance/common --timeout $(TIMEOUT) $(addsuffix .coffee, $@)
+
+test/unit/%:
+	@NODE_ENV=test NODE_PATH=. ./node_modules/.bin/mocha \
+		$(MOCHA_OPTS) --require test/unit/common $(addsuffix .coffee, $@)
+
 test: test-unit test-acceptance
 
 test-unit:
@@ -24,4 +32,4 @@ run:
 monitor:
 	./node_modules/nodemon/nodemon.js --legacy-watch --exec './node_modules/coffee-script/bin/coffee' 'server.coffee'
 
-.PHONY: install test test-unit test-acceptance run
+.PHONY: install test test-unit test-acceptance run test/acceptance/% test/unit/%
