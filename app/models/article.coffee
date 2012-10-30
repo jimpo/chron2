@@ -54,12 +54,13 @@ getAvailableUrl = (url, callback) ->
 
 # Stolen from http://snipt.net/jpartogi/slugify-javascript/
 URLify = (s, maxChars) ->
-    max_chars = 100  if not max_chars?
-    removelist = ["a", "an", "as", "at", "before", "but", "by", "for", "from", "is", "in", "into", "like", "of", "off", "on", "onto", "per", "since", "than", "the", "this", "that", "to", "up", "via", "with"]
-    r = new RegExp("\\b(" + removelist.join("|") + ")\\b", "gi")
-    s = s.replace(r, "")
-    s = s.replace(/[^-\w\s]/g, "") # remove unneeded chars
-    s = s.replace(/^\s+|\s+$/g, "") # trim leading/trailing spaces
-    s = s.replace(/[-\s]+/g, "-") # convert spaces to hyphens
-    s = s.toLowerCase() # convert to lowercase
-    s.substring 0, maxChars # trim to first num_chars chars
+  maxChars = 100 if not maxChars?
+  removelist = ["a", "an", "as", "at", "before", "but", "by", "for", "from", "is", "in", "into", "like", "of", "off", "on", "onto", "per", "since", "than", "the", "this", "that", "to", "up", "via", "with"]
+  r = new RegExp("\\b(" + removelist.join("|") + ")\\b", "gi")
+  s = s.replace(r, "")
+  s = s.replace(/[^-\w\s]/g, "") # remove unneeded chars
+  s = s.replace(/^\s+|\s+$/g, "") # trim leading/trailing spaces
+  s = s.replace(/[-\s]+/g, "-") # convert spaces to hyphens
+  s = s.toLowerCase() # convert to lowercase
+  s = s.substring 0, maxChars # trim to first num_chars chars
+  s.replace(/\-$/, "")
