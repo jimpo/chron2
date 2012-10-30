@@ -295,6 +295,6 @@ describe 'article', ->
 
       it 'should redirect to the index page', ->
         browser.redirected.should.be.true
-        browser.location.should.equal '/article'
+        browser.location.pathname.should.equal '/article'
 
     describe.skip 'when article is deleted from index page', ->

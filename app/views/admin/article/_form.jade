@@ -5,7 +5,7 @@ form.form-horizontal(method= _form.method, action= _form.action)
 
   mixin errorBlock(errors)
 
-  input(type='hidden', name='_csrf', value=token)
+  input#csrf(type='hidden', name='_csrf', value=token)
 
   - if (_form.put)
     input(type='hidden', name='_method', value='put')
@@ -33,3 +33,5 @@ form.form-horizontal(method= _form.method, action= _form.action)
 
   .form-actions
     button.btn.btn-large.btn-primary(type='submit') Submit
+    | 
+    button.btn.btn-large.btn-danger.delete-article(data-url="/article/#{doc.url}") Delete
