@@ -162,3 +162,32 @@ describe 'article', ->
       it 'should flash that new author was created', ->
         flash = browser.text('.alert-info')
         flash.should.contain 'Author "Misty" was created'
+
+  describe 'update', ->
+    article = browser = null
+
+    beforeEach (done) ->
+      Article.findOne (urls: 'ash-gets-pikachu'), (err, _article) ->
+        return done(err) if err?
+        article = _article
+        url = fullUrl('admin', "/article/#{article.url}/edit")
+        Browser.visit url, (err, _browser) ->
+          browser = _browser
+          done(err)
+
+    it 'should successfully load page', ->
+      browser.statusCode.should.equal SUCCESS_CODE
+
+    it 'should have form putting to /article/:url', ->
+      form = browser.query('form')
+      expect(form).to.exist
+      form.getAttribute('method').should.equal 'POST'
+      form.getAttribute('action').should.equal "/article/#{article.url}"
+      browser.field('_method').value.should.equal 'put'
+
+    it 'should fill fields with entered values', ->
+      browser.field('Title').value.should.equal 'Ash Gets Pikachu from Oak'
+      browser.field('Body').value.should.equal(
+        '**Pikachu** refuses to enter pokeball')
+      browser.field('Section').value.should.equal 'News'
+      # browser.field('#section1').value.should.be.empty # if zombie worked
