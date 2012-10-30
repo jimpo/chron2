@@ -167,7 +167,7 @@ describe 'article', ->
     article = browser = null
 
     beforeEach (done) ->
-      Article.findOne (urls: 'ash-gets-pikachu'), (err, _article) ->
+      Article.findOne (urls: 'ash-gets-pikachu-oak'), (err, _article) ->
         return done(err) if err?
         article = _article
         url = fullUrl('admin', "/article/#{article.url}/edit")
@@ -191,3 +191,59 @@ describe 'article', ->
         '**Pikachu** refuses to enter pokeball')
       browser.field('Section').value.should.equal 'News'
       # browser.field('#section1').value.should.be.empty # if zombie worked
+
+    describe 'when article is valid', ->
+      initial = updatedArticle = null
+
+      beforeEach (done) ->
+        Article.count (err, count) ->
+          return done(err) if err?
+          initial = count
+          browser
+            .fill('Subtitle', 'Started Pokemon already taken')
+            .fill('Teaser', 'Ash arrived too late')
+            .fill('Body', '**Pikachu** wrecks everyone.')
+            .select('Section', 'Sports')
+            .pressButton 'Submit', (err) ->
+              return done(err) if err?
+              Article.findOne {urls: article.url}, (err, _article) ->
+                updatedArticle = _article
+                done(err)
+
+      it 'should not create a new article', (done) ->
+        Article.count (err, final) ->
+          final.should.equal initial
+          done(err)
+
+      it 'should a update an existing article', ->
+        expect(updatedArticle).to.exist
+        updatedArticle._id.should.eql article._id
+        updatedArticle.subtitle.should.equal 'Started Pokemon already taken'
+        updatedArticle.teaser.should.equal 'Ash arrived too late'
+        updatedArticle.body.should.equal '**Pikachu** wrecks everyone.'
+        _.toArray(updatedArticle.taxonomy).should.eql ['Sports']
+
+      it 'should not modify "created" timestamp', ->
+        updatedArticle.created.should.eql article.created
+
+      it 'should modify "updated" timestamp', ->
+        updatedArticle.updated.should.be.greaterThan article.updated
+
+      it 'should not modify urls array', ->
+        updatedArticle.urls.should.have.length 1
+
+    describe 'when article title is changed', ->
+      updatedArticle = null
+
+      beforeEach (done) ->
+        browser
+          .fill('Title', 'Started Pokemon already taken')
+          .pressButton 'Submit', (err) ->
+            return done(err) if err?
+            Article.findOne {urls: article.url}, (err, _article) ->
+              updatedArticle = _article
+              done(err)
+
+      it 'should have a new url', ->
+        updatedArticle.urls.should.have.length 2
+        updatedArticle.url.should.not.equal article.url

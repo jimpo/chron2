@@ -6,6 +6,6 @@ exports.Article =
     body: '**Pikachu** refuses to enter pokeball'
     taxonomy: ['News']
     author: [author.Brock._id]
-    urls: ['ash-gets-pikachu']
+    urls: ['ash-gets-pikachu-oak']
     created: new Date()
     updated: new Date()
