@@ -269,3 +269,32 @@ describe 'article', ->
       it 'should have a new url', ->
         updatedArticle.urls.should.have.length 2
         updatedArticle.url.should.not.equal article.url
+
+  describe 'deletion', ->
+    describe 'from from edit page', ->
+      browser = initial = null
+
+      beforeEach (done) ->
+        Article.count (err, count) ->
+          return done(err) if err?
+          initial = count
+          url = fullUrl('admin', '/article/ash-gets-pikachu-oak/edit')
+          Browser.visit url, (err, _browser) ->
+            browser = _browser
+            browser.pressButton('button.delete-article', done)
+
+      it 'should remove an article', (done) ->
+        Article.count (err, final) ->
+          final.should.equal (initial - 1)
+          done(err)
+
+      it 'should not find article in database', (done) ->
+        Article.findOne {urls: 'ash-gets-pikachu-oak'}, (err, article) ->
+          expect(article).not.to.exist
+          done(err)
+
+      it 'should redirect to the index page', ->
+        browser.redirected.should.be.true
+        browser.location.should.equal '/article'
+
+    describe.skip 'when article is deleted from index page', ->
