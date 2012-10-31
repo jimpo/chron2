@@ -4,19 +4,11 @@ define ['jquery', 'lib/bootstrap'], ->
     $(this).click (e) =>
       e.preventDefault()
       $(this).attr('disabled', true)
-      console.log $(this).data('url')
-      console.log(
-        type: 'DELETE',
-        data: {_csrf: $('#csrf').val()},
-        error: (error) ->
-          alert(error)
-        success: ->
-          window.location = '/article'
-      )
       $.ajax($(this).data('url'),
-        type: 'DELETE'
-        data: {_csrf: $('#csrf').val()}
+        type: 'POST'  # Zombie does not send request body with DELETE
+        data: {_csrf: $('#csrf').val(), _method: 'delete'}
         error: (err) =>
+          console.log('Could not delete article: ' + err.statusText)
           alert('Could not delete article: ' + err.statusText)
           $(this).removeAttr('disabled')
         success: ->

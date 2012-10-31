@@ -33,5 +33,6 @@ form.form-horizontal(method= _form.method, action= _form.action)
 
   .form-actions
     button.btn.btn-large.btn-primary(type='submit') Submit
-    | 
-    button.btn.btn-large.btn-danger.delete-article(data-url="/article/#{doc.url}") Delete
+    - if (_form.put)
+      | 
+      button.btn.btn-large.btn-danger.delete-article(data-url="/article/#{doc.url}") Delete

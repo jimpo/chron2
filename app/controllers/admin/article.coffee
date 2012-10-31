@@ -78,6 +78,23 @@ exports.create = (req, res, next) ->
       res.redirect '/'
   )
 
+exports.destroy = (req, res, next) ->
+  flash = (message) ->
+    app.log.info(message)
+    req.flash('info', message)
+  Article.findOne {urls: req.params.url}, (err, article) ->
+    if err?
+      errs.handle(err, next)
+    else if not article?
+      res.send(404)
+    else
+      article.remove (err) ->
+        if err
+          res.send(500, err)
+        else
+          flash("Article \"#{article.title}\" was deleted")
+          res.send(200)
+
 updateArticle = (article, doc, flash, callback) ->
   doc.taxonomy = (section.toLowerCase() for section in doc.taxonomy when section)
   doc.authors = (author for author in doc.authors when author)
