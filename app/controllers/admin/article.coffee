@@ -25,7 +25,6 @@ exports.new = (req, res, next) ->
     doc: {}
     errors: null
     taxonomy: Taxonomy.levels()
-    token: req.session._csrf
 
 exports.edit = (req, res, next) ->
   Article.findOne(urls: req.params.url).populate('authors').exec(
@@ -38,7 +37,6 @@ exports.edit = (req, res, next) ->
           doc: article
           errors: null
           taxonomy: Taxonomy.levels()
-          token: req.session._csrf
   )
 
 exports.update = (req, res, next) ->
@@ -57,7 +55,6 @@ exports.update = (req, res, next) ->
             doc: req.body.doc
             errors: retryErrors
             taxonomy: Taxonomy.levels()
-            token: req.session._csrf
         else
           res.redirect '/'
       )
@@ -73,7 +70,6 @@ exports.create = (req, res, next) ->
         doc: req.body.doc
         errors: retryErrors
         taxonomy: Taxonomy.levels()
-        token: req.session._csrf
     else
       res.redirect '/'
   )

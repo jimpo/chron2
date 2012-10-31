@@ -1,7 +1,7 @@
 define ['jquery', 'lib/bootstrap'], ->
 
   '.delete-article': ->
-    $(this).click (e) =>
+    $(this).click (e) ->
       e.preventDefault()
       $(this).attr('disabled', true)
       $.ajax($(this).data('url'),
@@ -11,6 +11,9 @@ define ['jquery', 'lib/bootstrap'], ->
           console.log('Could not delete article: ' + err.statusText)
           alert('Could not delete article: ' + err.statusText)
           $(this).removeAttr('disabled')
-        success: ->
-          window.location = '/article'
+        success: =>
+          if $(this).data('reload')?
+            window.location.reload()
+          else
+            window.location = '/article'
       )

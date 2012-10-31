@@ -10,7 +10,6 @@ IMAGES_PER_PAGE = 20
 
 exports.upload = (req, res, next) ->
   res.render 'admin/image/upload'
-    token: req.session._csrf
 
 exports.handleUpload = (req, res, next) ->
   async.map req.files.files, uploadImage, (err, response) ->
@@ -35,7 +34,6 @@ exports.edit = (req, res, next) ->
         errors: null
         messages: req.flash('info')
         imageTypes: Image.IMAGE_TYPES
-        token: req.session._csrf
 
 exports.update = (req, res, next) ->
   urlPattern = new RegExp("^#{req.params.name}\.")
@@ -55,7 +53,6 @@ exports.update = (req, res, next) ->
             errors: retryErrors
             messages: req.flash('info')
             imageTypes: Image.IMAGE_TYPES
-            token: req.session._csrf
         else
           res.redirect "/image/#{image.name}/edit"
       )

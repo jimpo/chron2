@@ -14,9 +14,10 @@ server = express()
 running = false
 
 
-sessionUser = (req, res, next) ->
+dynamicLocals = (req, res, next) ->
   res.locals.user = req.session.user and
     new User({username: req.session.user})
+  res.locals.token = req.session._csrf
   next()
 
 server.configure 'development', 'test', ->
@@ -45,7 +46,7 @@ server.configure ->
   server.use express.csrf()
   server.use express.compress()
   server.use flash()
-  server.use sessionUser
+  server.use dynamicLocals
 
 exports.run = (callback) ->
   if running then return callback()

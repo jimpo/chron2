@@ -259,7 +259,7 @@ describe 'article', ->
 
       beforeEach (done) ->
         browser
-          .fill('Title', 'Started Pokemon already taken')
+          .fill('Title', 'Starter Pokemon already taken')
           .pressButton 'Submit', (err) ->
             return done(err) if err?
             Article.findOne {urls: article.url}, (err, _article) ->
@@ -280,6 +280,7 @@ describe 'article', ->
           initial = count
           url = fullUrl('admin', '/article/ash-gets-pikachu-oak/edit')
           Browser.visit url, (err, _browser) ->
+            return done(err) if err?
             browser = _browser
             browser.pressButton('button.delete-article', done)
 
@@ -296,4 +297,23 @@ describe 'article', ->
       it 'should redirect to the index page', ->
         browser.location.pathname.should.equal '/article'
 
-    describe.skip 'when article is deleted from index page', ->
+    describe 'when article is deleted from index page', ->
+      browser = initial = null
+
+      beforeEach (done) ->
+        Article.count (err, count) ->
+          return done(err) if err?
+          initial = count
+          Browser.visit fullUrl('admin', '/article'), (err, _browser) ->
+            return done(err) if err?
+            browser = _browser
+            browser.clickLink('#ash-gets-pikachu-oak .delete-article', done)
+
+      it 'should remove an article', (done) ->
+        Article.count (err, final) ->
+          final.should.equal (initial - 1)
+          done(err)
+
+      it 'should remove article row from index page', ->
+        console.log(browser.html('table'))
+        expect(browser.query('#ash-gets-pikachu-oak')).not.to.exist

@@ -1,10 +1,11 @@
 extends ../layout
 
 block content
+  input#csrf(type='hidden', name='_csrf', value=token)
   table.table.table-striped
     - each article in articles
-      tr
+      tr(id=article.url)
         td: a(href="/article/#{article.url}")= article.title
         td: a(href="/article/#{article.url}/edit") Edit
-        td: a(href="#") Delete
+        td: a.delete-article(href="#", data-url="/article/#{article.url}", data-reload="true") Delete
         td= article._id

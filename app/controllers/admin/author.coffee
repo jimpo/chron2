@@ -7,7 +7,6 @@ exports.new = (req, res, next) ->
   res.render 'admin/author/new'
     doc: {}
     errors: null
-    token: req.session._csrf
 
 exports.create = (req, res, next) ->
   flash = (message) ->
@@ -19,7 +18,6 @@ exports.create = (req, res, next) ->
       res.render 'admin/author/new'
         doc: req.body.doc
         errors: retryErrors
-        token: req.session._csrf
     else
       res.redirect '/'
 
