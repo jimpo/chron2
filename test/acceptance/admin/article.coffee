@@ -282,7 +282,7 @@ describe 'article', ->
           Browser.visit url, (err, _browser) ->
             return done(err) if err?
             browser = _browser
-            browser.pressButton('button.delete-article', done)
+            browser.pressButton('Delete', done)
 
       it 'should remove an article', (done) ->
         Article.count (err, final) ->
@@ -307,7 +307,7 @@ describe 'article', ->
           Browser.visit fullUrl('admin', '/article'), (err, _browser) ->
             return done(err) if err?
             browser = _browser
-            browser.clickLink('#ash-gets-pikachu-oak .delete-article', done)
+            browser.clickLink('#ash-gets-pikachu-oak .delete-button', done)
 
       it 'should remove an article', (done) ->
         Article.count (err, final) ->
@@ -315,5 +315,4 @@ describe 'article', ->
           done(err)
 
       it 'should remove article row from index page', ->
-        console.log(browser.html('table'))
         expect(browser.query('#ash-gets-pikachu-oak')).not.to.exist

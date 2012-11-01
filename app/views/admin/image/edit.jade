@@ -23,7 +23,7 @@ block content
   form.form-horizontal(action="/image/#{doc.name}", method="POST")
     legend Photo Information
 
-    input(type='hidden', name='_csrf', value=token)
+    input#csrf(type='hidden', name='_csrf', value=token)
     input(type='hidden', name='_method', value='put')
 
     mixin errorBlock(errors)
@@ -44,6 +44,8 @@ block content
 
     .form-actions
       button.btn.btn-large.btn-primary(type='submit') Submit
+      | 
+      button.btn.btn-large.btn-danger.delete-button(data-url="/image/#{doc.url}") Delete
 
   table.table.table-striped
     tr

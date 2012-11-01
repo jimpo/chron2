@@ -1,6 +1,6 @@
 define ['jquery', 'lib/bootstrap'], ->
 
-  '.delete-article': ->
+  '.delete-button': ->
     $(this).click (e) ->
       e.preventDefault()
       $(this).attr('disabled', true)
@@ -8,8 +8,8 @@ define ['jquery', 'lib/bootstrap'], ->
         type: 'POST'  # Zombie does not send request body with DELETE
         data: {_csrf: $('#csrf').val(), _method: 'delete'}
         error: (err) =>
-          console.log('Could not delete article: ' + err.statusText)
-          alert('Could not delete article: ' + err.statusText)
+          console.log('Could not delete: ' + err.statusText)
+          alert('Could not delete: ' + err.statusText)
           $(this).removeAttr('disabled')
         success: =>
           if $(this).data('reload')?

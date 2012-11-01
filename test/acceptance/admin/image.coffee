@@ -115,3 +115,28 @@ describe 'image', ->
         updatedImage.photographer = 'Professor Oak'
         updatedImage.location = 'Pallet Town'
         updatedImage.caption = 'A fire pokemon'
+
+    it 'when image delete button is pressed'
+      initial = null
+
+      beforeEach (done) ->
+        Image.count (err, count) ->
+          return done(err) if err?
+          initial = count
+          browser.pressButton('Delete', done)
+
+      it 'should remove an image', (done) ->
+        Image.count (err, final) ->
+          final.should.equal (initial - 1)
+          done(err)
+
+      it 'should not find image in database', (done) ->
+        Image.findOne {urls: 'ash-gets-pikachu-oak'}, (err, article) ->
+          expect(article).not.to.exist
+          done(err)
+
+      it.skip 'should remove image original from S3', ->
+      it.skip 'should remove all image versions from S3', ->
+
+      it 'should redirect to the index page', ->
+        browser.location.pathname.should.equal '/image'

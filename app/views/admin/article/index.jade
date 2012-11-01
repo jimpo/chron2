@@ -7,5 +7,5 @@ block content
       tr(id=article.url)
         td: a(href="/article/#{article.url}")= article.title
         td: a(href="/article/#{article.url}/edit") Edit
-        td: a.delete-article(href="#", data-url="/article/#{article.url}", data-reload="true") Delete
+        td: a.delete-button(href="#", data-url="/article/#{article.url}", data-reload="true") Delete
         td= article._id
