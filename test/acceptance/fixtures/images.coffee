@@ -1,6 +1,7 @@
 exports.Image =
   squirtle:
     url: 'A8r9ub3o-squirtle.png'
+    caption: 'A water pokemon'
     date: new Date('10/30/12')
     versions: []
   charmander:

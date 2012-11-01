@@ -185,7 +185,7 @@ describe 'article', ->
       form.getAttribute('action').should.equal "/article/#{article.url}"
       browser.field('_method').value.should.equal 'put'
 
-    it 'should fill fields with entered values', ->
+    it 'should fill fields with current values', ->
       browser.field('Title').value.should.equal 'Ash Gets Pikachu from Oak'
       browser.field('Body').value.should.equal(
         '**Pikachu** refuses to enter pokeball')
