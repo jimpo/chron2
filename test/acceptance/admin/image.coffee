@@ -1,3 +1,8 @@
+nock = require 'nock'
+
+Image = require 'app/models/image'
+
+
 describe 'image', ->
   before (done) ->
     server.run(done)
@@ -28,12 +33,47 @@ describe 'image', ->
       it 'should remove image document', ->
       it 'should remove delete image original from S3', ->
       it 'should remove image row from page', ->
-  describe.skip 'upload', ->
+
+  describe 'upload', ->
+    browser = null
+
+    beforeEach (done) ->
+      Browser.visit fullUrl('admin', '/image/upload'), (err, _browser) ->
+        browser = _browser
+        done(err)
+
     it 'should have a file chooser', ->
+      expect(browser.query('input[type=file]')).to.exist
+
     describe 'when image is selected from file system', ->
+      beforeEach (done) ->
+        browser.attach('input[type=file]', 'test/pikachu.jpg', done)
+
       it 'should show image', ->
-      it 'should have upload link',
-      it 'should have cancel link',
+        row = browser.query('tr:contains(pikachu.jpg)')
+        expect(row).to.exist
+
+      it 'should have upload link', ->
+        btn = browser.query('tr:contains(pikachu.jpg) .start button')
+        expect(btn).to.exist
+
+      it 'should have cancel link', ->
+        btn = browser.query('tr:contains(pikachu.jpg) .cancel button')
+        expect(btn).to.exist
+
       describe 'when image is uploaded', ->
-        it 'should create a new image document', ->
-        it 'should upload the original to S3', ->
+        initial = scope = null
+
+        beforeEach (done) ->
+          nock.recorder.rec()
+          Image.count (err, count) ->
+            return done(err) if err?
+            initial = count
+            browser.pressButton('tr:contains(pikachu.jpg) .start button', done)
+
+        it 'should create a new image document', (done) ->
+          Image.count (err, final) ->
+            final.should.equal (initial + 1)
+            done(err)
+
+        it.skip 'should upload the original to S3', ->
