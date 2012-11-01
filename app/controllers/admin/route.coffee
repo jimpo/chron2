@@ -19,3 +19,5 @@ exports.init = (server) ->
   server.get('/image/:name/edit', admin.image.edit)
   server.put('/image/:name', admin.image.update)
   server.post('/image/:name/version', admin.image.createVersion)
+  server.del('/image/:name', admin.image.destroy)
+  server.del('/image/:name/version/:version', admin.image.destroyVersion)

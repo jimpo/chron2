@@ -116,7 +116,7 @@ describe 'image', ->
         updatedImage.location = 'Pallet Town'
         updatedImage.caption = 'A fire pokemon'
 
-    it 'when image delete button is pressed'
+    describe 'when image delete button is pressed', ->
       initial = null
 
       beforeEach (done) ->

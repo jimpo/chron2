@@ -82,6 +82,17 @@ exports.createVersion = (req, res, next) ->
               res.send version
           )
 
+exports.destroy = (req, res, next) ->
+  urlPattern = new RegExp("^#{req.params.name}\.")
+  Image.findOne {url: urlPattern}, (err, image) ->
+    if err then return next(err)
+    else if not image?
+      res.send(404)
+    else
+      image.remove (err) ->
+        return next(err) if err?
+        res.send(200)
+
 updateImage = (image, doc, flash, callback) ->
   image.set(doc)
   image.validate (err) ->
