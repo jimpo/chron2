@@ -3,8 +3,7 @@ extends ../layout
 block content
   table.table.table-striped
     - each image in images
-      tr
-        td= image.url
+      tr(id=image.name)
         td
           a(href="/image/#{image.name}/edit")
             img(src=image.fullUrl())
