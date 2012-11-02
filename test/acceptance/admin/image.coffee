@@ -115,6 +115,13 @@ describe 'image', ->
         updatedImage.location = 'Pallet Town'
         updatedImage.caption = 'A fire pokemon'
 
+      it 'should stay on edit page', ->
+        browser.location.pathname.should.equal '/image/A8r9ub3o-squirtle/edit'
+
+      it 'should flash that image was saved', ->
+        flash = browser.text('.alert-info')
+        flash.should.contain 'Image "A8r9ub3o-squirtle.png" was updated'
+
     describe 'when image delete button is pressed', ->
       initial = null
 
