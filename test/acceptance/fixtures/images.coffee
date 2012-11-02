@@ -1,14 +1,17 @@
 exports.Image =
   squirtle:
-    url: 'A8r9ub3o-squirtle.png'
+    name: 'A8r9ub3o-squirtle'
+    mimeType: 'image/png'
     caption: 'A water pokemon'
     date: new Date('10/30/12')
     versions: []
   charmander:
-    url: 'bV2CoWu0-charmander.png'
+    name: 'bV2CoWu0-charmander'
+    mimeType: 'image/png'
     date: new Date('10/31/12')
     versions: []
   bulbasaur:
-    url: 'rwD3lvO3-bulbasaur.png'
+    name: 'rwD3lvO3-bulbasaur'
+    mimeType: 'image/png'
     date: new Date('10/29/12')
     versions: []

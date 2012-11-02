@@ -23,8 +23,7 @@ exports.index = (req, res, next) ->
       images: images
 
 exports.edit = (req, res, next) ->
-  urlPattern = new RegExp("^#{req.params.name}\.")
-  Image.findOne {url: urlPattern}, (err, image) ->
+  Image.findOne {name: req.params.name}, (err, image) ->
     if err then return next(err)
     else if not image?
       next()
@@ -36,8 +35,7 @@ exports.edit = (req, res, next) ->
         imageTypes: Image.IMAGE_TYPES
 
 exports.update = (req, res, next) ->
-  urlPattern = new RegExp("^#{req.params.name}\.")
-  Image.findOne {url: urlPattern}, (err, image) ->
+  Image.findOne {name: req.params.name}, (err, image) ->
     if err then return next(err)
     else if not image?
       next()
@@ -58,8 +56,7 @@ exports.update = (req, res, next) ->
       )
 
 exports.createVersion = (req, res, next) ->
-  urlPattern = new RegExp("^#{req.params.name}\.")
-  Image.findOne {url: urlPattern}, (err, image) ->
+  Image.findOne {name: req.params.name}, (err, image) ->
     if err then return next(err)
     else if not image?
       next()
@@ -83,8 +80,7 @@ exports.createVersion = (req, res, next) ->
           )
 
 exports.destroy = (req, res, next) ->
-  urlPattern = new RegExp("^#{req.params.name}\.")
-  Image.findOne {url: urlPattern}, (err, image) ->
+  Image.findOne {name: req.params.name}, (err, image) ->
     if err then return next(err)
     else if not image?
       res.send(404)
@@ -107,15 +103,15 @@ updateImage = (image, doc, flash, callback) ->
         callback(err)
 
 uploadImage = (fileInfo, callback) ->
-  image = new Image
-  image.generateUrl(fileInfo.filename)
+  image = new Image(filename: fileInfo.filename)
+  app.log.debug(image)
   image.upload fileInfo, (err) ->
     if err then return errs.handle(err, callback)
     image.save (err) ->
       response =
-        name: image.url
+        name: image.name
         size: fileInfo.size
         url: "\/image/#{image.url}/edit"
-        delete_url: "\/image/#{image.url}"
+        delete_url: "\/image/#{image.name}"
         delete_type: 'DELETE'
       callback(err, response)
