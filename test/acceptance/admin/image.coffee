@@ -83,20 +83,19 @@ describe 'image', ->
     browser = image = null
 
     beforeEach (done) ->
-      Image.findOne {url: 'A8r9ub3o-squirtle.png'}, (err, _image) ->
+      Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, _image) ->
         return done(err) if err?
         image = _image
         url = fullUrl('admin', '/image/A8r9ub3o-squirtle/edit')
-        Browser.visit url, (err, _browser) ->
+        Browser.visit url, {}, (err, _browser) ->
           browser = _browser
           done(err)
 
     it 'should fill fields with current values', ->
       browser.field('Caption').value.should.equal 'A water pokemon'
-      # TODO: Doesn't work. Fucking zombie
-      # browser.field('Date').value.should.equal '10/30/12'
+      browser.field('Date').value.should.equal '10/30/2012'
 
-    it 'when information form is filled out', ->
+    describe 'when information form is filled out', ->
       updatedImage = null
 
       beforeEach (done) ->
@@ -106,7 +105,7 @@ describe 'image', ->
           .fill('Photographer', 'Professor Oak')
           .pressButton 'Submit', (err) ->
             return done(err) if err?
-            Image.findOne {url: image.url}, (err, _image) ->
+            Image.findOne {name: image.name}, (err, _image) ->
               updatedImage = _image
               done(err)
 
@@ -116,7 +115,7 @@ describe 'image', ->
         updatedImage.location = 'Pallet Town'
         updatedImage.caption = 'A fire pokemon'
 
-    describe.skip 'when image delete button is pressed', ->
+    describe 'when image delete button is pressed', ->
       initial = null
 
       beforeEach (done) ->
@@ -131,7 +130,7 @@ describe 'image', ->
           done(err)
 
       it 'should not find image in database', (done) ->
-        Image.findOne {urls: 'ash-gets-pikachu-oak'}, (err, article) ->
+        Image.findOne {name: image.name}, (err, article) ->
           expect(article).not.to.exist
           done(err)
 

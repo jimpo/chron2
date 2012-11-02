@@ -12,8 +12,8 @@ define ['jquery', 'lib/bootstrap'], ->
           alert('Could not delete: ' + err.statusText)
           $(this).removeAttr('disabled')
         success: =>
-          if $(this).data('reload')?
-            window.location.reload()
+          if $(this).data('redirect')?
+            window.location = $(this).data('redirect')
           else
-            window.location = '/article'
+            window.location.reload()
       )

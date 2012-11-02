@@ -40,12 +40,12 @@ block content
     .control-group(class=(errors && ("date" in errors) ? "error": null))
       label.control-label(for="date")= "Date"
       .controls
-        input.input-xlarge.datepicker#date(type='text', name='doc[date]')
+        input.input-xlarge.datepicker#date(type='text', name='doc[date]', value=doc.date)
 
     .form-actions
       button.btn.btn-large.btn-primary(type='submit') Submit
       | 
-      button.btn.btn-large.btn-danger.delete-button(data-url="/image/#{doc.name}") Delete
+      button.btn.btn-large.btn-danger.delete-button(data-url="/image/#{doc.name}", data-redirect="/image") Delete
 
   table.table.table-striped
     tr

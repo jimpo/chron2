@@ -104,7 +104,6 @@ updateImage = (image, doc, flash, callback) ->
 
 uploadImage = (fileInfo, callback) ->
   image = new Image(filename: fileInfo.filename)
-  app.log.debug(image)
   image.upload fileInfo, (err) ->
     if err then return errs.handle(err, callback)
     image.save (err) ->

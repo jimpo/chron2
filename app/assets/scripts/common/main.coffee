@@ -4,4 +4,7 @@ define ['jquery'], ($) ->
       for module in modules
         for selector, action of module
           if not selector or $(selector).length > 0
-            action.call $(selector)
+            try
+              action.call $(selector)
+            catch err
+              console.error(err)
