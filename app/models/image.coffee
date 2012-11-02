@@ -3,6 +3,7 @@ async = require 'async'
 errs = require 'errs'
 fs = require 'fs'
 im = require 'imagemagick'
+mime = require 'mime'
 mongoose = require 'mongoose'
 path = require 'path'
 util = require 'util'
@@ -42,10 +43,8 @@ imageSchema = new mongoose.Schema
   location: String
   photographer: String
   versions: {type: [imageVersion], default: []}
-  url: {type: String, required: true, unique: true}
-
-imageSchema.methods.generateUrl = (filename) ->
-  @url = util.randomString(8) + '-' + filename
+  mimeType: {type: String, required: true, match: /image\/[a-z\-]+/}
+  name: {type: String, required: true, unique: true}
 
 imageSchema.methods.generateUrlForVersion = (version, x1, y1) ->
   type = IMAGE_TYPES[version.type]
@@ -138,15 +137,13 @@ imageSchema.methods.fullUrl = (version) ->
   baseUrl = app.config.CONTENT_CDN + '/images/'
   baseUrl + (if version then "versions/#{version.url}" else @url)
 
-imageSchema.virtual('name').get ->
-  @url.replace(/\.(gif|jpe?g|png)$/, '')
+imageSchema.virtual('url').get ->
+  @name + '.' + mime.extension(@mimeType)
 
-imageSchema.virtual('mimeType').get ->
-  switch path.extname(@url).toLowerCase()
-    when '.gif' then 'image/gif'
-    when '.png' then 'image/png'
-    when '.jpg' then 'image/jpeg'
-    when '.jpeg' then 'image/jpeg'
+imageSchema.virtual('filename').set (filename) ->
+  extension = path.extname(filename)
+  @name = util.randomString(10) + '-' + path.basename(filename, extension)
+  @mimeType = mime.lookup(filename)
 
 Image = module.exports = app.db.model 'Image', imageSchema
 Image.IMAGE_TYPES = IMAGE_TYPES

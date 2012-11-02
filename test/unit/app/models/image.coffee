@@ -13,10 +13,55 @@ describe 'Image', ->
 
   beforeEach ->
     image = new Image(
+      filename: 'raichu.png'
       caption: 'What? Pikachu is evolving'
       location: 'Vermillion City'
       photographer: 'Misty'
     )
+
+  describe 'filename', ->
+    it 'should set name and mimeType', ->
+      expect(image.name).to.exist
+      expect(image.mimeType).to.exist
+
+    it 'should not be gettable', ->
+      expect(image.filename).not.to.exist
+
+  describe 'mimeType', ->
+    it 'should be "image/gif" for .gif images', ->
+      image.filename = 'raichu.gif'
+      image.mimeType.should.equal 'image/gif'
+
+    it 'should be "image/png" for .png images', ->
+      image.filename = 'raichu.png'
+      image.mimeType.should.equal 'image/png'
+
+    it 'should be "image/jpeg" for .jpg images', ->
+      image.filename = 'raichu.jpg'
+      image.mimeType.should.equal 'image/jpeg'
+
+    it 'should be "image/jpeg" for .jpeg images', ->
+      image.filename = 'raichu.jpeg'
+      image.mimeType.should.equal 'image/jpeg'
+
+    it 'should be invalid for non-image mimeTypes', (done) ->
+      image.filename = 'raichu.txt'
+      image.validate (err) ->
+        expect(err).to.exist
+        err.errors.should.have.property 'mimeType'
+        done()
+
+    it 'should be case insensitive', ->
+      image.filename = 'raichu.JPG'
+      image.mimeType.should.equal 'image/jpeg'
+
+  describe 'name', ->
+    it 'should consist of a random character sequence followed by filename', ->
+      image.name.should.match /^[a-zA-Z0-9]+\-raichu$/
+
+  describe 'url', ->
+    it 'should be the image name with an appropriate extension', ->
+      image.url.should.equal "#{image.name}.png"
 
   describe 'versions', ->
     it 'should create a new image version on push', ->
@@ -30,45 +75,6 @@ describe 'Image', ->
         expect(err).to.exist
         done()
 
-  describe 'mimeType', ->
-    it 'should be "image/gif" for .gif images', ->
-      image.url = 'raichu.gif'
-      image.mimeType.should.equal 'image/gif'
-
-    it 'should be "image/png" for .png images', ->
-      image.url = 'raichu.png'
-      image.mimeType.should.equal 'image/png'
-
-    it 'should be "image/jpeg" for .jpg images', ->
-      image.url = 'raichu.jpg'
-      image.mimeType.should.equal 'image/jpeg'
-
-    it 'should be "image/jpeg" for .jpeg images', ->
-      image.url = 'raichu.jpeg'
-      image.mimeType.should.equal 'image/jpeg'
-
-    it 'should be undefined for unknown image extensions', ->
-      image.url = 'raichu.txt'
-      expect(image.mimeType).not.to.exist
-
-    it 'should be undefined if url is not set', ->
-      image.url = 'raichu.txt'
-      expect(image.mimeType).not.to.exist
-
-    it 'should be case insensitive', ->
-      image.url = 'raichu.JPG'
-      image.mimeType.should.equal 'image/jpeg'
-
-  describe '#generateUrl()', ->
-    it 'should set url to new url', ->
-      url = image.generateUrl('raichu.png')
-      expect(url).to.exist
-      image.url.should.equal url
-
-    it 'should consist of a random character sequence followed by filename', ->
-      image.generateUrl('raichu.png').should.match /^[a-zA-Z0-9]+\-raichu.png/
-
-
   describe '#generateUrlForVersion()', ->
     it 'should set url to new url', ->
       image.versions.push(type: 'LargeRect')
@@ -78,7 +84,7 @@ describe 'Image', ->
       version.url.should.equal url
 
     it 'should append the version\'s crop information to the original url', ->
-      image.url = 'abcdefgh-raichu.png'
+      image.name = 'abcdefgh-raichu'
       image.versions.push(type: 'LargeRect')
       version = image.versions[0]
       image.generateUrlForVersion(version, 20, 30).should.equal(
@@ -95,7 +101,7 @@ describe 'Image', ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
         .get('/images/abcdefgh-raichu.png')
         .reply(403)
-      image.url = 'abcdefgh-raichu.png'
+      image.name = 'abcdefgh-raichu'
       image.download (err, data) ->
         scope.done()
         done()
@@ -104,7 +110,7 @@ describe 'Image', ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
         .get('/images/abcdefgh-raichu.png')
         .reply(403)
-      image.url = 'abcdefgh-raichu.png'
+      image.name = 'abcdefgh-raichu'
       image.download (err, data) ->
         err.should.be.an('Error')
         done()
@@ -113,7 +119,7 @@ describe 'Image', ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
         .get('/images/abcdefgh-raichu.png')
         .reply(200, 'pikachu image')
-      image.url = 'abcdefgh-raichu.png'
+      image.name = 'abcdefgh-raichu'
       image.download (err, data) ->
         data.should.equal 'pikachu image'
         done(err)
@@ -130,12 +136,15 @@ describe 'Image', ->
 
     beforeEach (done) ->
       app.log = {warning: console.log}
-      image.url = 'original.jpg'
+      image.name = 'original'
+      image.mimeType = 'image/jpeg'
       image.versions.push(type: 'LargeRect', url: 'version.jpg')
       version = image.versions[0]
-      fs.readFile path.join(__dirname, '../../../pikachu.jpg'), 'binary', (err, data) ->
-        buffer = data
-        done(err)
+      fs.readFile(path.join(__dirname, '../../../pikachu.jpg'), 'binary',
+        (err, data) ->
+          buffer = data
+          done(err)
+      )
 
     it 'should write original image to local /tmp directory', (done) ->
       spy = sinon.spy(fs, 'writeFile')
@@ -197,7 +206,7 @@ describe 'Image', ->
       path: '/tmp/image_path'
 
     beforeEach ->
-      image.url = 'raichu.png'
+      image.name = 'raichu'
       app.s3 =
         putFile: sinon.stub()
 
@@ -227,8 +236,8 @@ describe 'Image', ->
         bucket: 's3_bucket'
 
     beforeEach ->
-      image.url = 'original.jpg'
-      image.versions.push(type: 'LargeRect', url: 'version.jpg')
+      image.name = 'original'
+      image.versions.push(type: 'LargeRect', url: 'version.png')
       version = image.versions[0]
       sinon.stub(image, 'download').yields(null, 'original image')
       sinon.stub(image, 'cropImage').yields(null, 'cropped image')
@@ -252,7 +261,7 @@ describe 'Image', ->
 
     it 'should put cropped image buffer in s3', (done) ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
-        .put('/images/versions/version.jpg', "cropped image")
+        .put('/images/versions/version.png', "cropped image")
         .reply(200)
       image.uploadImageVersion(version, dimensions, (err) ->
         scope.done()
