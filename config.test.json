@@ -5,10 +5,7 @@
     "S3": {
         "key": "XXXXXX",
         "secret": "XXXXXX",
-        "buckets": {
-            "file": "development",
-            "static": "static"
-        }
+        "bucket": "s3_bucket"
     },
     "CONTENT_CDN": "XXXXXX",
     "TAXONOMY": [

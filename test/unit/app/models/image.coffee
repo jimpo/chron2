@@ -1,15 +1,22 @@
 _ = require 'underscore'
 fs = require 'fs'
 im = require 'imagemagick'
-knox = require 'knox'
 nock = require 'nock'
 path = require 'path'
 
 Image = require 'app/models/image'
+s3 = require 'app/initialization/s3'
 
 
 describe 'Image', ->
   image = null
+
+  before (done) ->
+    app.configure (err) ->
+      return done(err) if err?
+      s3 (err, client) ->
+        app.s3 = client
+        done(err)
 
   beforeEach ->
     image = new Image(
@@ -91,12 +98,6 @@ describe 'Image', ->
         '636x393-20-30-abcdefgh-raichu.png')
 
   describe '#download()', ->
-    before ->
-      app.s3 = knox.createClient
-        key: 's3_key'
-        secret: 's3_secret'
-        bucket: 's3_bucket'
-
     it 'should fetch file from s3', (done) ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
         .get('/images/abcdefgh-raichu.png')
@@ -207,8 +208,10 @@ describe 'Image', ->
 
     beforeEach ->
       image.name = 'raichu'
-      app.s3 =
-        putFile: sinon.stub()
+      sinon.stub(app.s3, 'putFile')
+
+    afterEach ->
+      app.s3.putFile.restore()
 
     it 'should putFile to s3 with appropriate request headers', (done) ->
       headers =
@@ -228,12 +231,6 @@ describe 'Image', ->
       y1: 30
       w: 700
       h: 432
-
-    before ->
-      app.s3 = knox.createClient
-        key: 's3_key'
-        secret: 's3_secret'
-        bucket: 's3_bucket'
 
     beforeEach ->
       image.name = 'original'

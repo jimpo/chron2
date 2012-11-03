@@ -51,26 +51,10 @@ imageSchema.methods.generateUrlForVersion = (version, x1, y1) ->
   version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{this.url}"
 
 imageSchema.methods.download = (callback) ->
-  app.s3.getFile("/images/#{@url}", (err, res) ->
+  app.s3.getFile "/images/#{@url}", (err, res) ->
     if err then return callback(err)
-    data = ''
     res.setEncoding('binary')
-    res.on('data', (chunk) -> data += chunk)
-    res.on('end', ->
-      err = undefined
-      switch res.statusCode
-        when 200 then err = undefined
-        when 403 then err = 'Forbidden'
-        else err = 'Unknown error'
-
-      if err?
-        res.message = err
-        callback(errs.create('S3Error', res))
-      else
-        callback(undefined, data)
-    )
-    res.on('close', callback)
-  )
+    app.s3.handleResponse(res, callback)
 
 imageSchema.methods.upload = (fileInfo, callback) ->
   headers =
@@ -90,19 +74,7 @@ imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
         'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
       url = "/images/versions/#{version.url}"
       req = app.s3.put(url, headers)
-      req.on('response', (res) ->
-        err = undefined
-        switch res.statusCode
-          when 200 then err = undefined
-          when 403 then err = 'Forbidden'
-          else err = 'Unknown error'
-
-        if err?
-          res.message = err
-          callback(errs.create('S3Error', res))
-        else
-          callback()
-      )
+      req.on('response', (res) -> app.s3.handleResponse(res, callback))
       req.end(buffer)
     ],
     callback
