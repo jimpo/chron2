@@ -4,10 +4,10 @@ Article = require 'app/models/article'
 
 
 describe 'Author', ->
-  article = null
+  author = null
 
   beforeEach ->
-    article = new Article(
+    author = new Article(
       authors: []
       title: 'Ash defeats Gary in Indigo Plateau'
       subtitle: 'Oak arrives just in time'
