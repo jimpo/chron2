@@ -7,7 +7,7 @@
         "secret": "XXXXXX",
         "bucket": "s3_bucket"
     },
-    "CONTENT_CDN": "XXXXXX",
+    "CONTENT_CDN": "http://cdn.example.com",
     "TAXONOMY": [
         { "name": "News",
           "children":

@@ -35,7 +35,29 @@ IMAGE_TYPES =
 
 imageVersion = new mongoose.Schema
   type: {type: String, required: true, enum: _.keys(IMAGE_TYPES)}
-  url: {type: String, required: true}
+  dim:
+    x1: {type: Number}
+    x2: {type: Number}
+    y1: {type: Number}
+    y2: {type: Number}
+
+imageVersion.methods.filename = ->
+  type = IMAGE_TYPES[@type]
+  [w, h, x1, x2, y1, y2] = [
+    type.width
+    type.height
+    @dim.x1
+    @dim.x2
+    @dim.y1
+    @dim.y2
+  ]
+  "#{w}x#{h}-#{x1}-#{y1}-#{x2}-#{y2}-#{this.__parent.filename}"
+
+imageVersion.methods.url = ->
+  '/images/versions/' + this.filename()
+
+imageVersion.methods.fullUrl = ->
+  app.config.CONTENT_CDN + this.url()
 
 imageSchema = new mongoose.Schema
   caption: String
@@ -112,17 +134,19 @@ imageSchema.methods.cropImage = (version, dim, buffer, callback) ->
         })) if err?
     )
 
-imageSchema.methods.fullUrl = (version) ->
-  baseUrl = app.config.CONTENT_CDN + '/images/'
-  baseUrl + (if version then "versions/#{version.url}" else @url)
-
-imageSchema.virtual('url').get ->
+imageSchema.virtual('filename').get ->
   @name + '.' + mime.extension(@mimeType)
 
 imageSchema.virtual('filename').set (filename) ->
   extension = path.extname(filename)
   @name = util.randomString(10) + '-' + path.basename(filename, extension)
   @mimeType = mime.lookup(filename)
+
+imageSchema.virtual('url').get ->
+  '/images/' + @filename
+
+imageSchema.virtual('fullUrl').get ->
+  app.config.CONTENT_CDN + @url
 
 Image = module.exports = app.db.model 'Image', imageSchema
 Image.IMAGE_TYPES = IMAGE_TYPES
