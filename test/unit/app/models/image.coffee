@@ -264,3 +264,25 @@ describe 'Image', ->
         scope.done()
         done(err)
       )
+
+  describe.skip '#remove()', (done) ->
+    beforeEach (done) ->
+      sinon.stub(image.collection, 'remove').yields()
+      image.remove(done)
+
+    afterEach ->
+      image.collection.remove.restore()
+
+    it 'should remove image original from S3', ->
+      nock.recorder.rec()
+
+    it.skip 'should remove all image versions from S3', ->
+
+  describe '#removeImage()', ->
+    it 'should remove image original from S3', (done) ->
+      scope = nock('https://s3_bucket.s3.amazonaws.com:443')
+        .delete("/images/#{image.url}")
+        .reply(200)
+      image.removeImage (err) ->
+        scope.done()
+        done(err)

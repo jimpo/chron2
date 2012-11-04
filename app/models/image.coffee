@@ -80,6 +80,13 @@ imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
     callback
   )
 
+imageSchema.methods.removeImage = (callback) ->
+  app.s3.deleteFile "/images/#{@url}", (err, res) ->
+    return errs.handle(err, callback) if err?
+    app.s3.handleResponse(res, callback)
+
+imageSchema.methods.removeImageVersion = (version, callback) ->
+
 imageSchema.methods.cropImage = (version, dim, buffer, callback) ->
   type = IMAGE_TYPES[version.type]
   tmpdir = path.join(__dirname, '../../tmp')
