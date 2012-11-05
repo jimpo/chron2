@@ -1,38 +1,22 @@
 include ../mixins/form-helpers
-- _form.method === 'PUT' ? (_form.method = 'POST') && (_form.put = true) : ''
-form.form-horizontal(method= _form.method, action= _form.action)
-  legend= _form.title
 
-  mixin errorBlock(errors)
+mixin text-control-group('title', 'Title', doc, errors)
+mixin text-control-group('subtitle', 'Subtitle', doc, errors)
 
-  input#csrf(type='hidden', name='_csrf', value=token)
+.control-group
+   label.control-label(for='section0') Section
+   .controls
+     mixin taxonomySelect(taxonomy, doc.taxonomy)
 
-  - if (_form.put)
-    input(type='hidden', name='_method', value='put')
+.control-group
+  label.control-label(for='authors') Authors
+  .controls
+    ul
+      - var i = 0
+      - each author in (doc.authors || [])
+        li: input(type='text', name="doc[authors][#{i++}]", value=author.name)
+      li: input#authors(type='text', name="doc[authors][#{i}]")
+      li: button.btn.add-field(data-name='doc[authors]') Add another author
 
-  mixin text-control-group('title', 'Title', doc, errors)
-  mixin text-control-group('subtitle', 'Subtitle', doc, errors)
-
-  .control-group
-     label.control-label(for='section0') Section
-     .controls
-       mixin taxonomySelect(taxonomy, doc.taxonomy)
-
-  .control-group
-    label.control-label(for='authors') Authors
-    .controls
-      ul
-        - var i = 0
-        - each author in (doc.authors || [])
-          li: input(type='text', name="doc[authors][#{i++}]", value=author.name)
-        li: input#authors(type='text', name="doc[authors][#{i}]")
-        li: button.btn.add-field(data-name='doc[authors]') Add another author
-
-  mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)
-  mixin textarea-control-group('body', 'Body', doc, errors, 5)
-
-  .form-actions
-    button.btn.btn-large.btn-primary(type='submit') Submit
-    - if (_form.put)
-      | 
-      button.btn.btn-large.btn-danger.delete-article(data-url="/article/#{doc.url}") Delete
+mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)
+mixin textarea-control-group('body', 'Body', doc, errors, 5)

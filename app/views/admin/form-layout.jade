@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  include mixins/form-helpers
+  - _form.method === 'PUT' ? (_form.method = 'POST') && (_form.put = true) : ''
+
+  form.form-horizontal(method=_form.method, action= _form.action)
+    legend= _form.title
+    mixin errorBlock(errors)
+    input#csrf(type='hidden', name='_csrf', value=token)
+    block fields
+    .form-actions
+      block actions
+        button.btn.btn-large.btn-primary(type='submit') Submit
+        - if (_form.put)
+          | 
+          button.btn.btn-large.btn-danger.delete-article(data-url="/article/#{doc.url}") Delete

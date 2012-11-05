@@ -1,5 +1,7 @@
-extends ../layout
+extends ../form-layout
 
-block content
+block vars
   - var _form = {title: "Add Article", method: "POST" , action: "/article"}
+
+block fields
   include _form
