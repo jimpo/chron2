@@ -10,7 +10,7 @@ block content
   br
 
   form#fileupload(action="/image/upload", method="POST", enctype="multipart/form-data")
-    input(type='hidden', name='_csrf', value=token)
+    input#csrf(type='hidden', name='_csrf', value=token)
     .row.fileupload-buttonbar
       .span7
         span.btn.btn-success.fileinput-button

@@ -3,6 +3,7 @@ async = require 'async'
 errs = require 'errs'
 fs = require 'fs'
 im = require 'imagemagick'
+mime = require 'mime'
 mongoose = require 'mongoose'
 path = require 'path'
 util = require 'util'
@@ -34,7 +35,50 @@ IMAGE_TYPES =
 
 imageVersion = new mongoose.Schema
   type: {type: String, required: true, enum: _.keys(IMAGE_TYPES)}
-  url: {type: String, required: true}
+  dim:
+    x1: {type: Number}
+    x2: {type: Number}
+    y1: {type: Number}
+    y2: {type: Number}
+
+imageVersion.methods.filename = ->
+  type = IMAGE_TYPES[@type]
+  [w, h, x1, x2, y1, y2] = [
+    type.width
+    type.height
+    @dim.x1
+    @dim.x2
+    @dim.y1
+    @dim.y2
+  ]
+  "#{w}x#{h}-#{x1}-#{y1}-#{x2}-#{y2}-#{this.__parent.filename}"
+
+imageVersion.methods.url = ->
+  '/images/versions/' + this.filename()
+
+imageVersion.methods.fullUrl = ->
+  app.config.CONTENT_CDN + this.url()
+
+imageVersion.methods.upload = (callback) ->
+  async.waterfall([
+    (callback) => this.__parent.download(callback)
+    (buffer, callback) => this.__parent.crop(this, buffer, callback)
+    (buffer, callback) =>
+      headers =
+        'Content-Length': buffer.length
+        'Content-Type': this.__parent.mimeType
+        'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
+      req = app.s3.put(this.url(), headers)
+      req.on('response', (res) -> app.s3.handleResponse(res, callback))
+      req.end(buffer)
+    ],
+    callback
+  )
+
+imageVersion.methods.removeImage = (callback) ->
+  app.s3.deleteFile this.url(), (err, res) ->
+    return errs.handle(err, callback) if err?
+    app.s3.handleResponse(res, callback)
 
 imageSchema = new mongoose.Schema
   caption: String
@@ -42,78 +86,47 @@ imageSchema = new mongoose.Schema
   location: String
   photographer: String
   versions: {type: [imageVersion], default: []}
-  url: {type: String, required: true, unique: true}
-
-imageSchema.methods.generateUrl = (filename) ->
-  @url = util.randomString(8) + '-' + filename
-
-imageSchema.methods.generateUrlForVersion = (version, x1, y1) ->
-  type = IMAGE_TYPES[version.type]
-  version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{this.url}"
+  mimeType: {type: String, required: true, match: /image\/[a-z\-]+/}
+  name: {type: String, required: true, unique: true}
 
 imageSchema.methods.download = (callback) ->
-  app.s3.getFile("/images/#{@url}", (err, res) ->
+  app.s3.getFile @url, (err, res) ->
     if err then return callback(err)
-    data = ''
     res.setEncoding('binary')
-    res.on('data', (chunk) -> data += chunk)
-    res.on('end', ->
-      err = undefined
-      switch res.statusCode
-        when 200 then err = undefined
-        when 403 then err = 'Forbidden'
-        else err = 'Unknown error'
-
-      if err?
-        res.message = err
-        callback(errs.create('S3Error', res))
-      else
-        callback(undefined, data)
-    )
-    res.on('close', callback)
-  )
+    app.s3.handleResponse(res, callback)
 
 imageSchema.methods.upload = (fileInfo, callback) ->
   headers =
     'Content-Type': fileInfo.mime
     'Content-Length': fileInfo.length
     'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
-  app.s3.putFile(fileInfo.path, "/images/#{@url}", headers, callback)
+  app.s3.putFile(fileInfo.path, @url, headers, callback)
 
-imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
-  async.waterfall([
-    (callback) => this.download(callback)
-    (buffer, callback) => this.cropImage(version, dim, buffer, callback)
-    (buffer, callback) =>
-      headers =
-        'Content-Length': buffer.length
-        'Content-Type': @mimeType
-        'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
-      url = "/images/versions/#{version.url}"
-      req = app.s3.put(url, headers)
-      req.on('response', (res) ->
-        err = undefined
-        switch res.statusCode
-          when 200 then err = undefined
-          when 403 then err = 'Forbidden'
-          else err = 'Unknown error'
+imageSchema.methods.removeImage = (callback) ->
+  app.s3.deleteFile @url, (err, res) ->
+    return errs.handle(err, callback) if err?
+    app.s3.handleResponse(res, callback)
 
-        if err?
-          res.message = err
-          callback(errs.create('S3Error', res))
-        else
-          callback()
-      )
-      req.end(buffer)
-    ],
-    callback
-  )
+imageSchema.methods.removeVersion = (id, callback) ->
+  version = this.versions.id(id)
+  if not version?
+    return errs.handle('Version does not exist', callback)
+  image = version.__parent
+  version.removeImage (err) ->
+    return errs.handle(err, callback) if err?
+    version.remove()
+    image.save(callback)
 
-imageSchema.methods.cropImage = (version, dim, buffer, callback) ->
+imageSchema.methods.crop = (version, buffer, callback) ->
   type = IMAGE_TYPES[version.type]
+  dim =
+    x1: version.dim.x1
+    y1: version.dim.y1
+    w: version.dim.x2 - version.dim.x1
+    h: version.dim.y2 - version.dim.y1
   tmpdir = path.join(__dirname, '../../tmp')
-  src = path.join(tmpdir, @url)
-  dest = path.join(tmpdir, version.url)
+  src = path.join(tmpdir, @filename)
+  dest = path.join(tmpdir, 'cropped-' + @filename)
   fs.writeFile src, buffer, 'binary', (err) ->
     if err then return errs.handle(err, callback)
     geometry = "#{dim.w}x#{dim.h}+#{dim.x1}+#{dim.y1}"
@@ -134,19 +147,27 @@ imageSchema.methods.cropImage = (version, dim, buffer, callback) ->
         })) if err?
     )
 
-imageSchema.methods.fullUrl = (version) ->
-  baseUrl = app.config.CONTENT_CDN + '/images/'
-  baseUrl + (if version then "versions/#{version.url}" else @url)
+imageSchema.pre 'remove', (next) ->
+  async.forEach(this.versions,
+    (version, callback) -> version.removeImage(callback)
+    (err) =>
+      return next(err) if err?
+      this.removeImage(next)
+  )
 
-imageSchema.virtual('name').get ->
-  @url.replace(/\.(gif|jpe?g|png)$/, '')
+imageSchema.virtual('filename').get ->
+  @name + '.' + mime.extension(@mimeType)
 
-imageSchema.virtual('mimeType').get ->
-  switch path.extname(@url).toLowerCase()
-    when '.gif' then 'image/gif'
-    when '.png' then 'image/png'
-    when '.jpg' then 'image/jpeg'
-    when '.jpeg' then 'image/jpeg'
+imageSchema.virtual('filename').set (filename) ->
+  extension = path.extname(filename)
+  @name = util.randomString(10) + '-' + path.basename(filename, extension)
+  @mimeType = mime.lookup(filename)
+
+imageSchema.virtual('url').get ->
+  '/images/' + @filename
+
+imageSchema.virtual('fullUrl').get ->
+  app.config.CONTENT_CDN + @url
 
 Image = module.exports = app.db.model 'Image', imageSchema
 Image.IMAGE_TYPES = IMAGE_TYPES
