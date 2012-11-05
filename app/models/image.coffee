@@ -107,6 +107,16 @@ imageSchema.methods.removeImage = (callback) ->
     return errs.handle(err, callback) if err?
     app.s3.handleResponse(res, callback)
 
+imageSchema.methods.removeVersion = (id, callback) ->
+  version = this.versions.id(id)
+  if not version?
+    return errs.handle('Version does not exist', callback)
+  image = version.__parent
+  version.removeImage (err) ->
+    return errs.handle(err, callback) if err?
+    version.remove()
+    image.save(callback)
+
 imageSchema.methods.crop = (version, buffer, callback) ->
   type = IMAGE_TYPES[version.type]
   dim =
@@ -136,6 +146,14 @@ imageSchema.methods.crop = (version, buffer, callback) ->
           message: "Temporary file #{dest} could not be removed"
         })) if err?
     )
+
+imageSchema.pre 'remove', (next) ->
+  async.forEach(this.versions,
+    (version, callback) -> version.removeImage(callback)
+    (err) =>
+      return next(err) if err?
+      this.removeImage(next)
+  )
 
 imageSchema.virtual('filename').get ->
   @name + '.' + mime.extension(@mimeType)

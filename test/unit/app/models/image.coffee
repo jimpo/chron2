@@ -9,7 +9,7 @@ s3 = require 'app/initialization/s3'
 
 
 describe 'Image', ->
-  image = null
+  image = version = null
 
   before (done) ->
     app.configure (err) ->
@@ -26,6 +26,13 @@ describe 'Image', ->
       location: 'Vermillion City'
       photographer: 'Misty'
     )
+    dim =
+        x1: 1
+        y1: 2
+        x2: 3
+        y2: 4
+    image.versions.push(type: 'LargeRect', dim: dim)
+    version = image.versions[0]
 
   describe 'filename', ->
     it 'should set name and mimeType', ->
@@ -134,17 +141,6 @@ describe 'Image', ->
         done(err)
 
   describe 'versions', ->
-    version = null
-
-    beforeEach ->
-      dim =
-        x1: 1
-        y1: 2
-        x2: 3
-        y2: 4
-      image.versions.push(type: 'LargeRect', dim: dim)
-      version = image.versions[0]
-
     it 'should create a new image version on push', ->
       image.versions[0].type.should.equal 'LargeRect'
 
@@ -279,15 +275,44 @@ describe 'Image', ->
         done(err)
       )
 
-  describe.skip '#remove()', (done) ->
+  describe '#removeVersion()', (done) ->
+    beforeEach (done) ->
+      sinon.stub(image, 'save').yields()
+      sinon.stub(version, 'removeImage').yields()
+      image.removeVersion(version._id, done)
+
+    afterEach ->
+      image.save.restore()
+      version.removeImage.restore()
+
+    it 'should yield an error if version does not exist', ->
+      image.removeVersion 5, (err) ->
+        err.should.be.an('Error')
+        err.message.should.match /Version does not exist/
+
+    it 'should remove version document from image', ->
+      image.versions.should.have.length 0
+
+    it 'should save image to database', ->
+      image.save.should.have.been.called
+
+    it 'should remove image version from S3', ->
+      version.removeImage.should.have.been.called
+
+  describe '#remove()', (done) ->
     beforeEach (done) ->
       sinon.stub(image.collection, 'remove').yields()
+      sinon.stub(image, 'removeImage').yields()
+      sinon.stub(version, 'removeImage').yields()
       image.remove(done)
 
     afterEach ->
       image.collection.remove.restore()
+      image.removeImage.restore()
+      version.removeImage.restore()
 
     it 'should remove image original from S3', ->
-      nock.recorder.rec()
+      image.removeImage.should.have.been.called
 
-    it.skip 'should remove all image versions from S3', ->
+    it 'should remove all image versions from S3', ->
+      version.removeImage.should.have.been.called
