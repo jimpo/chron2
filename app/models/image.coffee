@@ -59,6 +59,22 @@ imageVersion.methods.url = ->
 imageVersion.methods.fullUrl = ->
   app.config.CONTENT_CDN + this.url()
 
+imageVersion.methods.upload = (callback) ->
+  async.waterfall([
+    (callback) => this.__parent.download(callback)
+    (buffer, callback) => this.__parent.crop(this, buffer, callback)
+    (buffer, callback) =>
+      headers =
+        'Content-Length': buffer.length
+        'Content-Type': this.__parent.mimeType
+        'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
+      req = app.s3.put(this.url(), headers)
+      req.on('response', (res) -> app.s3.handleResponse(res, callback))
+      req.end(buffer)
+    ],
+    callback
+  )
+
 imageSchema = new mongoose.Schema
   caption: String
   date: {type: Date, default: Date.now}
@@ -81,29 +97,10 @@ imageSchema.methods.upload = (fileInfo, callback) ->
     'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
   app.s3.putFile(fileInfo.path, @url, headers, callback)
 
-imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
-  async.waterfall([
-    (callback) => this.download(callback)
-    (buffer, callback) => this.crop(version, buffer, callback)
-    (buffer, callback) =>
-      headers =
-        'Content-Length': buffer.length
-        'Content-Type': @mimeType
-        'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
-      url = "/images/versions/#{version.url}"
-      req = app.s3.put(url, headers)
-      req.on('response', (res) -> app.s3.handleResponse(res, callback))
-      req.end(buffer)
-    ],
-    callback
-  )
-
 imageSchema.methods.removeImage = (callback) ->
   app.s3.deleteFile @url, (err, res) ->
     return errs.handle(err, callback) if err?
     app.s3.handleResponse(res, callback)
-
-imageSchema.methods.removeImageVersion = (version, callback) ->
 
 imageSchema.methods.crop = (version, buffer, callback) ->
   type = IMAGE_TYPES[version.type]

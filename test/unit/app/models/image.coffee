@@ -167,6 +167,35 @@ describe 'Image', ->
         url = '/images/versions/636x393-1-2-3-4-abcdefgh-raichu.png'
         version.fullUrl().should.equal ('http://cdn.example.com' + url)
 
+    describe '#upload()', ->
+      beforeEach ->
+        image.name = 'original'
+        sinon.stub(image, 'download').yields(null, 'original image')
+        sinon.stub(image, 'crop').yields(null, 'cropped image')
+
+      afterEach ->
+        image.download.restore()
+        image.crop.restore()
+
+      it 'should download original image', (done) ->
+        version.upload (err) ->
+          image.download.should.have.been.called
+          done()
+
+      it 'should crop original image', (done) ->
+        version.upload (err) ->
+          image.crop.should.have.been.calledWith(version, 'original image')
+          done()
+
+      it 'should put cropped image buffer in s3', (done) ->
+        scope = nock('https://s3_bucket.s3.amazonaws.com')
+          .put('/images/versions/636x393-1-2-3-4-original.png', 'cropped image')
+          .reply(200)
+        version.upload (err) ->
+          return done(err) if err?
+          scope.done()
+          done(err)
+
   describe '#crop()', ->
     version = null
     dimensions =
@@ -238,47 +267,6 @@ describe 'Image', ->
         dest = imSpy.firstCall.args[0][5]
         fsSpy.should.have.been.calledWith(src)
         fsSpy.should.have.been.calledWith(dest)
-        done(err)
-      )
-
-  describe.skip '#uploadImageVersion()', ->
-    version = null
-    dimensions =
-      x1: 20
-      y1: 30
-      w: 700
-      h: 432
-
-    beforeEach ->
-      image.name = 'original'
-      image.versions.push(type: 'LargeRect', url: 'version.png')
-      version = image.versions[0]
-      sinon.stub(image, 'download').yields(null, 'original image')
-      sinon.stub(image, 'cropImage').yields(null, 'cropped image')
-
-    afterEach ->
-      image.download.restore()
-      image.cropImage.restore()
-
-    it 'should download original image', (done) ->
-      image.uploadImageVersion(version, dimensions, (err) ->
-        image.download.should.have.been.called
-        done()
-      )
-
-    it 'should crop original image', (done) ->
-      image.uploadImageVersion(version, dimensions, (err) ->
-        image.cropImage.should.have.been.calledWith(
-          version, dimensions, 'original image')
-        done()
-      )
-
-    it 'should put cropped image buffer in s3', (done) ->
-      scope = nock('https://s3_bucket.s3.amazonaws.com')
-        .put('/images/versions/version.png', "cropped image")
-        .reply(200)
-      image.uploadImageVersion(version, dimensions, (err) ->
-        scope.done()
         done(err)
       )
 
