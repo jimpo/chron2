@@ -68,12 +68,8 @@ imageSchema = new mongoose.Schema
   mimeType: {type: String, required: true, match: /image\/[a-z\-]+/}
   name: {type: String, required: true, unique: true}
 
-imageSchema.methods.generateUrlForVersion = (version, x1, y1) ->
-  type = IMAGE_TYPES[version.type]
-  version.url = "#{type.width}x#{type.height}-#{x1}-#{y1}-#{this.url}"
-
 imageSchema.methods.download = (callback) ->
-  app.s3.getFile "/images/#{@url}", (err, res) ->
+  app.s3.getFile @url, (err, res) ->
     if err then return callback(err)
     res.setEncoding('binary')
     app.s3.handleResponse(res, callback)
@@ -83,12 +79,12 @@ imageSchema.methods.upload = (fileInfo, callback) ->
     'Content-Type': fileInfo.mime
     'Content-Length': fileInfo.length
     'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
-  app.s3.putFile(fileInfo.path, "/images/#{@url}", headers, callback)
+  app.s3.putFile(fileInfo.path, @url, headers, callback)
 
 imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
   async.waterfall([
     (callback) => this.download(callback)
-    (buffer, callback) => this.cropImage(version, dim, buffer, callback)
+    (buffer, callback) => this.crop(version, buffer, callback)
     (buffer, callback) =>
       headers =
         'Content-Length': buffer.length
@@ -103,17 +99,22 @@ imageSchema.methods.uploadImageVersion = (version, dim, callback) ->
   )
 
 imageSchema.methods.removeImage = (callback) ->
-  app.s3.deleteFile "/images/#{@url}", (err, res) ->
+  app.s3.deleteFile @url, (err, res) ->
     return errs.handle(err, callback) if err?
     app.s3.handleResponse(res, callback)
 
 imageSchema.methods.removeImageVersion = (version, callback) ->
 
-imageSchema.methods.cropImage = (version, dim, buffer, callback) ->
+imageSchema.methods.crop = (version, buffer, callback) ->
   type = IMAGE_TYPES[version.type]
+  dim =
+    x1: version.dim.x1
+    y1: version.dim.y1
+    w: version.dim.x2 - version.dim.x1
+    h: version.dim.y2 - version.dim.y1
   tmpdir = path.join(__dirname, '../../tmp')
-  src = path.join(tmpdir, @url)
-  dest = path.join(tmpdir, version.url)
+  src = path.join(tmpdir, @filename)
+  dest = path.join(tmpdir, 'cropped-' + @filename)
   fs.writeFile src, buffer, 'binary', (err) ->
     if err then return errs.handle(err, callback)
     geometry = "#{dim.w}x#{dim.h}+#{dim.x1}+#{dim.y1}"
