@@ -1,12 +1,10 @@
-extends ../layout
+extends ../form-layout
 
-block content
+block prepend content
   h1 Edit Image
   img#crop-target(src=doc.fullUrl)
   form.form-inline#crop-form(action="/image/#{doc.name}/version", method="POST")
     input(type='hidden', name='_csrf', value=token)
-    input#w(type='hidden', name='w')
-    input#h(type='hidden', name='h')
     input#x1(type='hidden', name='x1')
     input#x2(type='hidden', name='x2')
     input#y1(type='hidden', name='y1')
@@ -19,34 +17,25 @@ block content
     | 
     i.icon-question-sign#crop-help
 
+block vars
+  - var _form = {title: "Photo Information", method: "PUT", action: "/image/#{doc.name}"}
+
+block fields
   include ../mixins/form-helpers
-  form.form-horizontal(action="/image/#{doc.name}", method="POST")
-    legend Photo Information
+  mixin text-control-group('caption', 'Caption', doc, errors)
+  mixin text-control-group('location', 'Location', doc, errors)
+  mixin text-control-group('photographer', 'Photographer', doc, errors)
 
-    input#csrf(type='hidden', name='_csrf', value=token)
-    input(type='hidden', name='_method', value='put')
+  .control-group(class=(errors && ("date" in errors) ? "error": null))
+    label.control-label(for="date")= "Date"
+    .controls
+      input.input-xlarge.datepicker#date(type='text', name='doc[date]', value=doc.date)
 
-    mixin errorBlock(errors)
-    - if (messages.length > 0)
-      .alert.alert-info
-        ul
-          - each message in messages
-            li= message
+block append actions
+  | 
+  button.btn.btn-large.btn-danger.delete-button(data-url="/image/#{doc.name}", data-redirect="/image") Delete
 
-    mixin text-control-group('caption', 'Caption', doc, errors)
-    mixin text-control-group('location', 'Location', doc, errors)
-    mixin text-control-group('photographer', 'Photographer', doc, errors)
-
-    .control-group(class=(errors && ("date" in errors) ? "error": null))
-      label.control-label(for="date")= "Date"
-      .controls
-        input.input-xlarge.datepicker#date(type='text', name='doc[date]', value=doc.date)
-
-    .form-actions
-      button.btn.btn-large.btn-primary(type='submit') Submit
-      | 
-      button.btn.btn-large.btn-danger.delete-button(data-url="/image/#{doc.name}", data-redirect="/image") Delete
-
+block afterform
   table.table.table-striped
     tr
       th Type

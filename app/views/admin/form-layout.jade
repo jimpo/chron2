@@ -12,6 +12,6 @@ block content
     .form-actions
       block actions
         button.btn.btn-large.btn-primary(type='submit') Submit
-        - if (_form.put)
-          | 
-          button.btn.btn-large.btn-danger.delete-article(data-url="/article/#{doc.url}") Delete
+
+  // https://github.com/visionmedia/jade/issues/733
+  block afterform

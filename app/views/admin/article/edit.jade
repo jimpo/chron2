@@ -5,3 +5,7 @@ block vars
 
 block fields
   include _form
+
+block append actions
+  | 
+  button.btn.btn-large.btn-danger.delete-article(data-url="/article/#{doc.url}") Delete
