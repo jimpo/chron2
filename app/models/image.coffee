@@ -75,6 +75,11 @@ imageVersion.methods.upload = (callback) ->
     callback
   )
 
+imageVersion.methods.removeImage = (callback) ->
+  app.s3.deleteFile this.url(), (err, res) ->
+    return errs.handle(err, callback) if err?
+    app.s3.handleResponse(res, callback)
+
 imageSchema = new mongoose.Schema
   caption: String
   date: {type: Date, default: Date.now}

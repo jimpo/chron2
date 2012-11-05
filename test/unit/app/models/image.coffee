@@ -169,7 +169,6 @@ describe 'Image', ->
 
     describe '#upload()', ->
       beforeEach ->
-        image.name = 'original'
         sinon.stub(image, 'download').yields(null, 'original image')
         sinon.stub(image, 'crop').yields(null, 'cropped image')
 
@@ -188,11 +187,21 @@ describe 'Image', ->
           done()
 
       it 'should put cropped image buffer in s3', (done) ->
+        url = '/images/versions/636x393-1-2-3-4-abcdefgh-raichu.png'
         scope = nock('https://s3_bucket.s3.amazonaws.com')
-          .put('/images/versions/636x393-1-2-3-4-original.png', 'cropped image')
+          .put(url, 'cropped image')
           .reply(200)
         version.upload (err) ->
           return done(err) if err?
+          scope.done()
+          done(err)
+
+    describe '#removeImage()', ->
+      it 'should remove image version from S3', (done) ->
+        scope = nock('https://s3_bucket.s3.amazonaws.com:443')
+          .delete('/images/versions/636x393-1-2-3-4-abcdefgh-raichu.png')
+          .reply(200)
+        version.removeImage (err) ->
           scope.done()
           done(err)
 
