@@ -38,4 +38,3 @@ describe 'Author', ->
         article.positions[0][0].should.match /[\d\s]+/
         article.positions[0][1].should.match /[0-9]+/
         done(err)
-
