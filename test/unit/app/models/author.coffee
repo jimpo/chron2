@@ -1,20 +1,19 @@
 mongoose = require 'mongoose'
 
-Article = require 'app/models/article'
+Article = require 'app/models/author'
 
 
 describe 'Author', ->
   author = null
 
   beforeEach ->
-    author = new Article(
-      authors: []
-      title: 'Ash defeats Gary in Indigo Plateau'
-      subtitle: 'Oak arrives just in time'
-      teaser: 'Ash becomes new Pokemon champion'
-      body: '**Pikachu** wrecks everyone. The End.'
-      taxonomy: ['News']
-      urls: ['ash-winning']
+    author = new Author(
+      name: 'Richard'
+      biography: 'Richard works on the Chronicle'
+      affiliation: 'Richard is a developer'
+      tagline: 'To code or not to code'
+      twitter: 'r_twitter'
+      urls: ['richard-developer']
     )
 
   describe 'constructor', ->
@@ -76,3 +75,5 @@ describe 'Author', ->
         mongoose.Query.prototype.exec.restore()
         article.urls[0].should.equal 'pokemon_3'
         done(err)
+
+
