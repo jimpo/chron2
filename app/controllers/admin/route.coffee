@@ -9,8 +9,8 @@ exports.init = (server) ->
   server.get('/article/:url/edit', admin.article.edit)
   server.put('/article/:url', admin.article.update)
 
-  server.get('/author/new', admin.author.new)
-  server.post('/author', admin.author.create)
+  server.get('/staff/new', admin.staff.new)
+  server.post('/staff', admin.staff.create)
 
   server.get('/image', admin.image.index)
   server.get('/image/upload', admin.image.upload)

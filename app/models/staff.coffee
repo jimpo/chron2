@@ -4,7 +4,7 @@ mongoose = require 'mongoose'
 app = require '../../app'
 
 
-authorSchema = new mongoose.Schema
+staffSchema = new mongoose.Schema
   
   affiliation: String
   biography: String
@@ -15,11 +15,10 @@ authorSchema = new mongoose.Schema
   twitter: String
   photo: Schema.ObjectId
 
-Author = module.exports = app.db.model 'Author', authorSchema
+Staff = module.exports = app.db.model 'Staff', staffSchema
 
 //addNewPosition (void)
 authorSchema.methods.addNewPosition =null;
-
 
 //isAuthor (boolean)
 

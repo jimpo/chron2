@@ -1,10 +1,10 @@
 errs = require 'errs'
 
-Author = require '../../models/author'
+Staff = require '../../models/staff'
 
 
 exports.new = (req, res, next) ->
-  res.render 'admin/author/new'
+  res.render 'admin/staff/new'
     doc: {}
     errors: null
     token: req.session._csrf
@@ -13,16 +13,16 @@ exports.create = (req, res, next) ->
   createAuthor req.body.doc, (err, retryErrors) ->
     if err then return next(err)
     else if retryErrors
-      res.render 'admin/author/new'
+      res.render 'admin/staff/new'
         doc: req.body.doc
         errors: retryErrors
         token: req.session._csrf
     else
       res.redirect '/'
 
-createAuthor = (doc, callback) ->
-  author = new Author(doc)
-  author.validate (err) ->
+createStaff = (doc, callback) ->
+  staff = new Staff(doc)
+  staff.validate (err) ->
     if err and err.name is 'ValidationError'
       callback(null, err.errors)
     else if err
