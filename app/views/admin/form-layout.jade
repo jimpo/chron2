@@ -8,6 +8,8 @@ block content
     legend= _form.title
     mixin errorBlock(errors)
     input#csrf(type='hidden', name='_csrf', value=token)
+    - if (_form.put)
+      input#method(type='hidden', name='_method', value='put')
     block fields
     .form-actions
       block actions

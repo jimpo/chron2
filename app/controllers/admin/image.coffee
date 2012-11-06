@@ -12,7 +12,7 @@ exports.upload = (req, res, next) ->
   res.render 'admin/image/upload'
 
 exports.handleUpload = (req, res, next) ->
-  async.map req.files.files, uploadImage, (err, response) ->
+  async.map req.files.files, createImage, (err, response) ->
     if err then return next(err)
     res.json response
 
@@ -21,6 +21,7 @@ exports.index = (req, res, next) ->
   Image.find().limit(limit).sort(date: 'desc').exec (err, images) ->
     res.render 'admin/image'
       images: images
+      messages: req.flash('info')
 
 exports.edit = (req, res, next) ->
   Image.findOne {name: req.params.name}, (err, image) ->
@@ -61,23 +62,21 @@ exports.createVersion = (req, res, next) ->
     else if not image?
       next()
     else
-      image.versions.push(type: req.body.type)
+      dim = _.pick(req.body, 'x1', 'y1', 'x2', 'y2')
+      image.versions.push(type: req.body.type, dim: dim)
       version = _.last(image.versions)
-      image.generateUrlForVersion(
-        version, req.body.x1, req.body.x1, image.url)
       image.validate (err) ->
         if err and err.name is 'ValidationError'
           res.send(406, err)
         else if err
           errs.handle(err, callback)
         else
-          image.uploadImageVersion(version, req.body, (err) ->
-            if err then return next(err)
+          version.upload (err) ->
+            return errs.handle(err, next) if err?
             image.save (err) ->
-              if err then return errs.handle(err, callback)
-              app.log.info "Image version \"#{version.url}\" was created"
+              return errs.handle(err, next) if err?
+              app.log.info "Image version \"#{version.name}\" was created"
               res.send version
-          )
 
 exports.destroy = (req, res, next) ->
   Image.findOne {name: req.params.name}, (err, image) ->
@@ -87,6 +86,9 @@ exports.destroy = (req, res, next) ->
     else
       image.remove (err) ->
         return next(err) if err?
+        message = "Image \"#{image.name}\" was deleted"
+        app.log.info(message)
+        req.flash('info', message)
         res.send(200)
 
 updateImage = (image, doc, flash, callback) ->
@@ -98,8 +100,8 @@ updateImage = (image, doc, flash, callback) ->
       errs.handle(err, callback)
     else
       image.save (err) ->
-        if err then return errs.handle(err, callback)
-        flash("Image \"#{image.url}\" was updated")
+        return errs.handle(err, callback) if err?
+        flash("Image \"#{image.name}\" was updated")
         callback(err)
 
 uploadImage = (fileInfo, callback) ->

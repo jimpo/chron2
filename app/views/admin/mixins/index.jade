@@ -1,0 +1,6 @@
+mixin flash-message(messages)
+  - if (messages.length > 0)
+    .alert.alert-info
+      ul
+        - each message in messages
+          li= message

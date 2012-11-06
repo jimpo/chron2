@@ -1,10 +1,14 @@
 extends ../layout
 
 block content
+  include ../mixins/index
+
+  input#csrf(type='hidden', name='_csrf', value=token)
+  mixin flash-message(messages)
   table.table.table-striped
     - each image in images
       tr(id=image.name)
         td
           a(href="/image/#{image.name}/edit")
             img(src=image.fullUrl)
-        td: a(href="#") Delete
+        td: a.delete-button(href="#", data-url="/image/#{image.name}") Delete

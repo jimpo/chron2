@@ -1,7 +1,10 @@
 extends ../layout
 
 block content
+  include ../mixins/index
+
   input#csrf(type='hidden', name='_csrf', value=token)
+  mixin flash-message(messages)
   table.table.table-striped
     - each article in articles
       tr(id=article.url)

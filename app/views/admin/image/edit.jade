@@ -18,10 +18,14 @@ block prepend content
     i.icon-question-sign#crop-help
 
 block vars
-  - var _form = {title: "Photo Information", method: "PUT", action: "/image/#{doc.name}"}
+  - var _form = {title: "Photo Information", method: "PUT", action: "/image/" + doc.name}
 
 block fields
+  include ../mixins/index
   include ../mixins/form-helpers
+
+  mixin flash-message(messages)
+
   mixin text-control-group('caption', 'Caption', doc, errors)
   mixin text-control-group('location', 'Location', doc, errors)
   mixin text-control-group('photographer', 'Photographer', doc, errors)

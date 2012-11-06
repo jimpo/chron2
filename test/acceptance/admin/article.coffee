@@ -297,6 +297,10 @@ describe 'article', ->
       it 'should redirect to the index page', ->
         browser.location.pathname.should.equal '/article'
 
+      it 'should flash that article was deleted', ->
+        flash = browser.text('.alert-info')
+        flash.should.contain 'Article "Ash Gets Pikachu from Oak" was deleted'
+
     describe 'when article is deleted from index page', ->
       browser = initial = null
 

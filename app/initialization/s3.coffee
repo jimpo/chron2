@@ -13,12 +13,16 @@ class S3Client extends knox
       err = undefined
       switch res.statusCode
         when 200 then err = undefined
+        when 204 then err = undefined
         when 403 then err = 'Forbidden'
         else err = 'Unknown error'
 
       if err?
-        res.message = err
-        callback(errs.create('S3Error', res))
+        callback(errs.create 'S3Error'
+          message: err
+          status: res.statusCode
+          body: data
+        )
       else
         callback(undefined, data)
     )

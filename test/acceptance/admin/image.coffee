@@ -29,10 +29,29 @@ describe 'image', ->
       img = browser.query('tr#A8r9ub3o-squirtle img')
       img.parentNode.href.should.contain '/image/A8r9ub3o-squirtle/edit'
 
-    describe.skip 'when image is deleted', ->
-      it 'should remove image document', ->
-      it 'should remove delete image original from S3', ->
+    describe 'when image is deleted', ->
+      scope = null
+
+      beforeEach (done) ->
+        scope = nock('https://s3_bucket.s3.amazonaws.com:443')
+          .delete('/images/A8r9ub3o-squirtle.png')
+          .reply(200)
+        browser.clickLink('#A8r9ub3o-squirtle .delete-button', done)
+
+      it 'should remove image document', (done) ->
+        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+          expect(image).not.to.exist
+          done(err)
+
+      it 'should remove images from S3', ->
+        scope.done()
+
       it 'should remove image row from page', ->
+        expect(browser.query('#A8r9ub3o-squirtle')).not.to.exist
+
+      it 'should flash that image was deleted', ->
+        flash = browser.text('.alert-info')
+        flash.should.contain 'Image "A8r9ub3o-squirtle" was deleted'
 
   describe 'upload', ->
     browser = null
@@ -120,15 +139,18 @@ describe 'image', ->
 
       it 'should flash that image was saved', ->
         flash = browser.text('.alert-info')
-        flash.should.contain 'Image "A8r9ub3o-squirtle.png" was updated'
+        flash.should.contain 'Image "A8r9ub3o-squirtle" was updated'
 
     describe 'when image delete button is pressed', ->
-      initial = null
+      initial = scope = null
 
       beforeEach (done) ->
         Image.count (err, count) ->
           return done(err) if err?
           initial = count
+          scope = nock('https://s3_bucket.s3.amazonaws.com:443')
+            .delete('/images/A8r9ub3o-squirtle.png')
+            .reply(200)
           browser.pressButton('Delete', done)
 
       it 'should remove an image', (done) ->
@@ -141,7 +163,9 @@ describe 'image', ->
           expect(article).not.to.exist
           done(err)
 
-      it.skip 'should remove image original from S3', ->
+      it 'should remove image original from S3', ->
+        scope.done()
+
       it.skip 'should remove all image versions from S3', ->
 
       it 'should redirect to the index page', ->

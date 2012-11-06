@@ -19,6 +19,7 @@ exports.index = (req, res, next) ->
   query.exec (err, articles) ->
     res.render 'admin/article'
       articles: articles
+      messages: req.flash('info')
 
 exports.new = (req, res, next) ->
   res.render 'admin/article/new'
