@@ -47,7 +47,6 @@ exports.update = (req, res, next) ->
       next()
     else
       flash = (message) ->
-        app.log.info(message)
         req.flash('info', message)
       updateArticle(article, req.body.doc, flash, (err, retryErrors) ->
         if err then return next(err)
@@ -62,7 +61,6 @@ exports.update = (req, res, next) ->
 
 exports.create = (req, res, next) ->
   flash = (message) ->
-    app.log.info(message)
     req.flash('info', message)
   updateArticle(new Article, req.body.doc, flash, (err, retryErrors) ->
     if err then return next(err)
@@ -76,9 +74,6 @@ exports.create = (req, res, next) ->
   )
 
 exports.destroy = (req, res, next) ->
-  flash = (message) ->
-    app.log.info(message)
-    req.flash('info', message)
   Article.findOne {urls: req.params.url}, (err, article) ->
     if err?
       errs.handle(err, next)
@@ -89,7 +84,7 @@ exports.destroy = (req, res, next) ->
         if err
           res.send(500, err)
         else
-          flash("Article \"#{article.title}\" was deleted")
+          req.flash('info', "Article \"#{article.title}\" was deleted")
           res.send(200)
 
 updateArticle = (article, doc, flash, callback) ->

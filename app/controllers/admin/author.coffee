@@ -10,7 +10,6 @@ exports.new = (req, res, next) ->
 
 exports.create = (req, res, next) ->
   flash = (message) ->
-    app.log.info(message)
     req.flash('info', message)
   createAuthor req.body.doc, flash, (err, retryErrors) ->
     if err then return next(err)

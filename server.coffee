@@ -20,6 +20,13 @@ dynamicLocals = (req, res, next) ->
   res.locals.token = req.session._csrf
   next()
 
+flashLog = (req, res, next) ->
+  req.flash = do (flash=req.flash) ->
+    (type, msg) ->
+      app.log.log(type, msg) if msg?
+      flash.call(this, type, msg)
+  next()
+
 server.configure 'development', 'test', ->
   server.use(stylus.middleware
     src: 'app/assets'
@@ -46,6 +53,7 @@ server.configure ->
   server.use express.csrf()
   server.use express.compress()
   server.use flash()
+  server.use flashLog
   server.use dynamicLocals
 
 exports.run = (callback) ->

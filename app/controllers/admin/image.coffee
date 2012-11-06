@@ -42,7 +42,6 @@ exports.update = (req, res, next) ->
       next()
     else
       flash = (message) ->
-        app.log.info(message)
         req.flash('info', message)
       updateImage(image, req.body.doc, flash, (err, retryErrors) ->
         if err then return next(err)
@@ -75,7 +74,7 @@ exports.createVersion = (req, res, next) ->
             return errs.handle(err, next) if err?
             image.save (err) ->
               return errs.handle(err, next) if err?
-              app.log.info "Image version \"#{version.name}\" was created"
+              req.flash('info', "Image version \"#{version.name}\" was created")
               res.send version
 
 exports.destroy = (req, res, next) ->
@@ -86,9 +85,7 @@ exports.destroy = (req, res, next) ->
     else
       image.remove (err) ->
         return next(err) if err?
-        message = "Image \"#{image.name}\" was deleted"
-        app.log.info(message)
-        req.flash('info', message)
+        req.flash('info', "Image \"#{image.name}\" was deleted")
         res.send(200)
 
 updateImage = (image, doc, flash, callback) ->
