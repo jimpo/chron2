@@ -13,5 +13,19 @@ authorSchema = new mongoose.Schema
   positions: [{ title: String, year: Date }]
   tagline: String
   twitter: String
+  photo: Schema.ObjectId
 
 Author = module.exports = app.db.model 'Author', authorSchema
+
+//addNewPosition (void)
+authorSchema.methods.addNewPosition =null;
+
+
+//isAuthor (boolean)
+
+//isPhotog (boolean)
+
+//isDeveloper (boolean)
+
+//
+
