@@ -216,7 +216,7 @@ describe 'Image', ->
       image.name = 'original'
       image.mimeType = 'image/jpeg'
       version = image.versions.create(type: 'LargeRect', dim: dimensions)
-      fs.readFile(path.join(__dirname, '../../../pikachu.jpg'), 'binary',
+      fs.readFile(path.join(__dirname, '../../../pikachu.png'), 'binary',
         (err, data) ->
           buffer = data
           done(err)

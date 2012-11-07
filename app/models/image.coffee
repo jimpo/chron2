@@ -41,7 +41,7 @@ imageVersion = new mongoose.Schema
     y1: {type: Number}
     y2: {type: Number}
 
-imageVersion.methods.filename = ->
+imageVersion.methods.name = ->
   type = IMAGE_TYPES[@type]
   [w, h, x1, x2, y1, y2] = [
     type.width
@@ -51,7 +51,10 @@ imageVersion.methods.filename = ->
     @dim.y1
     @dim.y2
   ]
-  "#{w}x#{h}-#{x1}-#{y1}-#{x2}-#{y2}-#{this.__parent.filename}"
+  "#{w}x#{h}-#{x1}-#{y1}-#{x2}-#{y2}-#{this.__parent.name}"
+
+imageVersion.methods.filename = ->
+  this.name() + '.' + mime.extension(this.__parent.mimeType)
 
 imageVersion.methods.url = ->
   '/images/versions/' + this.filename()

@@ -1,9 +1,13 @@
+_ = require 'underscore'
+fs = require 'fs'
 nock = require 'nock'
+path = require 'path'
 
 Image = require 'app/models/image'
 
 
 describe 'image', ->
+
   before (done) ->
     server.run(done)
 
@@ -35,7 +39,10 @@ describe 'image', ->
       beforeEach (done) ->
         scope = nock('https://s3_bucket.s3.amazonaws.com:443')
           .delete('/images/A8r9ub3o-squirtle.png')
-          .reply(200)
+          .reply(204)
+          .delete(
+            '/images/versions/636x393-20-30-720-462-A8r9ub3o-squirtle.png')
+          .reply(204)
         browser.clickLink('#A8r9ub3o-squirtle .delete-button', done)
 
       it 'should remove image document', (done) ->
@@ -66,18 +73,18 @@ describe 'image', ->
 
     describe 'when image is selected from file system', ->
       beforeEach (done) ->
-        browser.attach('input[type=file]', 'test/pikachu.jpg', done)
+        browser.attach('input[type=file]', 'test/pikachu.png', done)
 
       it 'should show image', ->
-        row = browser.query('tr:contains(pikachu.jpg)')
+        row = browser.query('tr:contains(pikachu.png)')
         expect(row).to.exist
 
       it 'should have upload link', ->
-        btn = browser.query('tr:contains(pikachu.jpg) .start button')
+        btn = browser.query('tr:contains(pikachu.png) .start button')
         expect(btn).to.exist
 
       it 'should have cancel link', ->
-        btn = browser.query('tr:contains(pikachu.jpg) .cancel button')
+        btn = browser.query('tr:contains(pikachu.png) .cancel button')
         expect(btn).to.exist
 
       # TODO: figure out how to test this
@@ -85,11 +92,10 @@ describe 'image', ->
         initial = scope = null
 
         beforeEach (done) ->
-          nock.recorder.rec()
           Image.count (err, count) ->
             return done(err) if err?
             initial = count
-            browser.pressButton('tr:contains(pikachu.jpg) .start button', done)
+            browser.pressButton('tr:contains(pikachu.png) .start button', done)
 
         it 'should create a new image document', (done) ->
           Image.count (err, final) ->
@@ -106,13 +112,58 @@ describe 'image', ->
         return done(err) if err?
         image = _image
         url = fullUrl('admin', '/image/A8r9ub3o-squirtle/edit')
-        Browser.visit url, {}, (err, _browser) ->
+        Browser.visit url, (err, _browser) ->
           browser = _browser
           done(err)
 
     it 'should fill fields with current values', ->
       browser.field('Caption').value.should.equal 'A water pokemon'
       browser.field('Date').value.should.equal '10/30/2012'
+
+    it 'should have a list of all versions', ->
+      selector = '#versions #636x393-20-30-720-462-A8r9ub3o-squirtle'
+      expect(browser.query(selector)).to.exist
+
+    describe 'when version is created', ->
+      scope = null
+
+      beforeEach (done) ->
+        nock('https://s3_bucket.s3.amazonaws.com:443')
+          .get('/images/A8r9ub3o-squirtle.png')
+          .replyWithFile(200, path.join(__dirname, '../../pikachu.png'))
+        scope = nock('https://s3_bucket.s3.amazonaws.com:443')
+          .filteringRequestBody(-> '*')
+          .put('/images/versions/186x133-20-30-206-163-A8r9ub3o-squirtle.png', '*')
+          .reply(200)
+        browser.select '#sizes', 'ThumbRect', (err) ->
+          return done(err) if err?
+          browser.field('#x1').value = 20
+          browser.field('#y1').value = 30
+          browser.field('#x2').value = 206
+          browser.field('#y2').value = 163
+          browser.pressButton('New Version', done)
+
+      it 'should add new version to image document', (done) ->
+        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+          image.versions.should.have.length 2
+          done(err)
+
+      it 'should create version with correct type and dimensions', (done) ->
+        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+          version = image.versions[1]
+          version.type.should.equal 'ThumbRect'
+          version.dim.x1.should.equal 20
+          version.dim.y1.should.equal 30
+          version.dim.x2.should.equal 206
+          version.dim.y2.should.equal 163
+          done(err)
+
+      it 'should upload cropped image to S3', ->
+        scope.done()
+
+      it 'should show new version on edit page', ->
+        selector = '#versions #186x133-20-30-206-163-A8r9ub3o-squirtle'
+        expect(browser.query(selector)).to.exist
 
     describe 'when information form is filled out', ->
       updatedImage = null
@@ -150,7 +201,10 @@ describe 'image', ->
           initial = count
           scope = nock('https://s3_bucket.s3.amazonaws.com:443')
             .delete('/images/A8r9ub3o-squirtle.png')
-            .reply(200)
+            .reply(204)
+            .delete(
+              '/images/versions/636x393-20-30-720-462-A8r9ub3o-squirtle.png')
+            .reply(204)
           browser.pressButton('Delete', done)
 
       it 'should remove an image', (done) ->
@@ -163,10 +217,8 @@ describe 'image', ->
           expect(article).not.to.exist
           done(err)
 
-      it 'should remove image original from S3', ->
+      it 'should remove image original and versions from S3', ->
         scope.done()
-
-      it.skip 'should remove all image versions from S3', ->
 
       it 'should redirect to the index page', ->
         browser.location.pathname.should.equal '/image'

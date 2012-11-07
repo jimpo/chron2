@@ -40,13 +40,13 @@ block append actions
   button.btn.btn-large.btn-danger.delete-button(data-url="/image/#{doc.name}", data-redirect="/image") Delete
 
 block afterform
-  table.table.table-striped
+  table.table.table-striped#versions
     tr
       th Type
       th Image Version
       th Delete
     - each version in doc.versions
-      tr
+      tr.blah(id=version.name())
         td= version.type
         td: img(src=version.fullUrl())
         td: a(href="#") Delete

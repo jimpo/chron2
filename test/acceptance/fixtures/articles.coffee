@@ -1,5 +1,6 @@
 author = require('./authors').Author
 
+
 exports.Article =
   'ash-gets-pikachu':
     title: 'Ash Gets Pikachu from Oak'

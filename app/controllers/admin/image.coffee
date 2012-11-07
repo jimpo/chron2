@@ -74,8 +74,9 @@ exports.createVersion = (req, res, next) ->
             return errs.handle(err, next) if err?
             image.save (err) ->
               return errs.handle(err, next) if err?
-              req.flash('info', "Image version \"#{version.name}\" was created")
-              res.send version
+              req.flash(
+                'info', "Image version \"#{version.name()}\" was created")
+              res.redirect "/image/#{image.name}/edit"
 
 exports.destroy = (req, res, next) ->
   Image.findOne {name: req.params.name}, (err, image) ->
@@ -101,7 +102,7 @@ updateImage = (image, doc, flash, callback) ->
         flash("Image \"#{image.name}\" was updated")
         callback(err)
 
-uploadImage = (fileInfo, callback) ->
+createImage = (fileInfo, callback) ->
   image = new Image(filename: fileInfo.filename)
   image.upload fileInfo, (err) ->
     if err then return errs.handle(err, callback)

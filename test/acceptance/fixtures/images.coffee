@@ -4,7 +4,14 @@ exports.Image =
     mimeType: 'image/png'
     caption: 'A water pokemon'
     date: new Date('10/30/12')
-    versions: []
+    versions: [{
+      type: 'LargeRect'
+      dim:
+        x1: 20
+        y1: 30
+        x2: 720
+        y2: 462
+    }]
   charmander:
     name: 'bV2CoWu0-charmander'
     mimeType: 'image/png'
