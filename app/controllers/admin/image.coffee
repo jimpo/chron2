@@ -89,6 +89,20 @@ exports.destroy = (req, res, next) ->
         req.flash('info', "Image \"#{image.name}\" was deleted")
         res.send(200)
 
+exports.destroyVersion = (req, res, next) ->
+  Image.findOne {name: req.params.name}, (err, image) ->
+    if err then return next(err)
+    else if not image?
+      res.send(404)
+    else
+      version = image.versions.id(req.params.version)
+      return res.send(404) if not version?
+      name = version.name()
+      image.removeVersion req.params.version, (err) ->
+        return errs.handle(err, next) if err?
+        req.flash('info', "Image version \"#{name}\" was deleted")
+        res.redirect "/image/#{image.name}/edit"
+
 updateImage = (image, doc, flash, callback) ->
   image.set(doc)
   image.validate (err) ->
