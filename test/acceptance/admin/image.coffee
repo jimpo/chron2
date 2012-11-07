@@ -131,9 +131,10 @@ describe 'image', ->
         nock('https://s3_bucket.s3.amazonaws.com:443')
           .get('/images/A8r9ub3o-squirtle.png')
           .replyWithFile(200, path.join(__dirname, '../../pikachu.png'))
+        url = '/images/versions/186x133-20-30-206-163-A8r9ub3o-squirtle.png'
         scope = nock('https://s3_bucket.s3.amazonaws.com:443')
           .filteringRequestBody(-> '*')
-          .put('/images/versions/186x133-20-30-206-163-A8r9ub3o-squirtle.png', '*')
+          .put(url, '*')
           .reply(200)
         browser.select '#sizes', 'ThumbRect', (err) ->
           return done(err) if err?
@@ -164,6 +165,30 @@ describe 'image', ->
       it 'should show new version on edit page', ->
         selector = '#versions #186x133-20-30-206-163-A8r9ub3o-squirtle'
         expect(browser.query(selector)).to.exist
+
+    describe 'when version is deleted', ->
+      scope = null
+
+      beforeEach (done) ->
+        url = '/images/versions/636x393-20-30-720-462-A8r9ub3o-squirtle.png'
+        scope = nock('https://s3_bucket.s3.amazonaws.com:443')
+          .delete(url)
+          .reply(204)
+        selector = '#versions #636x393-20-30-720-462-A8r9ub3o-squirtle
+ .delete-button'
+        browser.clickLink(selector, done)
+
+      it 'should remove version from image document', (done) ->
+        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+          image.versions.should.be.empty
+          done(err)
+
+      it 'should remove image from S3', ->
+        scope.done()
+
+      it 'should remove version from listing', ->
+        selector = '#versions #636x393-20-30-720-462-A8r9ub3o-squirtle'
+        expect(browser.query(selector)).not.to.exist
 
     describe 'when information form is filled out', ->
       updatedImage = null

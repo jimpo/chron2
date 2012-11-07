@@ -49,4 +49,4 @@ block afterform
       tr.blah(id=version.name())
         td= version.type
         td: img(src=version.fullUrl())
-        td: a(href="#") Delete
+        td: a.delete-button(href="#", data-url="/image/#{doc.name}/version/#{version.name()}") Delete
