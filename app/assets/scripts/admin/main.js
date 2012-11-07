@@ -9,8 +9,8 @@ require.config({
 });
 
 require([
-    'cs!common/main','lib/bootstrap','cs!admin/crop','cs!admin/datepicker',
-    'cs!admin/form-field','cs!admin/taxonomy', 'cs!admin/delete',
+    'cs!common/main', 'lib/bootstrap', 'cs!admin/crop', 'cs!admin/datepicker',
+    'cs!admin/form-field', 'cs!admin/taxonomy', 'cs!admin/delete',
     'admin/upload'],
         function (main) {
             main.apply(this, arguments);
