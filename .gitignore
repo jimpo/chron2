@@ -4,6 +4,7 @@
 node_modules
 config.development.json
 public/styles/*
+app/assets/components*
 
 ## Don't Ignore Ignore Files
 !.gitignore
