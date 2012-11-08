@@ -5,7 +5,6 @@
     "backbone": "latest",
     "bootstrap": "latest",
     "chai": "latest",
-    "jquery-file-upload": "latest",
     "jquery-ui": "latest",
     "mocha": "latest",
     "sinon.js": "latest",

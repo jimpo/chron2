@@ -35,3 +35,22 @@ define ->
 
       it 'should post "_method=delete"', ->
         requests[0].requestBody.should.contain '_method=delete'
+
+      describe 'when server responds successfully', ->
+        beforeEach ->
+          requests[0].respond(200)
+
+        it 'should reload page', ->
+          window.location.reload.should.have.been.called
+
+      describe 'when server responds with failure', ->
+        beforeEach ->
+          requests[0].respond(500)
+
+        it.skip 'should alert user of failure', ->
+
+        it 'should reenable button', ->
+          expect($button.attr('disabled')).not.to.exist
+
+        it 'should not reload page', ->
+          window.location.reload.should.not.have.been.called
