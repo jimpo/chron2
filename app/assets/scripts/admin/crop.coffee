@@ -1,4 +1,4 @@
-define ['jquery', 'lib/jquery.Jcrop', 'lib/bootstrap'], ($) ->
+define ['jquery', 'lib/jquery.Jcrop', 'bootstrap'], ($) ->
 
   setCoordinates = (c) ->
     $('#x1').val(c.x)
