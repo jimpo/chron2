@@ -17,7 +17,7 @@ require.config({
 require([
     'cs!common/main', 'cs!admin/crop', 'cs!admin/datepicker',
     'cs!admin/form-field', 'cs!admin/taxonomy', 'cs!admin/delete',
-    'admin/upload'],
+    'cs!admin/image-picker', 'admin/upload'],
         function (main) {
             main.apply(this, arguments);
         });
