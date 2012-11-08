@@ -30,7 +30,8 @@ define ['jquery', 'lib/jquery.Jcrop', 'lib/bootstrap'], ($) ->
     )
     updateCropSize()
     $('#sizes').change(updateCropSize)
-    $('#crop-help').popover(
+  '.image-help': ->
+    $('.image-help').popover(
       title: 'Image Versions'
       trigger: 'hover'
       content: helpContent()

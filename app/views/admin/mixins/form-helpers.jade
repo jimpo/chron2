@@ -31,3 +31,15 @@ mixin textarea-control-group(field, label, doc, errors, rows)
     label.control-label(for=field)= label
     .controls
       textarea.input-xxlarge(rows=rows, name='doc[#{field}]', id=field)= doc[field]
+
+mixin image-picker(version, doc)
+  label.control-label(for=version)= version
+  .controls
+    input(type='hidden', name='doc[images][#{version}]', value=(doc.images && doc.images.LargeRect))
+    .btn-group
+      button.btn
+        i.icon-picture.icon-black
+        span  Attach
+      button.btn.btn-info
+        i.icon-eye-open.icon-black
+        span  View
