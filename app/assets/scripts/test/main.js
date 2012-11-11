@@ -1,25 +1,42 @@
 require.config({
     shim: {
-        'lib/backbone': {
-            deps: ['jquery', 'lib/underscore'],
+        'backbone': {
+            deps: ['jquery', 'underscore'],
             exports: 'Backbone',
         },
     },
     baseUrl: '../../../app/assets/scripts',
     paths: {
-        'mocha': '../components/mocha/mocha',
+        'backbone': '../components/backbone/backbone',
         'chai': '../components/chai/chai',
+        'mocha': '../components/mocha/mocha',
         'sinon': '../components/sinon.js/sinon',
+        'underscore': '../components/underscore/underscore',
     }
 });
 
-require(['require', 'chai', 'lib/sinon-chai', 'mocha', 'sinon'], function (require, chai, sinonChai) {
-    mocha.setup('bdd');
-    chai.should();
-    chai.use(sinonChai);
-    window.expect = chai.expect;
-    require(['cs!common/main', MODULE, TEST], function (main, module) {
-        main(main, module);
-        mochaPhantomJS.run();
+
+require(
+    ['require', 'chai', 'lib/sinon-chai', 'cs!common/util', 'mocha', 'sinon'],
+    function (require, chai, sinonChai, util) {
+        mocha.setup('bdd');
+        chai.should();
+        chai.use(sinonChai);
+
+        util.fullUrl = function (subdomain, path) {
+            return 'http://' + subdomain + '.dukechronicle.com' + path;
+        }
+
+        window.expect = chai.expect;
+        if (typeof MODULE !== 'undefined') {
+            require(['cs!common/main', MODULE, TEST], function (main, module) {
+                main(main, module);
+                mochaPhantomJS.run();
+            });
+        }
+        else {
+            require([TEST], function () {
+                mochaPhantomJS.run();
+            });
+        }
     });
-});

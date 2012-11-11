@@ -1,4 +1,4 @@
-define ->
+define ['jquery'], ($) ->
 
   describe 'delete', ->
     describe 'when .delete-button is clicked', ->
