@@ -28,6 +28,7 @@
         "sinon": "1.4.x",
         "sinon-chai": "2.1.x",
         "stylus": "0.29.x",
+        "superagent": "0.9.x",
         "underscore": "1.4.x",
         "validator": "0.4.x",
         "winston": "0.6.x",
