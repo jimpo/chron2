@@ -73,7 +73,7 @@ imageVersion.methods.upload = (callback) ->
         'Cache-Control': 'public,max-age=' + 365.25 * 24 * 60 * 60
       req = app.s3.put(this.url(), headers)
       req.on('response', (res) -> app.s3.handleResponse(res, callback))
-      req.end(buffer)
+      req.end(buffer, 'binary')
     ],
     callback
   )

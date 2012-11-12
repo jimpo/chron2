@@ -65,6 +65,7 @@ exports.run = (callback) ->
       configureVirtualHosts(
         www: app.controllers.site.route
         admin: app.controllers.admin.route
+        api: app.controllers.api.route
       )
       server.listen(app.config.PORT)
       app.log.notice "Site configured and listening on port #{app.config.PORT}
