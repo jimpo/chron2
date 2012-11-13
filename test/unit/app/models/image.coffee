@@ -119,7 +119,9 @@ describe 'Image', ->
         .get('/images/abcdefgh-raichu.png')
         .reply(403)
       image.download (err, data) ->
-        err.should.be.an('Error')
+        err.should.be.an.instanceOf Error
+        err.constructor.name.should.equal 'S3Error'
+        err.message.should.equal 'Forbidden'
         done()
 
     it 'should callback with binary buffer of file contents', (done) ->

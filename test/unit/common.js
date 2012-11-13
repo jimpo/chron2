@@ -1,5 +1,6 @@
 require('coffee-script');
 require('lib/util');
+require('lib/errors');
 
 global.app = require('app');
 global.sinon = require('sinon');
