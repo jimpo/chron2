@@ -3,7 +3,8 @@ flash = require 'connect-flash'
 mongoose = require 'mongoose'
 stylus = require 'stylus'
 
-require './lib/util'  # extends util globally by requiring it
+require './lib/errors'  # register custom error types by requiring it
+require './lib/util'    # extends util globally by requiring it
 
 app = require './app'
 helpers = require './app/helpers'
