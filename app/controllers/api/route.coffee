@@ -1,4 +1,5 @@
 api = require './index'
+app = require '../..'
 
 
 exports.init = (server) ->

@@ -8,4 +8,5 @@ exports.index = (req, res, next) ->
   query.limit(req.query.limit) if req.query.limit?
   query.exec (err, images) ->
     return errs.handle(err, next) if err?
+    res.set('Access-Control-Allow-Origin', '*')
     res.json(200, images)
