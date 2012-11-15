@@ -36,10 +36,8 @@ mixin image-picker(version, doc)
   label.control-label(for=version)= version
   .controls
     input(type='hidden', name='doc[images][#{version}]', value=(doc.images && doc.images.LargeRect), id=version)
-    .btn-group
-      button.btn.image-picker(data-version=version)
-        i.icon-picture.icon-black
-        span  Attach
-      button.btn.btn-info
-        i.icon-eye-open.icon-black
-        span  View
+    button.btn.image-picker(data-version=version)
+      i.icon-picture.icon-black
+      span  Attach
+    |  
+    i.icon-eye-open.icon-black.image-display
