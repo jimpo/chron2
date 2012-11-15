@@ -1,14 +1,16 @@
-define ['jquery', 'cs!common/image', 'bootstrap'], ($, Image) ->
+define ['jquery', 'cs!common/image', 'lib/jade', 'bootstrap'], ($, Image) ->
   '.image-picker': ->
     $(this).click (e) ->
       e.preventDefault()
       version = $(this).data('version')
-      $('#image-select .title').text("Select #{version} image")
-      $('#image-select').modal('show')
+      template = $('#image-select-template').text()
+      html = jade.compile(template)(versionType: version)
+      $imageSelect = $(html)
+      $imageSelect.modal('show').on('hidden', -> $(this).remove())
       collection = new Image.Collection
       collection.fetch
         error: -> alert('OMG')
         success: ->
           collection.each (image) ->
-            $('#image-select .modal-body').append(
+            $imageSelect.find('.modal-body').append(
               "<img src=\"#{image.fullUrl()}\" />")
