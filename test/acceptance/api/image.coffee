@@ -41,6 +41,12 @@ describe 'image api', ->
       squirtle.should.have.property 'date'
       squirtle.should.have.property 'versions'
 
+    it 'should have fullUrl reflecting virtual property value', ->
+      squirtle = res.body[1]
+      squirtle.should.have.property 'fullUrl'
+      squirtle.fullUrl.should.equal(
+        'http://cdn.example.com/images/A8r9ub3o-squirtle.png')
+
     it 'should have all versions as an array', ->
       squirtle = res.body[1]
       squirtle.versions.should.have.length 1
@@ -51,3 +57,11 @@ describe 'image api', ->
           y1: 30
           x2: 720
           y2: 462
+
+    it 'should have fullUrl for each version', ->
+      squirtle = res.body[1]
+      squirtle.versions.should.have.length 1
+      version = squirtle.versions[0]
+      version.should.have.property 'fullUrl'
+      version.fullUrl.should.equal('http://cdn.example.com/images/versions
+/636x393-20-30-720-462-A8r9ub3o-squirtle.png')
