@@ -41,20 +41,8 @@ imageVersion = new mongoose.Schema
     y1: {type: Number}
     y2: {type: Number}
 
-imageVersion.methods.name = ->
-  type = IMAGE_TYPES[@type]
-  [w, h, x1, x2, y1, y2] = [
-    type.width
-    type.height
-    @dim.x1
-    @dim.x2
-    @dim.y1
-    @dim.y2
-  ]
-  "#{w}x#{h}-#{x1}-#{y1}-#{x2}-#{y2}-#{this.__parent.name}"
-
 imageVersion.methods.filename = ->
-  this.name() + '.' + mime.extension(this.__parent.mimeType)
+  @_id + '.' + mime.extension(this.__parent.mimeType)
 
 imageVersion.methods.url = ->
   '/images/versions/' + this.filename()
@@ -159,11 +147,11 @@ imageSchema.pre 'remove', (next) ->
   )
 
 imageSchema.virtual('filename').get ->
-  @name + '.' + mime.extension(@mimeType)
+  @_id + '.' + mime.extension(@mimeType)
 
 imageSchema.virtual('filename').set (filename) ->
   extension = path.extname(filename)
-  @name = util.randomString(10) + '-' + path.basename(filename, extension)
+  @name = path.basename(filename, extension)
   @mimeType = mime.lookup(filename)
 
 imageSchema.virtual('url').get ->
