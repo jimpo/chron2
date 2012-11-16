@@ -1,0 +1,13 @@
+{
+  "name": "chronjs",
+  "version": "1.0.1",
+  "dependencies": {
+    "backbone": "latest",
+    "bootstrap": "latest",
+    "chai": "latest",
+    "jquery-ui": "latest",
+    "mocha": "latest",
+    "sinon.js": "latest",
+    "underscore": "latest"
+  }
+}

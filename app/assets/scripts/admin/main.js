@@ -1,16 +1,22 @@
 require.config({
     shim: {
-        'lib/backbone': {
-            deps: ['jquery', 'lib/underscore'],
+        'backbone': {
+            deps: ['jquery', 'underscore'],
             exports: 'Backbone',
         },
     },
     baseUrl: '/scripts',
+    paths: {
+        'backbone': '../components/backbone/backbone',
+        'bootstrap': '../components/bootstrap/docs/assets/js/bootstrap',
+        'jquery-ui': '../components/jquery-ui/ui/jquery-ui',
+        'underscore': '../components/underscore/underscore',
+    }
 });
 
 require([
-    'cs!common/main','lib/bootstrap','cs!admin/crop','cs!admin/datepicker',
-    'cs!admin/form-field','cs!admin/taxonomy', 'cs!admin/delete',
+    'cs!common/main', 'cs!admin/crop', 'cs!admin/datepicker',
+    'cs!admin/form-field', 'cs!admin/taxonomy', 'cs!admin/delete',
     'admin/upload'],
         function (main) {
             main.apply(this, arguments);
