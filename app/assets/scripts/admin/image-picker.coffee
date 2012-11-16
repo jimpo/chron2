@@ -2,17 +2,19 @@ define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
   ($, Image, Backbone) ->
 
     selectImage = ($imagePicker, version) ->
-      $imagePicker.children('input').val(version)
+      $imagePicker.children('input').val(version?._id)
+      $imagePicker.children('.image-display').attr(
+        'data-content', version and "<img src=\"#{version.fullUrl}\" />")
       setVisibilities($imagePicker)
       $('#image-select').modal('hide')
 
     ImageView = Backbone.View.extend
       events:
-        click: -> selectImage(@options.$imagePicker, @model.id)
+        click: ->
+          selectImage(@options.$imagePicker, @options.version)
 
       render: ->
-        version = @model.version(@options.version)
-        @$el.html("<img src=\"#{version.fullUrl}\" />")
+        @$el.html("<img src=\"#{@options.version.fullUrl}\" />")
 
     createModal = (version) ->
       template = $('#image-select-template').text()
@@ -26,7 +28,7 @@ define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
           if version.type is versionType
             view = new ImageView
               model: image
-              version: version._id
+              version: version
               $imagePicker: $imagePicker
             view.render()
             $imageSelect.find('.modal-body').append(view.$el)
@@ -43,6 +45,12 @@ define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
 
     '.image-picker': ->
       $(this).each -> setVisibilities $(this)
+
+      $(this).children('.image-display').each ->
+        console.log $(this).data('url')
+        $(this).popover
+          html: true
+          trigger: 'hover'
 
       $(this).on 'click', '.image-remove', (e) ->
         e.preventDefault()
