@@ -30,9 +30,5 @@ legend Images
   mixin image-picker('ThumbSquareM', doc)
   mixin image-picker('ThumbWide', doc)
 
-script#image-select-template(type="text/template").
-  .modal.hide.fade#image-select
-    .modal-header
-      button.close(type="button", data-dismiss="modal", aria-hidden="true") &times;
-      h3.title Select \#{versionType} Image
-    .modal-body
+script#image-select-template(type="text/template")
+  include ../templates/image-select

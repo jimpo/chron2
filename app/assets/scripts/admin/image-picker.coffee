@@ -1,4 +1,4 @@
-define ['jquery', 'cs!common/image', 'backbone', 'lib/jade', 'bootstrap'],
+define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
   ($, Image, Backbone) ->
 
     selectImage = ($imagePicker, version) ->
@@ -16,7 +16,7 @@ define ['jquery', 'cs!common/image', 'backbone', 'lib/jade', 'bootstrap'],
 
     createModal = (version) ->
       template = $('#image-select-template').text()
-      html = jade.compile(template)(versionType: version)
+      html = _.template(template, {versionType: version})
       $imageSelect = $(html)
       $imageSelect.modal('show').on('hidden', -> $(this).remove())
 
