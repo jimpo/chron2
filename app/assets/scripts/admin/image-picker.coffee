@@ -1,14 +1,14 @@
 define ['jquery', 'cs!common/image', 'backbone', 'lib/jade', 'bootstrap'],
   ($, Image, Backbone) ->
 
-    selectImage = ->
-      @options.$imagePicker.children('input').val(@model.id)
-      setVisibilities(@options.$imagePicker)
+    selectImage = ($imagePicker, version) ->
+      $imagePicker.children('input').val(version)
+      setVisibilities($imagePicker)
       $('#image-select').modal('hide')
 
     ImageView = Backbone.View.extend
       events:
-        click: selectImage
+        click: -> selectImage(@options.$imagePicker, @model.id)
 
       render: ->
         version = @model.version(@options.version)
@@ -43,6 +43,12 @@ define ['jquery', 'cs!common/image', 'backbone', 'lib/jade', 'bootstrap'],
 
     '.image-picker': ->
       $(this).each -> setVisibilities $(this)
+
+      $(this).on 'click', '.image-remove', (e) ->
+        e.preventDefault()
+        $imagePicker = $(this).parents('.image-picker').first()
+        selectImage($imagePicker, undefined)
+
       $(this).on 'click', '.image-attach', (e) ->
         e.preventDefault()
         $imagePicker = $(this).parents('.image-picker').first()
