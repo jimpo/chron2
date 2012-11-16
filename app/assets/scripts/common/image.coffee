@@ -1,4 +1,4 @@
-define ['backbone', 'cs!common/util'], (Backbone, util) ->
+define ['backbone', 'cs!common/util', 'underscore'], (Backbone, util) ->
 
   Image = Backbone.Model.extend
     idAttribute: '_id'
@@ -14,9 +14,8 @@ define ['backbone', 'cs!common/util'], (Backbone, util) ->
         when 'image/gif' then '.gif'
         else throw new Error('Unknown mime type: ' + this.get('mimeType'))
 
-    fullUrl: ->
-      filename = this.get('name') + this.extension()
-      util.fullUrl('cdn', "/images/#{filename}")
+    version: (versionId) ->
+      _.find(this.get('versions'), (version) -> version._id is versionId)
 
   Image.Collection = Backbone.Collection.extend
     model: Image
