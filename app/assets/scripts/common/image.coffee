@@ -17,6 +17,9 @@ define ['backbone', 'cs!common/util', 'underscore'], (Backbone, util) ->
     version: (versionId) ->
       _.find(this.get('versions'), (version) -> version._id is versionId)
 
+    fullUrl: ->
+      util.fullUrl('cdn', "/images/#{@id}#{this.extension()}")
+
   Image.Collection = Backbone.Collection.extend
     model: Image
     url: util.fullUrl('api', '/image')

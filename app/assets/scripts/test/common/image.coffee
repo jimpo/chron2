@@ -3,7 +3,8 @@ define ['backbone', 'cs!common/image', 'cs!common/util'],
 
     describe 'Image', ->
       squirtle =
-        name: 'A8r9ub3o-squirtle'
+        _id: 12345
+        name: 'squirtle'
         mimeType: 'image/png'
         caption: 'A water pokemon'
         date: new Date('10/30/12')
@@ -22,10 +23,10 @@ define ['backbone', 'cs!common/image', 'cs!common/util'],
       it 'should use the image JSON api as the url', ->
         image.urlRoot.should.equal 'http://api.dukechronicle.com/image'
 
-      describe '#fullUrl', ->
+      describe '#fullUrl()', ->
         it 'should be the CDN path to the image original', ->
           image.fullUrl().should.equal(
-             'http://cdn.dukechronicle.com/images/A8r9ub3o-squirtle.png')
+             'http://cdn.dukechronicle.com/images/12345.png')
 
       describe 'Collection', ->
         collection = null
