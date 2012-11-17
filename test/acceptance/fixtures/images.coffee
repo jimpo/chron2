@@ -1,10 +1,15 @@
+mongoose = require 'mongoose'
+ObjectId = mongoose.Types.ObjectId
+
+
 exports.Image =
   squirtle:
-    name: 'A8r9ub3o-squirtle'
-    mimeType: 'image/png'
+    _id: new ObjectId()
+    filename: 'squirtle.png'
     caption: 'A water pokemon'
     date: new Date('10/30/12')
     versions: [{
+      _id: new ObjectId()
       type: 'LargeRect'
       dim:
         x1: 20
@@ -13,12 +18,12 @@ exports.Image =
         y2: 462
     }]
   charmander:
-    name: 'bV2CoWu0-charmander'
-    mimeType: 'image/png'
+    _id: new ObjectId()
+    filename: 'charmander.png'
     date: new Date('10/31/12')
     versions: []
   bulbasaur:
-    name: 'rwD3lvO3-bulbasaur'
-    mimeType: 'image/png'
+    _id: new ObjectId()
+    filename: 'bulbasaur.png'
     date: new Date('10/29/12')
     versions: []

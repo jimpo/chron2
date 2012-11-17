@@ -20,7 +20,7 @@ describe 'Image', ->
 
   beforeEach ->
     image = new Image(
-      name: 'abcdefgh-raichu'
+      name: 'raichu'
       mimeType: 'image/png'
       caption: 'What? Pikachu is evolving'
       location: 'Vermillion City'
@@ -42,12 +42,12 @@ describe 'Image', ->
       expect(image.name).to.exist
       expect(image.mimeType).to.exist
 
-    it 'should set name to a random character sequence followed by filename', ->
-      image.filename = 'raichu.png'
-      image.name.should.match /^[a-zA-Z0-9]+\-raichu$/
+    it 'should set name to basename of file', ->
+      image.filename = 'pikachu.png'
+      image.name.should.equal 'pikachu'
 
-    it 'should be the image name with the appropriate extension', ->
-      image.filename.should.equal 'abcdefgh-raichu.png'
+    it 'should be the image id with the appropriate extension', ->
+      image.filename.should.equal (image._id + '.png')
 
   describe 'mimeType', ->
     it 'should be "image/gif" for .gif images', ->
@@ -79,7 +79,7 @@ describe 'Image', ->
 
   describe 'url', ->
     it 'should be the S3 path for this image', ->
-      image.url.should.equal "/images/abcdefgh-raichu.png"
+      image.url.should.equal "/images/#{image._id}.png"
 
   describe '#upload()', ->
     fileInfo =
@@ -102,13 +102,13 @@ describe 'Image', ->
       app.s3.putFile.yields()
       image.upload fileInfo, (err) ->
         app.s3.putFile.should.have.been.calledWith(
-          '/tmp/image_path', '/images/raichu.png')
+          '/tmp/image_path', "/images/#{image._id}.png")
         done(err)
 
   describe '#download()', ->
     it 'should fetch file from s3', (done) ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
-        .get('/images/abcdefgh-raichu.png')
+        .get(image.url)
         .reply(403)
       image.download (err, data) ->
         scope.done()
@@ -116,7 +116,7 @@ describe 'Image', ->
 
     it 'should call back with an error if there\'s an error', (done) ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
-        .get('/images/abcdefgh-raichu.png')
+        .get(image.url)
         .reply(403)
       image.download (err, data) ->
         err.should.be.an.instanceOf Error
@@ -126,9 +126,8 @@ describe 'Image', ->
 
     it 'should callback with binary buffer of file contents', (done) ->
       scope = nock('https://s3_bucket.s3.amazonaws.com')
-        .get('/images/abcdefgh-raichu.png')
+        .get(image.url)
         .reply(200, 'pikachu image')
-      image.name = 'abcdefgh-raichu'
       image.download (err, data) ->
         data.should.equal 'pikachu image'
         done(err)
@@ -136,7 +135,7 @@ describe 'Image', ->
   describe '#removeImage()', ->
     it 'should remove image original from S3', (done) ->
       scope = nock('https://s3_bucket.s3.amazonaws.com:443')
-        .delete('/images/abcdefgh-raichu.png')
+        .delete(image.url)
         .reply(200)
       image.removeImage (err) ->
         scope.done()
@@ -156,13 +155,13 @@ describe 'Image', ->
         done()
 
     describe '#url()', ->
-      it 'should be the dimensions prepended to the image filename', ->
-        url = '/images/versions/636x393-1-2-3-4-abcdefgh-raichu.png'
+      it 'should be the version id with the correct extension', ->
+        url = "/images/versions/#{version._id}.png"
         version.url().should.equal url
 
     describe '#fullUrl()', ->
       it 'should be the cloudfront cdn with the version url', ->
-        url = '/images/versions/636x393-1-2-3-4-abcdefgh-raichu.png'
+        url = "/images/versions/#{version._id}.png"
         version.fullUrl().should.equal ('http://cdn.example.com' + url)
 
     describe '#upload()', ->
@@ -185,19 +184,19 @@ describe 'Image', ->
           done()
 
       it 'should put cropped image buffer in s3', (done) ->
-        url = '/images/versions/636x393-1-2-3-4-abcdefgh-raichu.png'
+        url = "/images/versions/#{version._id}.png"
         scope = nock('https://s3_bucket.s3.amazonaws.com')
           .put(url, 'cropped image')
           .reply(200)
         version.upload (err) ->
           return done(err) if err?
-          scope.done()
+          #scope.done()
           done(err)
 
     describe '#removeImage()', ->
       it 'should remove image version from S3', (done) ->
         scope = nock('https://s3_bucket.s3.amazonaws.com:443')
-          .delete('/images/versions/636x393-1-2-3-4-abcdefgh-raichu.png')
+          .delete("/images/versions/#{version._id}.png")
           .reply(200)
         version.removeImage (err) ->
           scope.done()
