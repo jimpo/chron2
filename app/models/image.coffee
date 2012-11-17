@@ -78,7 +78,7 @@ imageSchema = new mongoose.Schema
   photographer: String
   versions: {type: [imageVersion], default: []}
   mimeType: {type: String, required: true, match: /image\/[a-z\-]+/}
-  name: {type: String, required: true, unique: true}
+  name: {type: String, required: true}
 
 imageSchema.methods.download = (callback) ->
   app.s3.getFile @url, (err, res) ->

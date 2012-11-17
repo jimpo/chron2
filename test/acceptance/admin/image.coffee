@@ -3,10 +3,14 @@ fs = require 'fs'
 nock = require 'nock'
 path = require 'path'
 
+images = require('test/acceptance/fixtures/images').Image
 Image = require 'app/models/image'
 
 
 describe 'image', ->
+  imageId = images.squirtle._id
+  versionId = images.squirtle.versions[0]._id
+
 
   before (done) ->
     server.run(done)
@@ -22,31 +26,31 @@ describe 'image', ->
         done(err)
 
     it 'should have a listing of images', ->
-      browser.html().should.contain 'squirtle.png'
-      browser.html().should.contain 'charmander.png'
-      browser.html().should.contain 'bulbasaur.png'
+      browser.html().should.contain 'squirtle'
+      browser.html().should.contain 'charmander'
+      browser.html().should.contain 'bulbasaur'
 
     it 'should have a images sorted by date', ->
       browser.html().should.match /charmander.*squirtle.*bulbasaur/
 
     it 'should have link images to edit pages', ->
-      img = browser.query('tr#A8r9ub3o-squirtle img')
-      img.parentNode.href.should.contain '/image/A8r9ub3o-squirtle/edit'
+      id = images.squirtle._id
+      img = browser.query("tr##{id} img")
+      img.parentNode.href.should.contain "/image/#{id}/edit"
 
     describe 'when image is deleted', ->
       scope = null
 
       beforeEach (done) ->
         scope = nock('https://s3_bucket.s3.amazonaws.com:443')
-          .delete('/images/A8r9ub3o-squirtle.png')
+          .delete("/images/#{imageId}.png")
           .reply(204)
-          .delete(
-            '/images/versions/636x393-20-30-720-462-A8r9ub3o-squirtle.png')
+          .delete("/images/versions/#{versionId}.png")
           .reply(204)
-        browser.clickLink('#A8r9ub3o-squirtle .delete-button', done)
+        browser.clickLink("##{imageId} .delete-button", done)
 
       it 'should remove image document', (done) ->
-        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+        Image.findById imageId, (err, image) ->
           expect(image).not.to.exist
           done(err)
 
@@ -54,11 +58,11 @@ describe 'image', ->
         scope.done()
 
       it 'should remove image row from page', ->
-        expect(browser.query('#A8r9ub3o-squirtle')).not.to.exist
+        expect(browser.query('#' + imageId)).not.to.exist
 
       it 'should flash that image was deleted', ->
         flash = browser.text('.alert-info')
-        flash.should.contain 'Image "A8r9ub3o-squirtle" was deleted'
+        flash.should.contain 'Image "squirtle" was deleted'
 
   describe 'upload', ->
     browser = null
@@ -108,10 +112,10 @@ describe 'image', ->
     browser = image = null
 
     beforeEach (done) ->
-      Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, _image) ->
+      Image.findById imageId, (err, _image) ->
         return done(err) if err?
         image = _image
-        url = fullUrl('admin', '/image/A8r9ub3o-squirtle/edit')
+        url = fullUrl('admin', "/image/#{imageId}/edit")
         Browser.visit url, (err, _browser) ->
           browser = _browser
           done(err)
@@ -121,20 +125,20 @@ describe 'image', ->
       browser.field('Date').value.should.equal '10/30/2012'
 
     it 'should have a list of all versions', ->
-      selector = '#versions #636x393-20-30-720-462-A8r9ub3o-squirtle'
-      expect(browser.query(selector)).to.exist
+      expect(browser.query("#versions ##{versionId}")).to.exist
 
     describe 'when version is created', ->
       scope = null
 
       beforeEach (done) ->
         nock('https://s3_bucket.s3.amazonaws.com:443')
-          .get('/images/A8r9ub3o-squirtle.png')
+          .get("/images/#{imageId}.png")
           .replyWithFile(200, path.join(__dirname, '../../pikachu.png'))
-        url = '/images/versions/186x133-20-30-206-163-A8r9ub3o-squirtle.png'
         scope = nock('https://s3_bucket.s3.amazonaws.com:443')
+          .filteringPath(
+            /\/images\/versions\/\w+\.png/, '/images/versions/VERSIONID.png')
           .filteringRequestBody(-> '*')
-          .put(url, '*')
+          .put('/images/versions/VERSIONID.png', '*')
           .reply(200)
         browser.select '#sizes', 'ThumbRect', (err) ->
           return done(err) if err?
@@ -145,12 +149,12 @@ describe 'image', ->
           browser.pressButton('New Version', done)
 
       it 'should add new version to image document', (done) ->
-        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+        Image.findById imageId, (err, image) ->
           image.versions.should.have.length 2
           done(err)
 
       it 'should create version with correct type and dimensions', (done) ->
-        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+        Image.findById imageId, (err, image) ->
           version = image.versions[1]
           version.type.should.equal 'ThumbRect'
           version.dim.x1.should.equal 20
@@ -163,23 +167,21 @@ describe 'image', ->
         scope.done()
 
       it 'should show new version on edit page', ->
-        selector = '#versions #186x133-20-30-206-163-A8r9ub3o-squirtle'
+        selector = "#versions ##{versionId}"
         expect(browser.query(selector)).to.exist
 
     describe 'when version is deleted', ->
       scope = null
 
       beforeEach (done) ->
-        url = '/images/versions/636x393-20-30-720-462-A8r9ub3o-squirtle.png'
         scope = nock('https://s3_bucket.s3.amazonaws.com:443')
-          .delete(url)
+          .delete("/images/versions/#{versionId}.png")
           .reply(204)
-        selector = '#versions #636x393-20-30-720-462-A8r9ub3o-squirtle
- .delete-button'
+        selector = "#versions ##{versionId} .delete-button"
         browser.clickLink(selector, done)
 
       it 'should remove version from image document', (done) ->
-        Image.findOne {name: 'A8r9ub3o-squirtle'}, (err, image) ->
+        Image.findById imageId, (err, image) ->
           image.versions.should.be.empty
           done(err)
 
@@ -187,7 +189,7 @@ describe 'image', ->
         scope.done()
 
       it 'should remove version from listing', ->
-        selector = '#versions #636x393-20-30-720-462-A8r9ub3o-squirtle'
+        selector = "#versions ##{versionId} .delete-button"
         expect(browser.query(selector)).not.to.exist
 
     describe 'when information form is filled out', ->
@@ -200,7 +202,7 @@ describe 'image', ->
           .fill('Photographer', 'Professor Oak')
           .pressButton 'Submit', (err) ->
             return done(err) if err?
-            Image.findOne {name: image.name}, (err, _image) ->
+            Image.findById imageId, (err, _image) ->
               updatedImage = _image
               done(err)
 
@@ -211,11 +213,11 @@ describe 'image', ->
         updatedImage.caption = 'A fire pokemon'
 
       it 'should stay on edit page', ->
-        browser.location.pathname.should.equal '/image/A8r9ub3o-squirtle/edit'
+        browser.location.pathname.should.equal "/image/#{imageId}/edit"
 
       it 'should flash that image was saved', ->
         flash = browser.text('.alert-info')
-        flash.should.contain 'Image "A8r9ub3o-squirtle" was updated'
+        flash.should.contain 'Image "squirtle" was updated'
 
     describe 'when image delete button is pressed', ->
       initial = scope = null
@@ -225,10 +227,9 @@ describe 'image', ->
           return done(err) if err?
           initial = count
           scope = nock('https://s3_bucket.s3.amazonaws.com:443')
-            .delete('/images/A8r9ub3o-squirtle.png')
+            .delete("/images/#{imageId}.png")
             .reply(204)
-            .delete(
-              '/images/versions/636x393-20-30-720-462-A8r9ub3o-squirtle.png')
+            .delete("/images/versions/#{versionId}.png")
             .reply(204)
           browser.pressButton('Delete', done)
 

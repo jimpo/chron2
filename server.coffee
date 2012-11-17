@@ -89,7 +89,7 @@ createVirtualServer = (route) ->
     virtualServer.use (err, req, res, next) ->
       app.log.error(err)
       express.errorHandler()(err, req, res, next)
-  virtualServer.configure 'development', ->
+  virtualServer.configure 'development', 'test', ->
     virtualServer.use (err, req, res, next) ->
       app.log.error(err)
       express.errorHandler(showStack: true)(err, req, res, next)

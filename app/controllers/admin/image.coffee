@@ -24,7 +24,7 @@ exports.index = (req, res, next) ->
       messages: req.flash('info')
 
 exports.edit = (req, res, next) ->
-  Image.findOne {name: req.params.name}, (err, image) ->
+  Image.findById req.params.id, (err, image) ->
     if err then return next(err)
     else if not image?
       next()
@@ -36,7 +36,7 @@ exports.edit = (req, res, next) ->
         imageTypes: Image.IMAGE_TYPES
 
 exports.update = (req, res, next) ->
-  Image.findOne {name: req.params.name}, (err, image) ->
+  Image.findById req.params.id, (err, image) ->
     if err then return next(err)
     else if not image?
       next()
@@ -52,11 +52,11 @@ exports.update = (req, res, next) ->
             messages: req.flash('info')
             imageTypes: Image.IMAGE_TYPES
         else
-          res.redirect "/image/#{image.name}/edit"
+          res.redirect "/image/#{image._id}/edit"
       )
 
 exports.createVersion = (req, res, next) ->
-  Image.findOne {name: req.params.name}, (err, image) ->
+  Image.findById req.params.id, (err, image) ->
     if err then return next(err)
     else if not image?
       next()
@@ -74,12 +74,11 @@ exports.createVersion = (req, res, next) ->
             return errs.handle(err, next) if err?
             image.save (err) ->
               return errs.handle(err, next) if err?
-              req.flash(
-                'info', "Image version \"#{version.name()}\" was created")
-              res.redirect "/image/#{image.name}/edit"
+              req.flash('info', "Image version was created")
+              res.redirect "/image/#{image._id}/edit"
 
 exports.destroy = (req, res, next) ->
-  Image.findOne {name: req.params.name}, (err, image) ->
+  Image.findById req.params.id, (err, image) ->
     if err then return next(err)
     else if not image?
       res.send(404)
@@ -90,18 +89,17 @@ exports.destroy = (req, res, next) ->
         res.send(200)
 
 exports.destroyVersion = (req, res, next) ->
-  Image.findOne {name: req.params.name}, (err, image) ->
+  Image.findById req.params.id, (err, image) ->
     if err then return next(err)
     else if not image?
       res.send(404)
     else
       version = image.versions.id(req.params.version)
       return res.send(404) if not version?
-      name = version.name()
       image.removeVersion req.params.version, (err) ->
         return errs.handle(err, next) if err?
-        req.flash('info', "Image version \"#{name}\" was deleted")
-        res.redirect "/image/#{image.name}/edit"
+        req.flash('info', "Image version was deleted")
+        res.redirect "/image/#{image._id}/edit"
 
 updateImage = (image, doc, flash, callback) ->
   image.set(doc)
@@ -124,7 +122,7 @@ createImage = (fileInfo, callback) ->
       response =
         name: image.name
         size: fileInfo.size
-        url: "\/image/#{image.url}/edit"
-        delete_url: "\/image/#{image.name}"
+        url: "\/image/#{image._id}/edit"
+        delete_url: "\/image/#{image._id}"
         delete_type: 'DELETE'
       callback(err, response)
