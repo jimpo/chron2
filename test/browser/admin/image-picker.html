@@ -1,5 +1,6 @@
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="../../../app/assets/styles/admin/bootstrap.css" />
     <script type="text/javascript">
       TEST = 'cs!test/admin/image-picker';
       MODULE = 'cs!admin/image-picker';
@@ -16,6 +17,17 @@
       </div>
       <i class="image-display" />
     </div>
+
+    <script id="image-select-template" type="text/template">
+      <div class="modal hide fade" id="image-select">
+        <div class="modal-header">
+          <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h3 class="title">Select <%= versionType %> Image</h3>
+        </div>
+        <div class="modal-body"></div>
+      </div>
+    </script>
+
     <script
        src="../../../app/assets/scripts/require-jquery.js"
        data-main="../../../app/assets/scripts/test/main"

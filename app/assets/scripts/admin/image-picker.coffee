@@ -27,6 +27,7 @@ define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
       template = $('#image-select-template').text()
       html = _.template(template, {versionType: version})
       $imageSelect = $(html)
+      $('body').append($imageSelect)
       $imageSelect.modal('show').on('hidden', -> $(this).remove())
 
     addImages = ($imageSelect, $imagePicker, collection, versionType) ->
@@ -74,6 +75,6 @@ define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
 
         collection = new Image.Collection
         collection.fetch
-          error: -> alert('OMG')
-          success: ->
+          error: -> console.log 'OMG'
+          success: (data) ->
             addImages($imageSelect, $imagePicker, collection, versionType)
