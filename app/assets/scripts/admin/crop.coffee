@@ -22,17 +22,28 @@ define ['jquery', 'lib/jquery.Jcrop', 'bootstrap'], ($) ->
       "<p><b>#{$(this).val()}</b>: #{info.description}</p>"
     descriptions.get().join("<br>")
 
+  disableOptions = ->
+    options = $('#sizes option').filter(->
+      info = $(this).data('dimensions')
+      $('#crop-target').width() < info.width or
+        $('#crop-target').height() < info.height
+    ).prop('disabled', true)
+    $('#sizes option').filter(-> not $(this).attr('disabled')).first().prop('selected', true)
+
   '#crop-target': ->
     $(this).Jcrop(
       onChange: setCoordinates
       onSelect: setCoordinates
       onRelease: setCoordinates
     )
-    updateCropSize()
     $('#sizes').change(updateCropSize)
+    disableOptions()
+    updateCropSize()
+
   '.image-help': ->
     $('.image-help').popover(
       title: 'Image Versions'
       trigger: 'hover'
+      html: true
       content: helpContent()
     )
