@@ -21,7 +21,15 @@ exports.Image =
     _id: new ObjectId()
     filename: 'charmander.png'
     date: new Date('10/31/12')
-    versions: []
+    versions: [{
+      _id: new ObjectId()
+      type: 'ThumbRect'
+      dim:
+        x1: 20
+        y1: 30
+        x2: 206
+        y2: 166
+    }]
   bulbasaur:
     _id: new ObjectId()
     filename: 'bulbasaur.png'
