@@ -8,6 +8,7 @@ require.config({
     baseUrl: '../../../app/assets/scripts',
     paths: {
         'backbone': '../components/backbone/backbone',
+        'bootstrap': '../components/bootstrap/docs/assets/js/bootstrap',
         'chai': '../components/chai/chai',
         'mocha': '../components/mocha/mocha',
         'sinon': '../components/sinon.js/sinon',
