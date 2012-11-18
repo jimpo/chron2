@@ -1,6 +1,7 @@
 mongoose = require 'mongoose'
 
 Article = require 'app/models/article'
+Image = require 'app/models/image'
 
 
 describe 'Article', ->
@@ -98,3 +99,15 @@ abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu-vwxyz'
       article.addUrlForTitle (err) ->
         article.url.should.equal 'pokemon_3'
         done(err)
+
+  describe 'images', ->
+
+    # TODO: set image on article without populate
+    describe.skip 'version', ->
+      it 'should have virtual version property', ->
+        expect(article.images.LargeRect.version).to.exist
+
+      it 'should be the embedded image version object', ->
+        article.images.LargeRect.version.should.eql version
+
+      it 'should set id property when version is set', ->

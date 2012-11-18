@@ -63,10 +63,7 @@ exports.run = (callback) ->
     if err then return callback(err)
     app.init (err) ->
       if err then return callback(err)
-      configureVirtualHosts(
-        www: app.controllers.site.route
-        admin: app.controllers.admin.route
-      )
+      configureVirtualHosts()
       server.listen(app.config.PORT)
       app.log.notice "Site configured and listening on port #{app.config.PORT}
  in #{server.settings.env} mode"
@@ -88,12 +85,23 @@ createVirtualServer = (route) ->
     virtualServer.use (err, req, res, next) ->
       app.log.error(err)
       express.errorHandler()(err, req, res, next)
-  virtualServer.configure 'development', ->
+  virtualServer.configure 'development', 'test', ->
     virtualServer.use (err, req, res, next) ->
       app.log.error(err)
       express.errorHandler(showStack: true)(err, req, res, next)
 
 configureVirtualHosts = (hosts) ->
+  redirect = (origin) ->
+    init: (server) ->
+      server.get '*', (req, res, next) ->
+        res.redirect(origin + req.path)
+
+  hosts =
+    www: app.controllers.site.route
+    admin: app.controllers.admin.route
+    api: app.controllers.api.route
+    cdn: redirect(app.config.CONTENT_CDN)
+
   for subdomain, route of hosts
     domain = "#{subdomain}.#{app.config.DOMAIN_NAME}"
     server.use express.vhost(domain, createVirtualServer(route))

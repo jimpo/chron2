@@ -5,6 +5,7 @@
     "backbone": "latest",
     "bootstrap": "latest",
     "chai": "latest",
+    "jade": "latest",
     "jquery-ui": "latest",
     "mocha": "latest",
     "sinon.js": "latest",

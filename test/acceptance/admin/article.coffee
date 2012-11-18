@@ -3,6 +3,7 @@ util = require 'util'
 
 Article = require 'app/models/article'
 Author = require 'app/models/author'
+images = require('test/acceptance/fixtures/images').Image
 
 SUCCESS_CODE = 200
 
@@ -269,6 +270,31 @@ describe 'article', ->
       it 'should have a new url', ->
         updatedArticle.urls.should.have.length 2
         updatedArticle.url.should.not.equal article.url
+
+    describe 'when new image is selected', ->
+      updatedArticle = null
+
+      beforeEach (done) ->
+        browser
+          .fill('.image-picker[data-version=ThumbRect] .image-id',
+            images.charmander._id)
+          .fill('.image-picker[data-version=ThumbRect] .version-id',
+            images.charmander.versions[0]._id)
+          .pressButton 'Submit', (err) ->
+            return done(err) if err?
+            Article.findOne {urls: article.url}, (err, _article) ->
+              updatedArticle = _article
+              done(err)
+
+      it 'should add image to model', ->
+        updatedArticle.images.ThumbRect.image.should.eql images.charmander._id
+        updatedArticle.images.ThumbRect.id.should.eql(
+          images.charmander.versions[0]._id)
+
+      it 'should keep old images of different types', ->
+        updatedArticle.images.LargeRect.image.should.eql images.squirtle._id
+        updatedArticle.images.LargeRect.id.should.eql(
+          images.squirtle.versions[0]._id)
 
   describe 'deletion', ->
     describe 'from from edit page', ->

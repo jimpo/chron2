@@ -7,8 +7,9 @@ block content
   mixin flash-message(messages)
   table.table.table-striped
     - each image in images
-      tr(id=image.name)
+      tr(id=image._id)
+        td= image.name
         td
-          a(href="/image/#{image.name}/edit")
+          a(href="/image/#{image._id}/edit")
             img(src=image.fullUrl)
-        td: a.delete-button(href="#", data-url="/image/#{image.name}") Delete
+        td: a.delete-button(href="#", data-url="/image/#{image._id}") Delete

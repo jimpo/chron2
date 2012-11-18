@@ -28,8 +28,14 @@ exports.new = (req, res, next) ->
     taxonomy: Taxonomy.levels()
 
 exports.edit = (req, res, next) ->
-  Article.findOne(urls: req.params.url).populate('authors').exec(
-    (err, article) ->
+  Article.findOne(urls: req.params.url)
+    .populate('authors')
+    .populate('images.LargeRect.image')
+    .populate('images.ThumbRect.image')
+    .populate('images.ThumbRectL.image')
+    .populate('images.ThumbSquareM.image')
+    .populate('images.ThumbWide.image')
+    .exec (err, article) ->
       if err then return next(err)
       else if not article?
         next()
@@ -38,7 +44,6 @@ exports.edit = (req, res, next) ->
           doc: article
           errors: null
           taxonomy: Taxonomy.levels()
-  )
 
 exports.update = (req, res, next) ->
   Article.findOne {urls: req.params.url}, (err, article) ->
@@ -89,10 +94,14 @@ exports.destroy = (req, res, next) ->
 
 updateArticle = (article, doc, flash, callback) ->
   doc.taxonomy = (section.toLowerCase() for section in doc.taxonomy when section)
+  for type, image of doc.images
+    if not (image.image and image.id)
+      delete doc.images[type]
   doc.authors = (author for author in doc.authors when author)
   async.map(doc.authors, fetchOrCreateAuthor(flash), (err, authors) ->
     if err then return errs.handle(err, callback)
     doc.authors = (author._id for author in authors)
+    article.images = undefined  # will not remove images otherwise
     article.set(doc)
     article.addUrlForTitle (err) ->
       if err then return errs.handle(err, callback)

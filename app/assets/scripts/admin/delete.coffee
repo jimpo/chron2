@@ -1,4 +1,4 @@
-define ['jquery', 'lib/bootstrap', '../../components/sinon.js/sinon'], ->
+define ['jquery'], ($) ->
 
   '.delete-button': ->
     $(this).click (e) ->
