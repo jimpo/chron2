@@ -8,6 +8,10 @@ define ['backbone', 'cs!common/image', 'cs!common/util'],
         mimeType: 'image/png'
         caption: 'A water pokemon'
         date: new Date('10/30/12')
+        versions: [
+          _id: 98765
+          type: 'LargeRect'
+        ]
 
       image = null
 
@@ -24,9 +28,13 @@ define ['backbone', 'cs!common/image', 'cs!common/util'],
         image.urlRoot.should.equal 'http://api.dukechronicle.com/image'
 
       describe '#fullUrl()', ->
-        it 'should be the CDN path to the image original', ->
+        it 'should be the CDN path to the image original with no arguments', ->
           image.fullUrl().should.equal(
              'http://cdn.dukechronicle.com/images/12345.png')
+
+        it 'should return the CDN path to an image version if given', ->
+          image.fullUrl(98765).should.equal(
+            'http://cdn.dukechronicle.com/images/versions/98765.png')
 
       describe 'Collection', ->
         collection = null
