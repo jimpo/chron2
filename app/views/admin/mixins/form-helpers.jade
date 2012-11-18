@@ -33,12 +33,12 @@ mixin textarea-control-group(field, label, doc, errors, rows)
       textarea.input-xxlarge(rows=rows, name='doc[#{field}]', id=field)= doc[field]
 
 mixin image-picker(versionType, doc)
-  - var version = (doc.images && doc.images[versionType] && doc.images[versionType].version);
+  - var version = (doc.images && doc.images[versionType]);
   label.control-label= versionType
   .controls
     .image-picker(data-version=versionType)
-      input.image-id(type='hidden', name='doc[images][#{versionType}][image]', value=version)
-      input.version-id(type='hidden', name='doc[images][#{versionType}][id]', value=version)
+      input.image-id(type='hidden', name='doc[images][#{versionType}][image]', value=(version && version.image && version.image._id))
+      input.version-id(type='hidden', name='doc[images][#{versionType}][id]', value=(version && version.id))
       button.btn.image-attach
         i.icon-picture.icon-black
         |  Attach
@@ -50,4 +50,4 @@ mixin image-picker(versionType, doc)
           i.icon-remove.icon-white
           |  Remove
       |  
-      i.icon-eye-open.icon-black.image-display(data-url=(version && version.fullUrl()))
+      i.icon-eye-open.icon-black.image-display(data-url=(version && version.version && version.version.fullUrl()))
