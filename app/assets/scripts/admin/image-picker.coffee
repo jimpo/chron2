@@ -1,17 +1,24 @@
 define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
   ($, Image, Backbone) ->
 
-    selectImage = ($imagePicker, version) ->
-      $imagePicker.children('input').val(version?._id)
+    selectImage = ($imagePicker, image, version) ->
+      $imagePicker.children('input.image-id').val(image.id)
+      $imagePicker.children('input.version-id').val(version._id)
       $imagePicker.children('.image-display').attr(
-        'data-content', version and "<img src=\"#{version.fullUrl}\" />")
+        'data-content', "<img src=\"#{image.fullUrl(version._id)}\" />")
       setVisibilities($imagePicker)
       $('#image-select').modal('hide')
+
+    removeImage = ($imagePicker) ->
+      $imagePicker.children('input.image-id').val(undefined)
+      $imagePicker.children('input.version-id').val(undefined)
+      $imagePicker.children('.image-display').removeAttr('data-content')
+      setVisibilities($imagePicker)
 
     ImageView = Backbone.View.extend
       events:
         click: ->
-          selectImage(@options.$imagePicker, @options.version)
+          selectImage(@options.$imagePicker, @model, @options.version)
 
       render: ->
         @$el.html("<img src=\"#{@options.version.fullUrl}\" />")
@@ -47,7 +54,8 @@ define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
       $(this).each -> setVisibilities $(this)
 
       $(this).children('.image-display').each ->
-        console.log $(this).data('url')
+        url = $(this).data('url')
+        $(this).attr('data-content', "<img src=\"#{url}\" />") if url?
         $(this).popover
           html: true
           trigger: 'hover'
@@ -55,7 +63,7 @@ define ['jquery', 'cs!common/image', 'backbone', 'underscore', 'bootstrap'],
       $(this).on 'click', '.image-remove', (e) ->
         e.preventDefault()
         $imagePicker = $(this).parents('.image-picker').first()
-        selectImage($imagePicker, undefined)
+        removeImage($imagePicker)
 
       $(this).on 'click', '.image-attach', (e) ->
         e.preventDefault()

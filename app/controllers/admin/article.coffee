@@ -28,8 +28,14 @@ exports.new = (req, res, next) ->
     taxonomy: Taxonomy.levels()
 
 exports.edit = (req, res, next) ->
-  Article.findOne(urls: req.params.url).populate('authors').exec(
-    (err, article) ->
+  Article.findOne(urls: req.params.url)
+    .populate('authors')
+    .populate('images.LargeRect.image')
+    .populate('images.ThumbRect.image')
+    .populate('images.ThumbRectL.image')
+    .populate('images.ThumbSquareM.image')
+    .populate('images.ThumbWide.image')
+    .exec (err, article) ->
       if err then return next(err)
       else if not article?
         next()
@@ -38,7 +44,6 @@ exports.edit = (req, res, next) ->
           doc: article
           errors: null
           taxonomy: Taxonomy.levels()
-  )
 
 exports.update = (req, res, next) ->
   Article.findOne {urls: req.params.url}, (err, article) ->

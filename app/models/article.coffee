@@ -4,13 +4,24 @@ mongoose = require 'mongoose'
 
 app = require '../../app'
 Author = require './author'
+Image = require './image'
 Taxonomy = require '../../lib/taxonomy'
 
+
+imageSchema =
+  image: {type: mongoose.Schema.Types.ObjectId, ref: 'Image'}
+  id: mongoose.Schema.Types.ObjectId
 
 articleSchema = new mongoose.Schema
   authors: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Author'}], default: []}
   body: {type: String, required: true}
   created: {type: Date, default: Date.now, required: true}
+  images:
+    LargeRect: imageSchema
+    ThumbRect: imageSchema
+    ThumbRectL: imageSchema
+    ThumbSquareM: imageSchema
+    ThumbWide: imageSchema
   subtitle: String
   taxonomy: Taxonomy
   teaser: String
@@ -32,6 +43,12 @@ articleSchema.methods.addUrlForTitle = (callback) ->
     @urls.unshift(url)
     callback(null, @url)
   )
+
+for version in ['LargeRect', 'ThumbRect', 'ThumbRectL', 'ThumbSquareM', 'ThumbWide']
+  do (version=version) ->
+    articleSchema.virtual("images.#{version}.version").get ->
+      return undefined unless @images[version].image instanceof Image
+      @images[version].image.versions.id(@images[version].id)
 
 articleSchema.virtual('url').get -> @urls[0]
 
