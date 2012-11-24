@@ -100,6 +100,11 @@ abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu-vwxyz'
         article.url.should.equal 'pokemon_3'
         done(err)
 
+  describe '#renderBody()', ->
+    it 'should render the article body with markdown', ->
+      article.renderBody().should.equal(
+        '<p><strong>Pikachu</strong> wrecks everyone. The End.</p>')
+
   describe 'images', ->
 
     # TODO: set image on article without populate

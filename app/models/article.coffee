@@ -1,5 +1,6 @@
 _ = require 'underscore'
 errs = require 'errs'
+md = require 'discount'
 mongoose = require 'mongoose'
 
 app = require '../../app'
@@ -43,6 +44,9 @@ articleSchema.methods.addUrlForTitle = (callback) ->
     @urls.unshift(url)
     callback(null, @url)
   )
+
+articleSchema.methods.renderBody = ->
+  md.parse(@body)
 
 for version in ['LargeRect', 'ThumbRect', 'ThumbRectL', 'ThumbSquareM', 'ThumbWide']
   do (version=version) ->
