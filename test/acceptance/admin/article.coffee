@@ -1,6 +1,7 @@
 _ = require 'underscore'
 util = require 'util'
 
+articles = require('test/acceptance/fixtures/articles').Article
 Article = require 'app/models/article'
 Author = require 'app/models/author'
 images = require('test/acceptance/fixtures/images').Image
@@ -13,6 +14,28 @@ describe 'article', ->
     server.run(done)
 
   beforeEach(refreshDatabase)
+
+  describe 'index', ->
+    browser = null
+
+    beforeEach (done) ->
+      Browser.visit fullUrl('admin', '/article'), (err, _browser) ->
+        return done(err) if err?
+        browser = _browser
+        done()
+
+    it 'should have a listing of articles', ->
+      browser.html().should.contain 'Ash Gets Pikachu from Oak'
+      browser.html().should.contain 'Ash Beats the First Gym'
+
+    it 'should have articles sorted by date', ->
+      browser.html().should.match(
+        /Ash Gets Pikachu from Oak.*Ash Beats the First Gym/)
+
+    it 'should have links to edit pages', ->
+      link = browser.query("tr#ash-gets-pikachu-oak a:contains('Edit')")
+      expect(link).to.exist
+      link.href.should.contain '/article/ash-gets-pikachu-oak/edit'
 
   describe 'creation', ->
     browser = null

@@ -30,7 +30,7 @@ describe 'image', ->
       browser.html().should.contain 'charmander'
       browser.html().should.contain 'bulbasaur'
 
-    it 'should have a images sorted by date', ->
+    it 'should have images sorted by date', ->
       browser.html().should.match /charmander.*squirtle.*bulbasaur/
 
     it 'should have link images to edit pages', ->
