@@ -1,0 +1,11 @@
+extends ../form-layout
+
+block vars
+  - var _form = {title: "Edit Blog", method: "PUT", action: "/blog/" + doc.url}
+
+block fields
+  include _form
+
+block append actions
+  | 
+  button.btn.btn-large.btn-danger.delete-button(data-url="/blog/#{doc.url}", data-redirect="/blog") Delete

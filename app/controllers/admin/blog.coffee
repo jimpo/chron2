@@ -21,6 +21,41 @@ exports.new = (req, res, next) ->
     doc: {}
     errors: null
 
+exports.edit = (req, res, next) ->
+  Blog.findOne(urls: req.params.url)
+    .populate('authors')
+    .populate('images.LargeRect.image')
+    .populate('images.ThumbRect.image')
+    .populate('images.ThumbRectL.image')
+    .populate('images.ThumbSquareM.image')
+    .populate('images.ThumbWide.image')
+    .exec (err, blog) ->
+      if err then return next(err)
+      else if not blog?
+        next()
+      else
+        res.render 'admin/blog/edit'
+          doc: blog
+          errors: null
+
+exports.update = (req, res, next) ->
+  Blog.findOne {urls: req.params.url}, (err, blog) ->
+    if err then return next err
+    else if not blog?
+      next()
+    else
+      flash = (message) ->
+        req.flash('info', message)
+      updateBlog(blog, req.body.doc, flash, (err, retryErrors) ->
+        if err then return next(err)
+        else if retryErrors
+          res.render 'admin/blog/edit'
+            doc: req.body.doc
+            errors: retryErrors
+        else
+          res.redirect '/'
+      )
+
 exports.create = (req, res, next) ->
   flash = (message) ->
     req.flash('info', message)
@@ -33,6 +68,20 @@ exports.create = (req, res, next) ->
     else
       res.redirect '/'
   )
+
+exports.destroy = (req, res, next) ->
+  Blog.findOne {urls: req.params.url}, (err, blog) ->
+    if err?
+      errs.handle(err, next)
+    else if not blog?
+      res.send(404)
+    else
+      blog.remove (err) ->
+        if err
+          res.send(500, err)
+        else
+          req.flash('info', "Blog Post \"#{blog.title}\" was deleted")
+          res.send(200)
 
 updateBlog = (blog, doc, flash, callback) ->
   for type, image of doc.images

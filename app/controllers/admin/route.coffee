@@ -13,6 +13,9 @@ exports.init = (server) ->
   server.get('/blog', admin.blog.index)
   server.get('/blog/new', admin.blog.new)
   server.post('/blog', admin.blog.create)
+  server.get('/blog/:url/edit', admin.blog.edit)
+  server.put('/blog/:url', admin.blog.update)
+  server.del('/blog/:url', admin.blog.destroy)
 
   server.get('/author/new', admin.author.new)
   server.post('/author', admin.author.create)
