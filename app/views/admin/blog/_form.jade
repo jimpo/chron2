@@ -1,0 +1,31 @@
+include ../mixins/form-helpers
+
+mixin text-control-group('blog', 'Blog', doc, errors)
+mixin text-control-group('title', 'Title', doc, errors)
+mixin text-control-group('subtitle', 'Subtitle', doc, errors)
+mixin text-control-group('tags', 'Tags', doc, errors)
+
+.control-group
+  label.control-label(for='authors') Authors
+  .controls
+    ul
+      - var i = 0
+      - each author in (doc.authors || [])
+        li: input(type='text', name="doc[authors][#{i++}]", value=author.name)
+      li: input#authors(type='text', name="doc[authors][#{i}]")
+      li: button.btn.add-field(data-name='doc[authors]') Add another author
+
+mixin textarea-control-group('teaser', 'Teaser', doc, errors, 3)
+mixin textarea-control-group('body', 'Body', doc, errors, 5)
+
+legend Images 
+  i.icon-question-sign.image-help
+.control-group
+  mixin image-picker('LargeRect', doc)
+  mixin image-picker('ThumbRect', doc)
+  mixin image-picker('ThumbRectL', doc)
+  mixin image-picker('ThumbSquareM', doc)
+  mixin image-picker('ThumbWide', doc)
+
+script#image-select-template(type="text/template")
+  include ../templates/image-select

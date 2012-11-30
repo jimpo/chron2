@@ -1,0 +1,14 @@
+extends ../layout
+
+block content
+  include ../mixins/index
+
+  input#csrf(type='hidden', name='_csrf', value=token)
+  mixin flash-message(messages)
+  table.table.table-striped
+    - each blog in blogs
+      tr(id=blog.url)
+        td: a(href="/blog/#{blog.url}")= blog.title
+        td: a(href="/blog/#{blog.url}/edit") Edit
+        td: a.delete-button(href="#", data-url="/blog/#{blog.url}") Delete
+        td= blog._id
