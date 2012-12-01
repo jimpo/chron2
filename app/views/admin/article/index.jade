@@ -6,7 +6,7 @@ block content
   input#csrf(type='hidden', name='_csrf', value=token)
   mixin flash-message(messages)
   table.table.table-striped
-    - each article in articles
+    - each article in docs
       tr(id=article.url)
         td: a(href="/article/#{article.url}")= article.title
         td: a(href="/article/#{article.url}/edit") Edit
