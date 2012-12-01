@@ -54,6 +54,7 @@ class Base
   update: =>
     model = @model
     path = @path
+    name = @type
     return (req, res, next) ->
       model.findOne {urls: req.params.url}, (err, doc) ->
         if err then return next err
@@ -62,7 +63,7 @@ class Base
         else
           flash = (message) ->
             req.flash('info', message)
-          updateModel(doc, req.body.doc, flash, (err, retryErrors) ->
+          updateModel(doc, req.body.doc, flash, name, (err, retryErrors) ->
             if err then return next(err)
             else if retryErrors
               res.render path + '/edit'
@@ -76,10 +77,11 @@ class Base
   create: =>
     model = @model
     path = @path
+    name = @type
     return (req, res, next) ->
       flash = (message) ->
         req.flash('info', message)
-      updateModel(new model, req.body.doc, flash, (err, retryErrors) ->
+      updateModel(new model, req.body.doc, flash, name, (err, retryErrors) ->
         if err then return next(err)
         else if retryErrors
           res.render path + '/new'
@@ -107,8 +109,7 @@ class Base
               req.flash('info', "#{name} \"#{doc.title}\" was deleted")
               res.send(200)
 
-  updateModel = (docToUpdate, doc, flash, callback) ->
-    name = @type
+  updateModel = (docToUpdate, doc, flash, name, callback) ->
     if name == 'Article'
       doc.taxonomy = (section.toLowerCase() for section in doc.taxonomy when section)
     for type, image of doc.images
