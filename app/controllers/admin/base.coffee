@@ -6,7 +6,7 @@ Author = require '../../models/author'
 Taxonomy = require '../../../lib/taxonomy'
 
 class Base
-  constructor: (model, path, type) ->
+  constructor: (@model, @path, @type) ->
 
   index: (limit) ->
     model = @model
