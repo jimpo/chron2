@@ -109,7 +109,8 @@ class Base
 
   updateModel = (docToUpdate, doc, flash, callback) ->
     name = @type
-    doc.taxonomy = (section.toLowerCase() for section in doc.taxonomy when section)
+    if name == 'Article'
+      doc.taxonomy = (section.toLowerCase() for section in doc.taxonomy when section)
     for type, image of doc.images
       if not (image.image and image.id)
         delete doc.images[type]
