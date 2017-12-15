@@ -72,4 +72,4 @@ You are free to add any configuration parameters you require.
 - [Jade](https://github.com/visionmedia/jade)
 - [Stylus](http://learnboost.github.com/stylus/)
 - [Mongoose](http://mongoosejs.com/)
-- [Mocha Testing Framework](http://visionmedia.github.com/mocha/)
+- [Mocha Testing Framework](http://mochajs.org/)
